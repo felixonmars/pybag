@@ -1,9 +1,7 @@
-
-#include <pybind11/pybind11.h>
-
 #include <cbag/util/interval.h>
 
-namespace py = pybind11;
+#include <pybag/base/util/interval.h>
+
 namespace cu = cbag::util;
 
 namespace pybag {
@@ -26,8 +24,10 @@ class py_interval : py_interval_base {
 
 namespace pu = pybag::util;
 
-PYBIND11_MODULE(interval, m) {
-    m.doc() = "This module contains classes for manipulating intervals.";
+void bind_util_interval(py::module &m_util) {
+    py::module m = m_util.def_submodule("interval");
+
+    m.doc() = "This module contains utility classes for manipulating intervals.";
 
     py::class_<cu::disjoint_intvs<pu::py_interval>>(m, "PyDisjointIntervals").def(py::init<>());
 }

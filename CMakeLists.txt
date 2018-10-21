@@ -50,9 +50,15 @@ include_directories(
 link_directories($ENV{OA_LINK_DIR})
 
 # add python bindings for cbag
-pybind11_add_module(interval ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/interval.cpp)
+set(SRC_FILES_PYBAG
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/module.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/module.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/interval.cpp
+  )
 
-target_link_libraries(interval
+pybind11_add_module(base ${SRC_FILES_PYBAG})
+
+target_link_libraries(base
   PUBLIC
   cbag
   PRIVATE
