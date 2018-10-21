@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# this script builds the C++ extension
 
 source .bashrc
 

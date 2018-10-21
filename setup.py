@@ -112,5 +112,5 @@ setup(
     cmdclass=dict(build_ext=CMakePyBind11Build),
     zip_safe=False,
     # test_suite='tests',
-    # tests_require=['pytest'],
+    tests_require=['pytest'],
 )
