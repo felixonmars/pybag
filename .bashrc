@@ -17,5 +17,6 @@ export PYBAG_PYTEST=$(which pytest)
 # we override these settings because we need the build files to be at a known
 # location so that we can add the right directory to PYTHONPATH for
 # documentation generating or unit testing
-export PYBAG_BUILD_TEMP="_build/temp"
-export PYBAG_BUILD_LIB="_build/lib"
+export PYBAG_BUILD_ROOT="$(pwd)/_build"
+export PYBAG_BUILD_TEMP="${PYBAG_BUILD_ROOT}/temp"
+export PYBAG_BUILD_LIB="${PYBAG_BUILD_ROOT}/lib"

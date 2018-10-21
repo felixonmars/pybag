@@ -1,6 +1,14 @@
 pybag package
 =============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pybag.util
+
+
 Module contents
 ---------------
 
