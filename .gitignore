@@ -6,15 +6,9 @@
 # emacs related files
 TAGS
 
-# C++ related files
-*.so
-
 # Python related files
 __pycache__
-*.pyc
-*.egg-info
-.eggs
+
 
 # build related files
-build
-output
+_build
