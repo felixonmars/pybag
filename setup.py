@@ -7,10 +7,9 @@ import platform
 import subprocess
 
 from distutils.version import LooseVersion
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from shutil import copyfile, copymode
-
 
 pkg_name = 'pybag'
 
@@ -107,9 +106,7 @@ setup(
     author_email='pkerichang@berkeley.edu',
     description='Python wrappers of cbag library using pybind11',
     long_description='',
-    packages=[pkg_name,
-              pkg_name + '.util',
-              ],
+    packages=[pkg_name],
     package_dir={'': 'src'},
     ext_modules=[CMakePyBind11Extension(pkg_name)],
     cmdclass=dict(build_ext=CMakePyBind11Build),
