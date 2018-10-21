@@ -3,4 +3,4 @@
 
 source .bashrc
 
-${CBAG_PYTHON} setup.py build --parallel 8 pytest --addopts tests
+${CBAG_PYTHON} setup.py pytest --addopts tests

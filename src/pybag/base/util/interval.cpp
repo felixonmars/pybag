@@ -26,8 +26,10 @@ namespace pu = pybag::util;
 
 void bind_util_interval(py::module &m_util) {
     py::module m = m_util.def_submodule("interval");
-
     m.doc() = "This module contains utility classes for manipulating intervals.";
 
-    py::class_<cu::disjoint_intvs<pu::py_interval>>(m, "PyDisjointIntervals").def(py::init<>());
+    auto py_dis_intvs = py::class_<cu::disjoint_intvs<pu::py_interval>>(m, "PyDisjointIntervals");
+    py_dis_intvs.doc() = "A class that keeps track of disjoint intervals.";
+
+    py_dis_intvs.def(py::init<>());
 }

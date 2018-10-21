@@ -13,6 +13,8 @@ TAGS
 __pycache__
 *.pyc
 *.egg-info
+.eggs
 
 # build related files
 build
+output
