@@ -13,9 +13,5 @@ TAGS
 __pycache__
 *.pyc
 
-# CMake related files
-_build
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
+# build related files
+build
