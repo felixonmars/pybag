@@ -12,6 +12,7 @@ TAGS
 # Python related files
 __pycache__
 *.pyc
+*.egg-info
 
 # build related files
 build

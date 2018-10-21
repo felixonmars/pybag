@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from pybag.util.interval import PyDisjointIntervals
+from pybag.base.util.interval import PyDisjointIntervals
 
 # test data for PyDisjointIntervals
 intvs_vals_data = [

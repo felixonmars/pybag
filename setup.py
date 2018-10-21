@@ -9,7 +9,6 @@ import subprocess
 from distutils.version import LooseVersion
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-from shutil import copyfile, copymode
 
 pkg_name = 'pybag'
 
@@ -75,28 +74,7 @@ class CMakePyBind11Build(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
                               cwd=self.build_temp)
 
-        # Copy *_test file to tests directory
-        # test_bin = os.path.join(self.build_temp, 'python_cpp_example_test')
-        # self.copy_test_file(test_bin)
         print()  # Add an empty line for cleaner output
-
-    @classmethod
-    def copy_test_file(cls, src_file):
-        """Copy ``src_file`` to ``dest_file`` ensuring parent directory exists.
-
-        By default, message like `creating directory /path/to/package` and
-        `copying directory /src/path/to/package -> path/to/package` are displayed on
-        standard output. Adapted from scikit-build.
-        """
-        # Create directory if needed
-        dest_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tests', 'bin')
-        os.makedirs(dest_dir, exist_ok=True)
-
-        # Copy file
-        dest_file = os.path.join(dest_dir, os.path.basename(src_file))
-        print("copying {} -> {}".format(src_file, dest_file))
-        copyfile(src_file, dest_file)
-        copymode(src_file, dest_file)
 
 
 setup(
@@ -106,10 +84,9 @@ setup(
     author_email='pkerichang@berkeley.edu',
     description='Python wrappers of cbag library using pybind11',
     long_description='',
-    packages=[pkg_name,
-              pkg_name + '.base',
-              pkg_name + '.base.util',
-              ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
+    packages=[pkg_name],
     package_dir={'': 'src'},
     package_data={
         pkg_name: [os.path.join('base.pyi'),
@@ -120,6 +97,4 @@ setup(
     ext_modules=[CMakePyBind11Extension(pkg_name + '.base')],
     cmdclass=dict(build_ext=CMakePyBind11Build),
     zip_safe=False,
-    # test_suite='tests',
-    tests_require=['pytest'],
 )
