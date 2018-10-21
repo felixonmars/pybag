@@ -106,9 +106,15 @@ setup(
     author_email='pkerichang@berkeley.edu',
     description='Python wrappers of cbag library using pybind11',
     long_description='',
-    packages=[pkg_name],
+    packages=[pkg_name,
+              pkg_name + '.util',
+              ],
     package_dir={'': 'src'},
-    ext_modules=[CMakePyBind11Extension(pkg_name)],
+    package_data={
+        pkg_name: [os.path.join('util', 'interval.pyi'),
+                   ]
+    },
+    ext_modules=[CMakePyBind11Extension(pkg_name + '.util.interval')],
     cmdclass=dict(build_ext=CMakePyBind11Build),
     zip_safe=False,
     # test_suite='tests',
