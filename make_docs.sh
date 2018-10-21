@@ -4,4 +4,6 @@
 source .bashrc
 
 cd docs
+# remove auto-generated files to force regeneration
+rm -rf build/doctrees/api
 make html

@@ -4,4 +4,4 @@ pybag
 .. toctree::
    :maxdepth: 4
 
-   pybag
+   pybag.base.util.interval
