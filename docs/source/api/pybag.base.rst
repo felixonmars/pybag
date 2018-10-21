@@ -1,18 +1,18 @@
-pybag package
-=============
+pybag.base package
+==================
 
 Subpackages
 -----------
 
 .. toctree::
 
-    pybag.base
+    pybag.base.util
 
 
 Module contents
 ---------------
 
-.. automodule:: pybag
+.. automodule:: pybag.base
     :members:
     :undoc-members:
     :show-inheritance:
