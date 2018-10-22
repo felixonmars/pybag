@@ -56,5 +56,7 @@ val_list : Optional[List[Any]]
                      init_doc, py::arg_v("intv_list", nullptr).none(true),
                      py::arg_v("val_list", nullptr).none(true));
 
+    py_dis_intvs.def_property_readonly("size", &c_dis_intvs::size, "int: Number of intervals.");
+
     options.enable_function_signatures();
 }
