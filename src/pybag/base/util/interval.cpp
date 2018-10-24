@@ -121,44 +121,23 @@ void bind_util_interval(py::module &m_util) {
 
     // add interval class
     auto py_dis_intvs = py::class_<c_dis_intvs>(m, "PyDisjointIntervals");
-    py_dis_intvs.doc() = R"mydelim(A class that keeps track of disjoint intervals.
-
-Parameters
-----------
-intv_list : Optional[List[Tuple[int, int]]]
-    list of intervals.
-val_list : Optional[List[Any]]
-    list of values.
-)mydelim";
+    py_dis_intvs.doc() = "A class that keeps track of disjoint intervals.";
 
     py_dis_intvs.def(py::init<>());
+    py_dis_intvs.def_property_readonly("start", &c_dis_intvs::start,
+                                       "int: the start coordinate of first interval.");
+    py_dis_intvs.def_property_readonly("stop", &c_dis_intvs::stop,
+                                       "int: the stop coordinate of last interval.");
     py_dis_intvs.def("__contains__", &c_dis_intvs::contains<c_intv_type>,
                      "Returns True if given interval is in this object.", py::arg("key)"));
     py_dis_intvs.def("__iter__", &c_dis_intvs::py_intv_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals.");
     py_dis_intvs.def("__len__", &c_dis_intvs::size, "Returns number of intervals.");
-    py_dis_intvs.def("get_start", &c_dis_intvs::start,
-                     "int: the start coordinate of first interval.");
-    py_dis_intvs.def("get_end", &c_dis_intvs::stop, "int: the stop coordinate of last interval.");
-    py_dis_intvs.def("get_copy", &c_dis_intvs::get_copy, "Returns a copy of this object.");
-    py_dis_intvs.def("has_overlap", &c_dis_intvs::overlaps<c_intv_type>,
+    py_dis_intvs.def("overlaps", &c_dis_intvs::overlaps<c_intv_type>,
                      "Returns True if given interval overlaps this object.", py::arg("key"));
-    py_dis_intvs.def("has_single_cover", &c_dis_intvs::covers<c_intv_type>,
+    py_dis_intvs.def("covers", &c_dis_intvs::covers<c_intv_type>,
                      "Returns True if given interval is cover by a signle interval in this object.",
                      py::arg("key"));
-    py_dis_intvs.def("remove", &c_dis_intvs::remove<c_intv_type>, "Removes the given interval.",
-                     py::arg("key"));
-    py_dis_intvs.def("get_intersection", &c_dis_intvs::get_intersect, "Returns the intersection.",
-                     py::arg("other"));
-    py_dis_intvs.def("get_complement", &c_dis_intvs::get_complement<c_intv_type>,
-                     "Returns the complement.", py::arg("total_intv"));
-    py_dis_intvs.def("remove_all_overlaps", &c_dis_intvs::remove_overlaps<c_intv_type>,
-                     "Remove all overlapping intervals.", py::arg("key"));
-    py_dis_intvs.def("add", &c_dis_intvs::add, "add the given interval.", py::arg("intv"),
-                     py::arg("val") = py::none(), py::arg("merge") = false,
-                     py::arg("abut") = false);
-    py_dis_intvs.def("subtract", &c_dis_intvs::subtract<c_intv_type>,
-                     "Subtracts the given interval.", py::arg("key"));
     py_dis_intvs.def("items", &c_dis_intvs::py_item_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals and values.");
     py_dis_intvs.def("intervals", &c_dis_intvs::py_intv_iterator, py::keep_alive<0, 1>(),
@@ -174,7 +153,21 @@ val_list : Optional[List[Any]]
                      "Iterates through overlapping values.", py::arg("key"));
     py_dis_intvs.def("get_first_overlap_item", &c_dis_intvs::get_first_overlap_item,
                      "Returns the first overlap interval and value.", py::arg("key"));
+    py_dis_intvs.def("get_copy", &c_dis_intvs::get_copy, "Returns a copy of this object.");
+    py_dis_intvs.def("get_intersection", &c_dis_intvs::get_intersection,
+                     "Returns the intersection.", py::arg("other"));
+    py_dis_intvs.def("get_complement", &c_dis_intvs::get_complement<c_intv_type>,
+                     "Returns the complement.", py::arg("total_intv"));
     py_dis_intvs.def("get_transform", &c_dis_intvs::get_transform,
                      "Returns the transformed intervals.", py::arg("scale") = 1,
                      py::arg("shift") = 0);
+    py_dis_intvs.def("remove", &c_dis_intvs::remove<c_intv_type>, "Removes the given interval.",
+                     py::arg("key"));
+    py_dis_intvs.def("remove_overlaps", &c_dis_intvs::remove_overlaps<c_intv_type>,
+                     "Removes overlapping intervals.", py::arg("key"));
+    py_dis_intvs.def("add", &c_dis_intvs::add, "add the given interval.", py::arg("intv"),
+                     py::arg("val") = py::none(), py::arg("merge") = false,
+                     py::arg("abut") = false);
+    py_dis_intvs.def("subtract", &c_dis_intvs::subtract<c_intv_type>,
+                     "Subtracts the given interval.", py::arg("key"));
 }
