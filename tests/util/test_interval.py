@@ -7,72 +7,79 @@ import pytest
 from pybag.base.util.interval import PyDisjointIntervals
 
 # test data for PyDisjointIntervals
-intvs_vals_data = [
-    ([], []),
-    ([(1, 2), (3, 5)], ['A', 'B']),
-    ([(1, 2), (4, 5), (6, 8)], [1, 2, 3]),
+intv_vals_data = [
+    [],
+    [((1, 2), 'A'), ((3, 5), 'B')],
+    [((1, 2), 1), ((4, 5), 2), ((6, 8), 3)],
 ]
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_constructor_refcount(intvs, vals):
+def make_dis_intvs(intv_vals):
+    ans = PyDisjointIntervals()
+    for intv, val in intv_vals:
+        ans.add(intv, val=val)
+    return ans
+
+
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_constructor_refcount(intv_vals):
     """Check Cython increment reference count of value objects."""
-    bc_list = [sys.getrefcount(v) for v in vals]
+    bc_list = [sys.getrefcount(v) for _, v in intv_vals]
     # keep reference to PyDisjointInterval to avoid garbage collection
     # noinspection PyUnusedLocal
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    ac_list = [sys.getrefcount(v) for v in vals]
+    dis_intvs = make_dis_intvs(intv_vals)
+    ac_list = [sys.getrefcount(v) for _, v in intv_vals]
     for bc, ac in zip(bc_list, ac_list):
         assert ac == bc + 1
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_destructor_refcount(intvs, vals):
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_destructor_refcount(intv_vals):
     """Check Cython increment reference count of value objects."""
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    bc_list = [sys.getrefcount(v) for v in vals]
+    dis_intvs = make_dis_intvs(intv_vals)
+    bc_list = [sys.getrefcount(v) for _, v in intv_vals]
     del dis_intvs
-    ac_list = [sys.getrefcount(v) for v in vals]
+    ac_list = [sys.getrefcount(v) for _, v in intv_vals]
     for bc, ac in zip(bc_list, ac_list):
         assert ac == bc - 1
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_contains(intvs, vals):
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    for intv in intvs:
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_contains(intv_vals):
+    dis_intvs = make_dis_intvs(intv_vals)
+    for intv, _ in intv_vals:
         assert intv in dis_intvs
         assert (intv[0], intv[1] + 1) not in dis_intvs
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_iter(intvs, vals):
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    for a, b in zip(intvs, dis_intvs):
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_iter(intv_vals):
+    dis_intvs = make_dis_intvs(intv_vals)
+    for (a, _), b in zip(intv_vals, dis_intvs):
         assert a == b
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_len(intvs, vals):
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    assert len(intvs) == len(dis_intvs)
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_len(intv_vals):
+    dis_intvs = make_dis_intvs(intv_vals)
+    assert len(intv_vals) == len(dis_intvs)
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_get_start(intvs, vals):
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    if intvs:
-        assert intvs[0][0] == dis_intvs.get_start()
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_get_start(intv_vals):
+    dis_intvs = make_dis_intvs(intv_vals)
+    if intv_vals:
+        assert intv_vals[0][0][0] == dis_intvs.start
     else:
         with pytest.raises(IndexError):
-            dis_intvs.get_start()
+            dis_intvs.start
 
 
-@pytest.mark.parametrize("intvs,vals", intvs_vals_data)
-def test_get_end(intvs, vals):
-    dis_intvs = PyDisjointIntervals(intv_list=intvs, val_list=vals)
-    if intvs:
-        assert intvs[-1][-1] == dis_intvs.get_end()
+@pytest.mark.parametrize("intv_vals", intv_vals_data)
+def test_get_end(intv_vals):
+    dis_intvs = make_dis_intvs(intv_vals)
+    if intv_vals:
+        assert intv_vals[-1][0][1] == dis_intvs.stop
     else:
         with pytest.raises(IndexError):
-            dis_intvs.get_end()
+            dis_intvs.stop
