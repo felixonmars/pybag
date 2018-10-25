@@ -3,6 +3,7 @@
 
 #include <pybind11/pybind11.h>
 
+#include <pybag/base/schematic.h>
 #include <pybag/base/util/module.h>
 
 #endif

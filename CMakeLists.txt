@@ -52,6 +52,7 @@ link_directories($ENV{OA_LINK_DIR})
 # add python bindings for cbag
 set(SRC_FILES_PYBAG
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/module.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/schematic.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/interval.cpp
   )
