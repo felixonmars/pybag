@@ -2,6 +2,8 @@
 # this script runs the python unit tests.
 # you must first run the setup script.
 
+./build.sh
+
 source .bashrc
 
 # smart prepend to PYTHONPATH even if variable is unset

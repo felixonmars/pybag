@@ -37,8 +37,11 @@ include(GNUInstallDirs)
 set(PYBIND11_CPP_STANDARD --std=c++1z)
 find_package(pybind11 REQUIRED)
 
-# add cbag subdirectory
+# add cbag submodule
 add_subdirectory(cbag)
+
+# add pybind11_generics submodule
+add_subdirectory(pybind11_generics)
 
 # setup include directories
 include_directories(
@@ -64,4 +67,5 @@ target_link_libraries(base
   cbag
   PRIVATE
   fmt-header-only
+  pybind11_generics
   )
