@@ -35,7 +35,7 @@ include(GNUInstallDirs)
 # Include pybind11
 # enable C++17 support for variant/optional wrapping
 set(PYBIND11_CPP_STANDARD --std=c++1z)
-find_package(pybind11 REQUIRED)
+add_subdirectory(pybind11)
 
 # add cbag submodule
 add_subdirectory(cbag)
