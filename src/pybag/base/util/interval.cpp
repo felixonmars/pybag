@@ -125,9 +125,9 @@ void bind_util_interval(py::module &m_util) {
 
     py_dis_intvs.def(py::init<>());
     py_dis_intvs.def_property_readonly("start", &c_dis_intvs::start,
-                                       "int: the start coordinate of first interval.");
+                                       "the start coordinate of first interval.");
     py_dis_intvs.def_property_readonly("stop", &c_dis_intvs::stop,
-                                       "int: the stop coordinate of last interval.");
+                                       "the stop coordinate of last interval.");
     py_dis_intvs.def("__contains__", &c_dis_intvs::contains<c_intv_type>,
                      "Returns True if given interval is in this object.", py::arg("key)"));
     py_dis_intvs.def("__iter__", &c_dis_intvs::py_intv_iterator, py::keep_alive<0, 1>(),
