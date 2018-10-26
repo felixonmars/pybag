@@ -32,11 +32,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # locations on all platforms.
 include(GNUInstallDirs)
 
-# Include pybind11
-# enable C++17 support for variant/optional wrapping
-set(PYBIND11_CPP_STANDARD --std=c++1z)
-add_subdirectory(pybind11)
-
 # add cbag submodule
 add_subdirectory(cbag)
 
