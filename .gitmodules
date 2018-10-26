@@ -1,3 +1,6 @@
 [submodule "cbag"]
 	path = cbag
 	url = git@github.com:ucb-art/cbag.git
+[submodule "pybind11_generics"]
+	path = pybind11_generics
+	url = git@github.com:pkerichang/pybind11_generics.git
