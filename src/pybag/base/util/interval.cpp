@@ -3,7 +3,11 @@
 
 #include <cbag/util/interval.h>
 
+#include <pybind11_generics/iterator.h>
+
 #include <pybag/base/util/interval.h>
+
+namespace pyg = pybind11_generics;
 
 using py_interval = std::pair<std::pair<cbag::offset_t, cbag::offset_t>, py::object>;
 
@@ -75,7 +79,9 @@ class dis_intvs_val : public dis_intvs_val_base {
 
     using dis_intvs_val_base::dis_intvs_val_base;
 
-    py::iterator py_intv_iterator() const { return py::make_iterator(intv_begin(), intv_end()); }
+    pyg::Iterator<c_intv_type> py_intv_iterator() const {
+        return pyg::make_iterator(intv_begin(), intv_end());
+    }
     py::iterator py_item_iterator() const { return py::make_iterator(begin(), end()); }
     py::iterator py_val_iterator() const {
         return py::make_iterator(const_val_iterator(begin()), const_val_iterator(end()));
@@ -116,6 +122,8 @@ namespace pu = pybag::util;
 using c_dis_intvs = pu::dis_intvs_val;
 
 void bind_util_interval(py::module &m_util) {
+    pyg::declare_iterator<c_dis_intvs::const_intv_iterator>();
+
     py::module m = m_util.def_submodule("interval");
     m.doc() = "This module contains utility classes for manipulating intervals.";
 
@@ -129,7 +137,7 @@ void bind_util_interval(py::module &m_util) {
     py_dis_intvs.def_property_readonly("stop", &c_dis_intvs::stop,
                                        "the stop coordinate of last interval.");
     py_dis_intvs.def("__contains__", &c_dis_intvs::contains<c_intv_type>,
-                     "Returns True if given interval is in this object.", py::arg("key)"));
+                     "Returns True if given interval is in this object.", py::arg("key"));
     py_dis_intvs.def("__iter__", &c_dis_intvs::py_intv_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals.");
     py_dis_intvs.def("__len__", &c_dis_intvs::size, "Returns number of intervals.");
