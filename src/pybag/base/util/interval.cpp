@@ -36,12 +36,12 @@ template <> struct interval<py_interval> {
 } // namespace util
 } // namespace cbag
 
+using dis_intvs_val_base = cbag::util::disjoint_intvs<py_interval>;
 using c_intv_type = std::pair<cbag::offset_t, cbag::offset_t>;
+using c_item_type = dis_intvs_val_base::value_type;
 
 namespace pybag {
 namespace util {
-
-using dis_intvs_val_base = cbag::util::disjoint_intvs<py_interval>;
 
 class dis_intvs_val : public dis_intvs_val_base {
   public:
@@ -82,23 +82,25 @@ class dis_intvs_val : public dis_intvs_val_base {
     pyg::Iterator<c_intv_type> py_intv_iterator() const {
         return pyg::make_iterator(intv_begin(), intv_end());
     }
-    py::iterator py_item_iterator() const { return py::make_iterator(begin(), end()); }
-    py::iterator py_val_iterator() const {
-        return py::make_iterator(const_val_iterator(begin()), const_val_iterator(end()));
+    pyg::Iterator<c_item_type> py_item_iterator() const {
+        return pyg::make_iterator(begin(), end());
     }
-    py::iterator py_ovl_intv_iterator(const c_intv_type &key) const {
-        auto iter_pair = overlap_range(key);
-        return py::make_iterator(const_intv_iterator(iter_pair.first),
-                                 const_intv_iterator(iter_pair.second));
+    pyg::Iterator<py::object> py_val_iterator() const {
+        return pyg::make_iterator(const_val_iterator(begin()), const_val_iterator(end()));
     }
-    py::iterator py_ovl_item_iterator(const c_intv_type &key) const {
+    pyg::Iterator<c_intv_type> py_ovl_intv_iterator(const c_intv_type &key) const {
         auto iter_pair = overlap_range(key);
-        return py::make_iterator(iter_pair.first, iter_pair.second);
+        return pyg::make_iterator(const_intv_iterator(iter_pair.first),
+                                  const_intv_iterator(iter_pair.second));
     }
-    py::iterator py_ovl_val_iterator(const c_intv_type &key) const {
+    pyg::Iterator<c_item_type> py_ovl_item_iterator(const c_intv_type &key) const {
         auto iter_pair = overlap_range(key);
-        return py::make_iterator(const_val_iterator(iter_pair.first),
-                                 const_val_iterator(iter_pair.second));
+        return pyg::make_iterator(iter_pair.first, iter_pair.second);
+    }
+    pyg::Iterator<py::object> py_ovl_val_iterator(const c_intv_type &key) const {
+        auto iter_pair = overlap_range(key);
+        return pyg::make_iterator(const_val_iterator(iter_pair.first),
+                                  const_val_iterator(iter_pair.second));
     }
 
     py::tuple get_first_overlap_item(const c_intv_type &key) const {
@@ -122,7 +124,9 @@ namespace pu = pybag::util;
 using c_dis_intvs = pu::dis_intvs_val;
 
 void bind_util_interval(py::module &m_util) {
+    pyg::declare_iterator<c_dis_intvs::const_iterator>();
     pyg::declare_iterator<c_dis_intvs::const_intv_iterator>();
+    pyg::declare_iterator<c_dis_intvs::const_val_iterator>();
 
     py::module m = m_util.def_submodule("interval");
     m.doc() = "This module contains utility classes for manipulating intervals.";
