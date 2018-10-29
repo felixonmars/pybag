@@ -2,7 +2,8 @@ import pydoc
 import pybag.base
 
 test_classes = [
-    pybag.base.util.interval.PyDisjointIntervals
+    pybag.base.util.interval.PyDisjointIntervals,
+    pybag.base.schematic.PySchInstRef,
 ]
 
 for cls in test_classes:
