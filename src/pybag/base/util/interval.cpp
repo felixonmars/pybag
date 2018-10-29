@@ -4,12 +4,17 @@
 #include <cbag/util/interval.h>
 
 #include <pybind11_generics/iterator.h>
+#include <pybind11_generics/optional.h>
+#include <pybind11_generics/tuple.h>
 
 #include <pybag/base/util/interval.h>
 
 namespace pyg = pybind11_generics;
 
-using py_interval = std::pair<std::pair<cbag::offset_t, cbag::offset_t>, py::object>;
+using coord_type = cbag::offset_t;
+using intv_type = std::pair<coord_type, coord_type>;
+using py_interval = std::pair<intv_type, py::object>;
+using dis_intvs_val_base = cbag::util::disjoint_intvs<py_interval>;
 
 namespace cbag {
 namespace util {
@@ -35,10 +40,6 @@ template <> struct interval<py_interval> {
 } // namespace traits
 } // namespace util
 } // namespace cbag
-
-using dis_intvs_val_base = cbag::util::disjoint_intvs<py_interval>;
-using c_intv_type = std::pair<cbag::offset_t, cbag::offset_t>;
-using c_item_type = dis_intvs_val_base::value_type;
 
 namespace pybag {
 namespace util {
@@ -79,38 +80,40 @@ class dis_intvs_val : public dis_intvs_val_base {
 
     using dis_intvs_val_base::dis_intvs_val_base;
 
-    pyg::Iterator<c_intv_type> py_intv_iterator() const {
+    pyg::Iterator<intv_type> py_intv_iterator() const {
         return pyg::make_iterator(intv_begin(), intv_end());
     }
-    pyg::Iterator<c_item_type> py_item_iterator() const {
+    pyg::Iterator<py_interval> py_item_iterator() const {
         return pyg::make_iterator(begin(), end());
     }
     pyg::Iterator<py::object> py_val_iterator() const {
         return pyg::make_iterator(const_val_iterator(begin()), const_val_iterator(end()));
     }
-    pyg::Iterator<c_intv_type> py_ovl_intv_iterator(const c_intv_type &key) const {
+    pyg::Iterator<intv_type> py_ovl_intv_iterator(const intv_type &key) const {
         auto iter_pair = overlap_range(key);
         return pyg::make_iterator(const_intv_iterator(iter_pair.first),
                                   const_intv_iterator(iter_pair.second));
     }
-    pyg::Iterator<c_item_type> py_ovl_item_iterator(const c_intv_type &key) const {
+    pyg::Iterator<py_interval> py_ovl_item_iterator(const intv_type &key) const {
         auto iter_pair = overlap_range(key);
         return pyg::make_iterator(iter_pair.first, iter_pair.second);
     }
-    pyg::Iterator<py::object> py_ovl_val_iterator(const c_intv_type &key) const {
+    pyg::Iterator<py::object> py_ovl_val_iterator(const intv_type &key) const {
         auto iter_pair = overlap_range(key);
         return pyg::make_iterator(const_val_iterator(iter_pair.first),
                                   const_val_iterator(iter_pair.second));
     }
 
-    py::tuple get_first_overlap_item(const c_intv_type &key) const {
+    pyg::Optional<pyg::Tuple<pyg::Tuple<int, int>, py::object>>
+    get_first_overlap_item(const intv_type &key) const {
         auto iter_pair = overlap_range(key);
         if (iter_pair.first == iter_pair.second)
             return py::none();
-        return py::cast(iter_pair.first);
+        return py::cast(*(iter_pair.first));
     }
 
-    bool add(py::tuple intv, py::object val = py::none(), bool merge = false, bool abut = false) {
+    bool add(pyg::Tuple<int, int> intv, py::object val = py::none(), bool merge = false,
+             bool abut = false) {
         return emplace(merge, abut,
                        std::make_pair(intv[0].cast<py::int_>(), intv[1].cast<py::int_>()), val);
     }
@@ -135,19 +138,19 @@ void bind_util_interval(py::module &m_util) {
     auto py_dis_intvs = py::class_<c_dis_intvs>(m, "PyDisjointIntervals");
     py_dis_intvs.doc() = "A class that keeps track of disjoint intervals.";
 
-    py_dis_intvs.def(py::init<>());
+    py_dis_intvs.def(py::init<>(), "Construct an empty PyDisjointIntervals set.");
     py_dis_intvs.def_property_readonly("start", &c_dis_intvs::start,
-                                       "the start coordinate of first interval.");
+                                       "The start coordinate of first interval.");
     py_dis_intvs.def_property_readonly("stop", &c_dis_intvs::stop,
-                                       "the stop coordinate of last interval.");
-    py_dis_intvs.def("__contains__", &c_dis_intvs::contains<c_intv_type>,
+                                       "The stop coordinate of last interval.");
+    py_dis_intvs.def("__contains__", &c_dis_intvs::contains<intv_type>,
                      "Returns True if given interval is in this object.", py::arg("key"));
     py_dis_intvs.def("__iter__", &c_dis_intvs::py_intv_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals.");
     py_dis_intvs.def("__len__", &c_dis_intvs::size, "Returns number of intervals.");
-    py_dis_intvs.def("overlaps", &c_dis_intvs::overlaps<c_intv_type>,
+    py_dis_intvs.def("overlaps", &c_dis_intvs::overlaps<intv_type>,
                      "Returns True if given interval overlaps this object.", py::arg("key"));
-    py_dis_intvs.def("covers", &c_dis_intvs::covers<c_intv_type>,
+    py_dis_intvs.def("covers", &c_dis_intvs::covers<intv_type>,
                      "Returns True if given interval is cover by a signle interval in this object.",
                      py::arg("key"));
     py_dis_intvs.def("items", &c_dis_intvs::py_item_iterator, py::keep_alive<0, 1>(),
@@ -168,18 +171,18 @@ void bind_util_interval(py::module &m_util) {
     py_dis_intvs.def("get_copy", &c_dis_intvs::get_copy, "Returns a copy of this object.");
     py_dis_intvs.def("get_intersection", &c_dis_intvs::get_intersection,
                      "Returns the intersection.", py::arg("other"));
-    py_dis_intvs.def("get_complement", &c_dis_intvs::get_complement<c_intv_type>,
+    py_dis_intvs.def("get_complement", &c_dis_intvs::get_complement<intv_type>,
                      "Returns the complement.", py::arg("total_intv"));
     py_dis_intvs.def("get_transform", &c_dis_intvs::get_transform,
                      "Returns the transformed intervals.", py::arg("scale") = 1,
                      py::arg("shift") = 0);
-    py_dis_intvs.def("remove", &c_dis_intvs::remove<c_intv_type>, "Removes the given interval.",
+    py_dis_intvs.def("remove", &c_dis_intvs::remove<intv_type>, "Removes the given interval.",
                      py::arg("key"));
-    py_dis_intvs.def("remove_overlaps", &c_dis_intvs::remove_overlaps<c_intv_type>,
+    py_dis_intvs.def("remove_overlaps", &c_dis_intvs::remove_overlaps<intv_type>,
                      "Removes overlapping intervals.", py::arg("key"));
     py_dis_intvs.def("add", &c_dis_intvs::add, "add the given interval.", py::arg("intv"),
                      py::arg("val") = py::none(), py::arg("merge") = false,
                      py::arg("abut") = false);
-    py_dis_intvs.def("subtract", &c_dis_intvs::subtract<c_intv_type>,
-                     "Subtracts the given interval.", py::arg("key"));
+    py_dis_intvs.def("subtract", &c_dis_intvs::subtract<intv_type>, "Subtracts the given interval.",
+                     py::arg("key"));
 }
