@@ -40,6 +40,7 @@ add_subdirectory(pybind11_generics)
 
 # setup include directories
 include_directories(
+  $ENV{OA_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/cbag/include
   )
