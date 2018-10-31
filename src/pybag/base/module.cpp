@@ -6,4 +6,6 @@ PYBIND11_MODULE(base, m) {
     bind_util(m);
 
     bind_schematic(m);
+
+    bind_oa(m);
 }

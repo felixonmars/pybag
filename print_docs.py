@@ -5,6 +5,7 @@ test_classes = [
     pybag.base.util.interval.PyDisjointIntervals,
     pybag.base.schematic.PySchInstRef,
     pybag.base.schematic.PySchCellView,
+    pybag.base.oa.PyOADatabase,
 ]
 
 for cls in test_classes:
