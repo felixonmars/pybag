@@ -20,4 +20,4 @@ def test_constructor(fname):
 
     cv = PySchCellView(yaml_file)
 
-    assert list(cv.in_terms()) == []
+    assert list(cv.in_terms()) == ['clk', 'inn', 'inp']
