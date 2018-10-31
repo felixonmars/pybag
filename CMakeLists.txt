@@ -61,6 +61,7 @@ pybind11_add_module(base ${SRC_FILES_PYBAG})
 target_link_libraries(base
   PUBLIC
   cbag
+  cbagyaml
   PRIVATE
   fmt-header-only
   pybind11_generics
