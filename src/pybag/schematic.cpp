@@ -8,8 +8,8 @@
 
 #include <pybind11_generics/iterable.h>
 #include <pybind11_generics/iterator.h>
-#include <pybind11_generics/tuple.h>
 #include <pybind11_generics/optional.h>
+#include <pybind11_generics/tuple.h>
 
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
@@ -18,8 +18,6 @@
 #include <cbag/schematic/shape_t_def.h>
 
 #include <cbagyaml/cbagyaml.h>
-
-#include <pybag/base/schematic.h>
 
 namespace pyg = pybind11_generics;
 
@@ -125,10 +123,9 @@ void array_instance(
 
 namespace pysch = pybag::schematic;
 
-void bind_schematic(py::module &m_top) {
-    py::module m = m_top.def_submodule("schematic");
-
+PYBIND11_MODULE(schematic, m) {
     m.doc() = "This module contains various classes for schematic manipulation.";
+
     auto py_inst = py::class_<pysch::c_inst_ref>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";
     py_inst.def_property_readonly("name", &pysch::c_inst_ref::name, "Instance name.");
@@ -153,8 +150,8 @@ void bind_schematic(py::module &m_top) {
 
     auto py_cv = py::class_<c_cellview>(m, "PySchCellView");
     py_cv.doc() = "A schematic master cellview.";
-    py_cv.def(py::init(&cbag::cv_from_file), "Load cellview from yaml file.",
-              py::arg("yaml_fname"), py::arg("sym_view") = "");
+    py_cv.def(py::init(&cbag::cv_from_file), "Load cellview from yaml file.", py::arg("yaml_fname"),
+              py::arg("sym_view") = "");
     py_cv.def_readonly("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readonly("view_name", &c_cellview::view_name, "Master view name.");
     py_cv.def_readwrite("cell_name", &c_cellview::cell_name, "Master cell name.");

@@ -49,22 +49,58 @@ include_directories(
 link_directories($ENV{OA_LINK_DIR})
 
 # add python bindings for cbag
-set(SRC_FILES_PYBAG
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/module.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/oa.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/schematic.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/module.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/base/util/interval.cpp
+pybind11_add_module(interval
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/interval.cpp
   )
 
-pybind11_add_module(base ${SRC_FILES_PYBAG})
-
-target_link_libraries(base
+target_link_libraries(interval
   PUBLIC
   cbag
-  cbagyaml
-  cbagoa
   PRIVATE
   fmt-header-only
   pybind11_generics
   )
+
+pybind11_add_module(schematic
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/schematic.cpp
+  )
+
+target_link_libraries(schematic
+  PUBLIC
+  cbag
+  cbagyaml
+  PRIVATE
+  fmt-header-only
+  pybind11_generics
+  )
+
+pybind11_add_module(oa
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/oa.cpp
+  )
+
+target_link_libraries(oa
+  PUBLIC
+  cbag
+  cbagoa
+  cbagyaml
+  PRIVATE
+  fmt-header-only
+  pybind11_generics
+  )
+
+if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
+  set_target_properties(schematic
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+    )
+  set_target_properties(oa
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+    )
+  set_target_properties(interval
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
+    )
+else()
+  message( FATAL_ERROR "CMAKE_LIBRARY_OUTPUT_DIRECTORY not defined!" )
+endif()

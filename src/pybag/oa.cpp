@@ -1,14 +1,15 @@
 
-#include <cbagoa/cbagoa.h>
+#include <pybind11/pybind11.h>
 
-#include <pybag/base/oa.h>
+#include <cbagoa/cbagoa.h>
 
 namespace pybagoa {} // namespace pybagoa
 
+namespace py = pybind11;
+
 using c_db = cbagoa::oa_database;
 
-void bind_oa(py::module &m_top) {
-    py::module m = m_top.def_submodule("oa");
+PYBIND11_MODULE(oa, m) {
     m.doc() = "This module contains various classes for reading/writing OA database.";
 
     auto py_cv = py::class_<c_db>(m, "PyOADatabase");

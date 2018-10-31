@@ -1,13 +1,13 @@
 #include <memory>
 #include <utility>
 
+#include <pybind11/pybind11.h>
+
 #include <cbag/util/interval.h>
 
 #include <pybind11_generics/iterator.h>
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
-
-#include <pybag/base/util/interval.h>
 
 namespace pyg = pybind11_generics;
 
@@ -119,12 +119,11 @@ bool add(c_dis_intvs &self, pyg::Tuple<int, int> intv, py::object val = py::none
 
 namespace pu = pybag::util;
 
-void bind_util_interval(py::module &m_util) {
+PYBIND11_MODULE(interval, m) {
     pyg::declare_iterator<c_dis_intvs::const_iterator>();
     pyg::declare_iterator<c_dis_intvs::const_intv_iterator>();
     pyg::declare_iterator<pu::const_val_iterator>();
 
-    py::module m = m_util.def_submodule("interval");
     m.doc() = "This module contains utility classes for manipulating intervals.";
 
     // add interval class

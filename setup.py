@@ -45,10 +45,11 @@ class CMakePyBind11Build(build_ext):
         return 1 if workers is None else workers
 
     def build_extension(self, ext):
-        extdir = os.path.abspath(
-            os.path.dirname(self.get_ext_fullpath(ext.name)))
-        cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+        extdir = os.path.abspath(os.path.join(self.build_lib, pkg_name))
+        cmake_args = [
+            '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+            '-DPYTHON_EXECUTABLE=' + sys.executable,
+        ]
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -87,15 +88,17 @@ setup(
     install_requires=[],
     setup_requires=[],
     tests_require=['pytest'],
-    packages=[pkg_name],
+    packages=[
+        pkg_name,
+        pkg_name + '.util',
+    ],
     package_dir={'': 'src'},
     package_data={
-        pkg_name: [os.path.join('base.pyi'),
-                   os.path.join('base', 'util.pyi'),
-                   os.path.join('base', 'util', 'interval.pyi'),
-                   ]
+        pkg_name: []
     },
-    ext_modules=[CMakePyBind11Extension(pkg_name + '.base')],
+    ext_modules=[
+        CMakePyBind11Extension('all'),
+    ],
     cmdclass=dict(build_ext=CMakePyBind11Build),
     zip_safe=False,
 )

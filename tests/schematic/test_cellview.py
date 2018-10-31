@@ -6,7 +6,7 @@ import pkg_resources
 
 import pytest
 
-from pybag.base.schematic import PySchCellView
+from pybag.schematic import PySchCellView
 
 cv_files = [
     'sense_amp_strongarm.yaml',

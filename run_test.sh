@@ -2,7 +2,7 @@
 # this script runs the python unit tests.
 # you must first run the setup script.
 
-./build.sh
+./build.sh || exit 1
 
 source .bashrc
 
