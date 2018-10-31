@@ -1,11 +1,14 @@
 import pydoc
-import pybag.base
+import pybag.oa
+import pybag.schematic
+import pybag.util.interval
+
 
 test_classes = [
-    pybag.base.util.interval.PyDisjointIntervals,
-    pybag.base.schematic.PySchInstRef,
-    pybag.base.schematic.PySchCellView,
-    pybag.base.oa.PyOADatabase,
+    pybag.util.interval.PyDisjointIntervals,
+    pybag.schematic.PySchInstRef,
+    pybag.schematic.PySchCellView,
+    pybag.oa.PyOADatabase,
 ]
 
 for cls in test_classes:
