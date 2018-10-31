@@ -9,6 +9,7 @@
 #include <pybind11_generics/iterable.h>
 #include <pybind11_generics/iterator.h>
 #include <pybind11_generics/tuple.h>
+#include <pybind11_generics/optional.h>
 
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
@@ -105,8 +106,11 @@ pyg::Iterator<std::string> get_term_iter(const cbag::sch::term_t &term_map) {
                               const_term_iterator(term_map.end()));
 }
 
-c_inst_ref get_inst_ref(c_cellview &cv, const std::string &name) {
-    return c_inst_ref(cv.instances.find(name));
+pyg::Optional<c_inst_ref> get_inst_ref(c_cellview &cv, const std::string &name) {
+    auto iter = cv.instances.find(name);
+    if (iter == cv.instances.end())
+        return py::none();
+    return py::cast(c_inst_ref(cv.instances.find(name)));
 }
 
 void array_instance(
