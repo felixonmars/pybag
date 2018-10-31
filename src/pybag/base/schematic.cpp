@@ -6,19 +6,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <pybind11_generics/iterable.h>
 #include <pybind11_generics/iterator.h>
+#include <pybind11_generics/tuple.h>
 
-#include <cbag/schematic/arc.h>
 #include <cbag/schematic/cellview.h>
-#include <cbag/schematic/donut.h>
-#include <cbag/schematic/ellipse.h>
-#include <cbag/schematic/eval_text.h>
+#include <cbag/schematic/cellview_inst_mod.h>
 #include <cbag/schematic/instance.h>
-#include <cbag/schematic/line.h>
-#include <cbag/schematic/path.h>
 #include <cbag/schematic/pin_figure.h>
-#include <cbag/schematic/polygon.h>
-#include <cbag/schematic/term_t.h>
+#include <cbag/schematic/shape_t_def.h>
 
 #include <pybag/base/schematic.h>
 
@@ -68,7 +64,7 @@ class c_inst_ref {
     inst_iter_t iter_;
 
   public:
-    c_inst_ref(inst_iter_t iter) : iter_(std::move(iter)) {}
+    explicit c_inst_ref(inst_iter_t iter) : iter_(std::move(iter)) {}
 
     std::string lib_name() const { return iter_->second.lib_name; }
     std::string cell_name() const { return iter_->second.cell_name; }
@@ -105,6 +101,17 @@ pyg::Iterator<c_inst_ref> inst_ref_iter(const c_cellview &cv) {
 pyg::Iterator<std::string> get_term_iter(const cbag::sch::term_t &term_map) {
     return pyg::make_iterator(const_term_iterator(term_map.begin()),
                               const_term_iterator(term_map.end()));
+}
+
+c_inst_ref get_inst_ref(c_cellview &cv, const std::string &name) {
+    return c_inst_ref(cv.instances.find(name));
+}
+
+void array_instance(
+    c_cellview &cv, const std::string &old_name, cbag::coord_t dx, cbag::coord_t dy,
+    const pyg::Iterable<std::pair<std::string, pyg::Iterable<std::pair<std::string, std::string>>>>
+        &name_conn_range) {
+    cbag::sch::array_instance(cv.instances, old_name, dx, dy, name_conn_range);
 }
 
 } // namespace schematic
@@ -159,5 +166,12 @@ void bind_schematic(py::module &m_top) {
     py_cv.def("add_pin", &c_cellview::add_pin, "Add the given pin.", py::arg("new_name"),
               py::arg("term_type"));
     py_cv.def("remove_pin", &c_cellview::remove_pin, "Removes the given pin.", py::arg("name"));
-    // TODO: complete the rest of the wrapping
+    py_cv.def("rename_instance", &c_cellview::rename_instance, "Renames the given instance.",
+              py::arg("old_name"), py::arg("new_name"));
+    py_cv.def("remove_instance", &c_cellview::remove_instance, "Removes the given instance.",
+              py::arg("name"));
+    py_cv.def("get_inst_ref", &pysch::get_inst_ref, "Returns the given instance reference.",
+              py::arg("name"));
+    py_cv.def("array_instance", &pysch::array_instance, "Arrays the given instance.",
+              py::arg("old_name"), py::arg("dx"), py::arg("dy"), py::arg("name_conn_range"));
 }
