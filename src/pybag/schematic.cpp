@@ -1,5 +1,5 @@
 
-#include <map>
+#include <memory>
 #include <string>
 #include <variant>
 
@@ -21,17 +21,47 @@
 
 namespace pyg = pybind11_generics;
 
-using inst_iter_t = std::map<std::string, cbag::sch::instance>::iterator;
-
+using c_instance = cbag::sch::instance;
 using c_cellview = cbag::sch::cellview;
 
 namespace pybag {
 namespace schematic {
 
+class const_inst_iterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = std::pair<std::string, c_instance *>;
+    using difference_type = cbag::sch::inst_map_t::const_iterator::difference_type;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+
+  private:
+    cbag::sch::inst_map_t::const_iterator iter_;
+
+  public:
+    const_inst_iterator() = default;
+    const_inst_iterator(cbag::sch::inst_map_t::const_iterator val) : iter_(std::move(val)) {}
+
+    bool operator==(const const_inst_iterator &other) const { return iter_ == other.iter_; }
+    bool operator!=(const const_inst_iterator &other) const { return iter_ != other.iter_; }
+
+    value_type operator*() const { return {iter_->first, iter_->second.get()}; }
+
+    const_inst_iterator &operator++() {
+        ++iter_;
+        return *this;
+    }
+    const_inst_iterator operator++(int) {
+        const_inst_iterator ans(iter_);
+        operator++();
+        return ans;
+    }
+};
+
 class const_term_iterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::string;
+    using value_type = std::pair<std::string, int>;
     using difference_type = cbag::sch::term_t::const_iterator::difference_type;
     using pointer = const value_type *;
     using reference = const value_type &;
@@ -46,8 +76,7 @@ class const_term_iterator {
     bool operator==(const const_term_iterator &other) const { return iter_ == other.iter_; }
     bool operator!=(const const_term_iterator &other) const { return iter_ != other.iter_; }
 
-    reference operator*() const { return iter_->first; }
-    pointer operator->() const { return &operator*(); }
+    value_type operator*() const { return {iter_->first, static_cast<int>(iter_->second.ttype)}; }
 
     const_term_iterator &operator++() {
         ++iter_;
@@ -60,55 +89,33 @@ class const_term_iterator {
     }
 };
 
-class c_inst_ref {
-  private:
-    inst_iter_t iter_;
-
-  public:
-    explicit c_inst_ref(inst_iter_t iter) : iter_(std::move(iter)) {}
-
-    std::string lib_name() const { return iter_->second.lib_name; }
-    std::string cell_name() const { return iter_->second.cell_name; }
-    std::string name() const { return iter_->first; }
-    uint32_t width() const { return iter_->second.width(); }
-    uint32_t height() const { return iter_->second.height(); }
-    bool is_primitive() const { return iter_->second.is_primitive; }
-
-    void set_lib_name(std::string val) { iter_->second.lib_name = std::move(val); }
-    void set_cell_name(std::string val) { iter_->second.cell_name = std::move(val); }
-    void set_is_primitive(bool val) { iter_->second.is_primitive = val; }
-    void set_param(std::string key, const std::variant<int32_t, double, bool, std::string> &val) {
-        iter_->second.set_param(std::move(key), val);
-    }
-    void update_master(std::string lib, std::string cell, bool prim = false) {
-        set_lib_name(std::move(lib));
-        set_cell_name(std::move(cell));
-        set_is_primitive(prim);
-
-        iter_->second.clear_params();
-        iter_->second.connections.clear();
-    }
-
-    void update_connection(std::string term_name, std::string net_name) {
-        iter_->second.update_connection(name(), std::move(term_name), std::move(net_name));
-    }
-};
-
 // python/C++ interface functions for cellview
-pyg::Iterator<c_inst_ref> inst_ref_iter(const c_cellview &cv) {
-    return pyg::make_iterator(cv.instances.begin(), cv.instances.end());
+pyg::Iterator<std::pair<std::string, c_instance>> inst_ref_iter(const c_cellview &cv) {
+    return pyg::make_iterator(const_inst_iterator(cv.instances.begin()),
+                              const_inst_iterator(cv.instances.end()));
 }
 
-pyg::Iterator<std::string> get_term_iter(const cbag::sch::term_t &term_map) {
-    return pyg::make_iterator(const_term_iterator(term_map.begin()),
-                              const_term_iterator(term_map.end()));
+pyg::Iterator<std::pair<std::string, int>> terminals_iter(const c_cellview &cv) {
+    return pyg::make_iterator(const_term_iterator(cv.terminals.begin()),
+                              const_term_iterator(cv.terminals.end()));
 }
 
-pyg::Optional<c_inst_ref> get_inst_ref(c_cellview &cv, const std::string &name) {
+bool has_terminal(const c_cellview &cv, const std::string &term) {
+    return cv.terminals.find(term) != cv.terminals.end();
+}
+
+int get_terminal_type(const c_cellview &cv, const std::string &term) {
+    auto iter = cv.terminals.find(term);
+    if (iter == cv.terminals.end())
+        throw py::key_error("cellview has no terminal named: " + term);
+    return static_cast<int>(iter->second.ttype);
+}
+
+pyg::Optional<c_instance *> get_inst_ref(c_cellview &cv, const std::string &name) {
     auto iter = cv.instances.find(name);
     if (iter == cv.instances.end())
         return py::none();
-    return py::cast(c_inst_ref(cv.instances.find(name)));
+    return py::cast(iter->second.get());
 }
 
 void array_instance(
@@ -126,26 +133,25 @@ namespace pysch = pybag::schematic;
 PYBIND11_MODULE(schematic, m) {
     m.doc() = "This module contains various classes for schematic manipulation.";
 
-    auto py_inst = py::class_<pysch::c_inst_ref>(m, "PySchInstRef");
+    auto py_inst = py::class_<c_instance>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";
-    py_inst.def_property_readonly("name", &pysch::c_inst_ref::name, "Instance name.");
-    py_inst.def_property_readonly("width", &pysch::c_inst_ref::width, "Instance symbol width.");
-    py_inst.def_property_readonly("height", &pysch::c_inst_ref::width, "Instance symbol height.");
-    py_inst.def_property("lib_name", &pysch::c_inst_ref::lib_name, &pysch::c_inst_ref::set_lib_name,
-                         "Instance master library name.");
-    py_inst.def_property("cell_name", &pysch::c_inst_ref::cell_name,
-                         &pysch::c_inst_ref::set_cell_name, "Instance master cell name.");
-    py_inst.def_property("is_primitive", &pysch::c_inst_ref::is_primitive,
-                         &pysch::c_inst_ref::set_is_primitive,
-                         "True if the instance master is not a generator.");
-    py_inst.def("set_param", &pysch::c_inst_ref::set_param, "Set instance parameter value.",
-                py::arg("key"), py::arg("val"));
-    py_inst.def("update_master", &pysch::c_inst_ref::update_master, "Update the instance master.",
+    py_inst.def_property_readonly("width", &c_instance::width, "Instance symbol width.");
+    py_inst.def_property_readonly("height", &c_instance::width, "Instance symbol height.");
+    py_inst.def_readwrite("lib_name", &c_instance::lib_name, "Instance master library name.");
+    py_inst.def_readwrite("cell_name", &c_instance::cell_name, "Instance master cell name.");
+    py_inst.def_readwrite("is_primitive", &c_instance::is_primitive,
+                          "True if the instance master is not a generator.");
+    py_inst.def("set_param", &c_instance::set_param, "Set instance parameter value.",
+                py::arg("name"), py::arg("val"));
+    py_inst.def("update_master", &c_instance::update_master, "Update the instance master.",
                 py::arg("lib"), py::arg("cell"), py::arg("prim") = false);
-    py_inst.def("update_connection", &pysch::c_inst_ref::update_connection,
-                "Update instance pin connection.", py::arg("term_name"), py::arg("net_name"));
+    py_inst.def("update_connection",
+                py::overload_cast<const std::string &, std::string, std::string>(
+                    &c_instance::update_connection),
+                "Update instance pin connection.", py::arg("inst_name"), py::arg("term"),
+                py::arg("net"));
 
-    pyg::declare_iterator<inst_iter_t>();
+    pyg::declare_iterator<pysch::const_inst_iterator>();
     pyg::declare_iterator<pysch::const_term_iterator>();
 
     auto py_cv = py::class_<c_cellview>(m, "PySchCellView");
@@ -160,12 +166,12 @@ PYBIND11_MODULE(schematic, m) {
               py::arg("name"), py::arg("val"));
     py_cv.def("inst_refs", &pysch::inst_ref_iter,
               "Returns an iterator over all instance references.");
-    py_cv.def("in_terms", [](const c_cellview &cv) { return pysch::get_term_iter(cv.in_terms); },
-              "Returns an iterator over all input terminals.");
-    py_cv.def("out_terms", [](const c_cellview &cv) { return pysch::get_term_iter(cv.out_terms); },
-              "Returns an iterator over all output terminals.");
-    py_cv.def("io_terms", [](const c_cellview &cv) { return pysch::get_term_iter(cv.io_terms); },
-              "Returns an iterator over all inout terminals.");
+    py_cv.def("terminals", &pysch::terminals_iter,
+              "Returns an iterator over all (terminal, terminal_type) tuples.");
+    py_cv.def("has_terminal", &pysch::has_terminal,
+              "Returns true if cellview contains the given terminal.", py::arg("term"));
+    py_cv.def("get_terminal_type", &pysch::get_terminal_type, "Get the type of the given terminal.",
+              py::arg("term"));
     py_cv.def("rename_pin", &c_cellview::rename_pin, "Rename the given pin.", py::arg("old_name"),
               py::arg("new_name"));
     py_cv.def("add_pin", &c_cellview::add_pin, "Add the given pin.", py::arg("new_name"),
