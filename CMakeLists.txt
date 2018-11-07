@@ -62,6 +62,8 @@ target_link_libraries(interval
   )
 
 pybind11_add_module(geometry
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/bbox.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/bbox_array.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/geometry.cpp
   )
 
