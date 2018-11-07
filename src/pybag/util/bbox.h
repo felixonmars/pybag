@@ -3,8 +3,12 @@
 
 #include <pybind11/pybind11.h>
 
+#include <cbag/common/box_t.h>
+
 namespace py = pybind11;
 
-void bind_bbox(py::module &);
+using c_box = cbag::box_t;
+
+void bind_bbox(py::class_<c_box> &);
 
 #endif

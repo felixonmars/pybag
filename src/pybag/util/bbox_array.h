@@ -70,6 +70,6 @@ class box_arr {
 
 using c_box_arr = pybag::util::box_arr;
 
-void bind_bbox_array(py::module &);
+void bind_bbox_array(py::class_<c_box_arr> &);
 
 #endif

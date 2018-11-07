@@ -91,11 +91,10 @@ pyg::Iterator<c_box_arr> get_box_arr_iter(const box_collection &bcol) {
 
 namespace pu = pybag::util;
 
-void bind_bbox_collection(py::module &m) {
+void bind_bbox_collection(py::class_<c_box_col> &py_cls) {
 
     pyg::declare_iterator<c_box_col::const_iterator>();
 
-    auto py_cls = py::class_<c_box_col>(m, "BBoxCollection");
     py_cls.doc() = "A collection of BBoxArrays.";
     py_cls.def(py::init<pyg::Iterable<c_box_arr>>(), "Create a new BBoxCollection.",
                py::arg("data"));

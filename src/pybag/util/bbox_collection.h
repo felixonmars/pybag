@@ -47,6 +47,6 @@ class box_collection {
 
 using c_box_col = pybag::util::box_collection;
 
-void bind_bbox_collection(py::module &);
+void bind_bbox_collection(py::class_<c_box_col> &);
 
 #endif

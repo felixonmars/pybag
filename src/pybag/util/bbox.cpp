@@ -70,8 +70,7 @@ c_box_col as_bbox_collection(const c_box &self) {
 
 namespace pu = pybag::util;
 
-void bind_bbox(py::module &m) {
-    auto py_cls = py::class_<c_box>(m, "BBox");
+void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.doc() = "The bounding box class.";
     py_cls.def(py::init(&pu::bbox_init), "Construct a new BBox.", py::arg("xl"), py::arg("yl"),
                py::arg("xh"), py::arg("yh"));

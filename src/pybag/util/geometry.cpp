@@ -5,7 +5,11 @@
 PYBIND11_MODULE(geometry, m) {
     m.doc() = "This module contains various geometry utility classes.";
 
-    bind_bbox(m);
-    bind_bbox_array(m);
-    bind_bbox_collection(m);
+    auto py_box = py::class_<c_box>(m, "BBox");
+    auto py_barr = py::class_<c_box_arr>(m, "BBoxArray");
+    auto py_bcol = py::class_<c_box_col>(m, "BBoxCollection");
+
+    bind_bbox(py_box);
+    bind_bbox_array(py_barr);
+    bind_bbox_collection(py_bcol);
 }

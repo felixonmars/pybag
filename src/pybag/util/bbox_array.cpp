@@ -132,11 +132,10 @@ pyg::Iterator<c_box> get_box_iter(const box_arr &barr) {
 
 namespace pu = pybag::util;
 
-void bind_bbox_array(py::module &m) {
+void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
 
     pyg::declare_iterator<pu::box_arr_iter>();
 
-    auto py_cls = py::class_<c_box_arr>(m, "BBoxArray");
     py_cls.doc() = "The bounding box array class.";
     py_cls.def(py::init<c_box, uint32_t, uint32_t, offset_t, offset_t, py::kwargs>(),
                "Construct a new BBoxArray.", py::arg("base"), py::arg("nx") = 1, py::arg("ny") = 1,
