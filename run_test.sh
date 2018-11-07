@@ -9,4 +9,4 @@ source .bashrc
 # smart prepend to PYTHONPATH even if variable is unset
 export PYTHONPATH="${PYBAG_BUILD_LIB}:${PYTHONPATH:+:$PYTHONPATH}"
 
-${PYBAG_PYTEST} tests
+${PYBAG_PYTEST} tests $@
