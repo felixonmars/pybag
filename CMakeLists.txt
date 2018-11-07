@@ -61,6 +61,17 @@ target_link_libraries(interval
   pybind11_generics
   )
 
+pybind11_add_module(geometry
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/geometry.cpp
+  )
+
+target_link_libraries(geometry
+  PUBLIC
+  cbag
+  PRIVATE
+  pybind11_generics
+  )
+
 pybind11_add_module(schematic
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/schematic.cpp
   )
@@ -98,6 +109,10 @@ if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
     )
   set_target_properties(interval
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
+    )
+  set_target_properties(geometry
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
     )
