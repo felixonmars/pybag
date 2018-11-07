@@ -70,3 +70,11 @@ def test_transform(box0, dx, dy, orient, box1):
         assert a.transform((dx, dy)) == ans
     if dx == 0 and dy == 0:
         assert a.transform(orient=orient) == ans
+
+
+def test_merge_invalid():
+    a = BBox(0, 0, 2, 3)
+    b = BBox(100, 103, 200, 102)
+
+    assert a.merge(b) == a
+    assert b.merge(a) == a

@@ -65,17 +65,7 @@ box_arr box_arr::get_move_by(offset_t dx, offset_t dy, bool unit_mode) const {
 }
 
 box_arr box_arr::get_transform(offset_t dx, offset_t dy, uint32_t ocode) const {
-    uint32_t nx_new = nx;
-    uint32_t ny_new = ny;
-    coord_t spx_new = spx;
-    coord_t spy_new = spy;
-    cbag::transformation xform(dx, dy, ocode);
-    xform.get_axis_transformation().transform(spx_new, spy_new);
-    if (xform.flips_xy()) {
-        nx_new = ny;
-        ny_new = nx;
-    }
-    return {base.get_transform(xform), nx_new, ny_new, spx_new, spy_new};
+    return box_arr(*this).transform(dx, dy, ocode);
 }
 
 box_arr box_arr::get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
@@ -83,6 +73,18 @@ box_arr box_arr::get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::st
     if (!unit_mode)
         throw std::invalid_argument("unit_mode = False is not supported.");
     return get_transform(loc.get<0>(), loc.get<1>(), get_orient_code(orient));
+}
+
+box_arr &box_arr::transform(offset_t dx, offset_t dy, uint32_t ocode) {
+    cbag::transformation xform(dx, dy, ocode);
+    xform.get_axis_transformation().transform(spx, spy);
+    if (xform.flips_xy()) {
+        auto tmp = nx;
+        nx = ny;
+        ny = tmp;
+    }
+    base.transform(xform);
+    return *this;
 }
 
 class box_arr_iter {

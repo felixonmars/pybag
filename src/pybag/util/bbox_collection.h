@@ -18,6 +18,7 @@ class box_collection {
 
   public:
     box_collection();
+    box_collection(std::vector<c_box_arr> &&data);
     box_collection(pyg::Iterable<c_box_arr> barr_iter);
 
     std::size_t size() const;

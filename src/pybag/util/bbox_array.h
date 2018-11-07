@@ -57,6 +57,8 @@ class box_arr {
 
     box_arr_iter begin() const;
     box_arr_iter end() const;
+
+    box_arr &transform(offset_t dx, offset_t dy, uint32_t ocode);
 };
 
 } // namespace util

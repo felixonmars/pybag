@@ -22,8 +22,6 @@ std::unique_ptr<c_box> bbox_init(coord_t xl, coord_t yl, coord_t xh, coord_t yh,
     return std::make_unique<c_box>(xl, yl, xh, yh);
 }
 
-std::unique_ptr<c_box> invalid_bbox() { return std::make_unique<c_box>(0, 0, -1, -1); }
-
 c_box extend(const c_box &self, const std::optional<coord_t> &x, const std::optional<coord_t> &y,
              bool unit_mode) {
     if (!unit_mode)
@@ -77,7 +75,7 @@ void bind_bbox(py::module &m) {
     py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
                py::arg("other"));
 
-    py_cls.def_static("get_invalid_bbox", &pu::invalid_bbox, "Create an invalid BBox.");
+    py_cls.def_static("get_invalid_bbox", &c_box::invalid_box, "Create an invalid BBox.");
     py_cls.def_property_readonly("xl", &c_box::xl, "Left coordinate.");
     py_cls.def_property_readonly("left_unit", &c_box::xl, "Left coordinate.");
     py_cls.def_property_readonly("yl", &c_box::yl, "Bottom coordinate.");
