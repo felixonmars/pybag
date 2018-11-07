@@ -94,7 +94,11 @@ setup(
     ],
     package_dir={'': 'src'},
     package_data={
-        pkg_name: []
+        # install stub files
+        pkg_name: [
+            '*.pyi',
+            '*/*.pyi',
+        ],
     },
     ext_modules=[
         CMakePyBind11Extension('all'),
