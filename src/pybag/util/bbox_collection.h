@@ -13,6 +13,9 @@ namespace util {
 class box_col_iter;
 
 class box_collection {
+  public:
+    using const_iterator = std::vector<c_box_arr>::const_iterator;
+
   private:
     std::vector<c_box_arr> data_;
 
@@ -30,8 +33,8 @@ class box_collection {
     c_box_arr as_bbox_array() const;
     c_box as_bbox() const;
 
-    box_col_iter begin() const;
-    box_col_iter end() const;
+    const_iterator begin() const;
+    const_iterator end() const;
 
     c_box get_bounding_box() const;
     box_collection get_transform(offset_t dx, offset_t dy, uint32_t ocode) const;
