@@ -10,14 +10,13 @@
 #include <pybind11_generics/tuple.h>
 
 #include <pybag/util/bbox.h>
+#include <pybag/util/orient_conv.h>
 
 namespace pyg = pybind11_generics;
 
 using offset_t = cbag::offset_t;
 using coord_t = cbag::coord_t;
 using c_box = cbag::box_t;
-
-constexpr auto code_R0 = static_cast<uint32_t>(cbag::oR0);
 
 namespace pybag {
 namespace util {
@@ -51,11 +50,7 @@ c_box transform_compat(const c_box &self, pyg::Tuple<offset_t, offset_t> loc, py
     if (!unit_mode)
         throw std::invalid_argument("unit_mode = False is not supported.");
 
-    // use the Python enum class to convert string to int
-    py::module enum_module = py::module::import("pybag.enum");
-    py::object orient_enum = enum_module.attr("Orientation");
-    uint32_t code = orient_enum.attr("__getitem__")(orient).template cast<int>();
-    return transform(self, loc.get<0>(), loc.get<1>(), code);
+    return transform(self, loc.get<0>(), loc.get<1>(), get_orient_code(orient));
 }
 
 c_box move_by(const c_box &self, offset_t dx, offset_t dy, bool unit_mode) {
