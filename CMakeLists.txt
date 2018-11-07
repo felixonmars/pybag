@@ -69,6 +69,7 @@ target_link_libraries(geometry
   PUBLIC
   cbag
   PRIVATE
+  fmt-header-only
   pybind11_generics
   )
 

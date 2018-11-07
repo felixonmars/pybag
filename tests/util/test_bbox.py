@@ -3,6 +3,7 @@
 import pytest
 
 from pybag.util.geometry import BBox
+from pybag.enum import Orientation
 
 # test data for PyDisjointIntervals
 bbox_data = [
@@ -16,9 +17,17 @@ bbox_data = [
     (0, 0, 3, 5, True, True),
 ]
 
+transform_data = [
+    ((1, 1, 3, 6), 2, -4, "R0", (3, -3, 5, 2)),
+    ((0, 0, 3, 6), 0, 0, "R90", (-6, 0, 0, 3)),
+    ((0, 0, 3, 6), 1, 1, "R90", (-5, 1, 1, 4)),
+]
+
+
 def test_invalid_bbox():
     ans = BBox.get_invalid_bbox()
     assert ans.is_valid() == False
+
 
 @pytest.mark.parametrize("xl, yl, xh, yh, physical, valid", bbox_data)
 def test_properties(xl, yl, xh, yh, physical, valid):
@@ -39,9 +48,25 @@ def test_properties(xl, yl, xh, yh, physical, valid):
     assert ans.width_unit == xh - xl
     assert ans.h == yh - yl
     assert ans.height_unit == yh - yl
+    assert ans.get_immutable_key() == (xl, yl, xh, yh)
+
 
 @pytest.mark.parametrize("xl, yl, xh, yh, physical, valid", bbox_data)
 def test_physical_valid(xl, yl, xh, yh, physical, valid):
     ans = BBox(xl, yl, xh, yh)
     assert ans.is_physical() == physical
     assert ans.is_valid() == valid
+
+
+@pytest.mark.parametrize("box0, dx, dy, orient, box1", transform_data)
+def test_transform(box0, dx, dy, orient, box1):
+    a = BBox(box0[0], box0[1], box0[2], box0[3])
+    b = a.transform(dx, dy, Orientation[orient])
+    c = a.transform((dx, dy), orient)
+    ans = BBox(box1[0], box1[1], box1[2], box1[3])
+    assert b == ans
+    assert c == ans
+    if orient == 'R0':
+        assert a.transform((dx, dy)) == ans
+    if dx == 0 and dy == 0:
+        assert a.transform(orient=orient) == ans
