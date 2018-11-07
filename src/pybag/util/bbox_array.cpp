@@ -10,6 +10,7 @@
 #include <pybind11_generics/iterator.h>
 
 #include <pybag/util/bbox_array.h>
+#include <pybag/util/bbox_collection.h>
 #include <pybag/util/orient_conv.h>
 
 namespace pyg = pybind11_generics;
@@ -57,6 +58,8 @@ c_box box_arr::as_bbox() const {
             fmt::format("Cannot cast this BBoxArray to BBox (nx = {}, ny = {})", nx, ny));
     return base;
 }
+
+box_collection box_arr::as_bbox_collection() const { return {std::vector<box_arr>{*this}}; }
 
 box_arr box_arr::get_move_by(offset_t dx, offset_t dy, bool unit_mode) const {
     if (!unit_mode)
@@ -175,4 +178,6 @@ void bind_bbox_array(py::module &m) {
 
     py_cls.def("as_bbox", &c_box_arr::as_bbox,
                "Returns a BBox representation of this BBoxArray if able.");
+    py_cls.def("as_bbox_collection", &c_box_arr::as_bbox_collection,
+               "Returns a BBoxCollection representation of this BBoxArray.");
 }

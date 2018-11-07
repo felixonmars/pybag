@@ -19,6 +19,8 @@ namespace util {
 
 class box_arr_iter;
 
+class box_collection;
+
 class box_arr {
   public:
     c_box base;
@@ -47,6 +49,8 @@ class box_arr {
     c_box get_overall_bbox() const;
 
     c_box as_bbox() const;
+
+    box_collection as_bbox_collection() const;
 
     box_arr get_move_by(offset_t dx, offset_t dy, bool unit_mode) const;
 

@@ -10,6 +10,7 @@
 
 #include <pybag/util/bbox.h>
 #include <pybag/util/bbox_array.h>
+#include <pybag/util/bbox_collection.h>
 #include <pybag/util/orient_conv.h>
 
 namespace pyg = pybind11_generics;
@@ -59,6 +60,10 @@ pyg::Tuple<coord_t, coord_t, coord_t, coord_t> immutable_key(const c_box &self) 
 }
 
 c_box_arr as_bbox_array(const c_box &self) { return {self, 1, 1, 0, 0}; }
+
+c_box_col as_bbox_collection(const c_box &self) {
+    return {std::vector<c_box_arr>{as_bbox_array(self)}};
+}
 
 } // namespace util
 } // namespace pybag
@@ -117,4 +122,6 @@ void bind_bbox(py::module &m) {
 
     py_cls.def("as_bbox_array", &pu::as_bbox_array,
                "Returns a BBoxArray representation of this BBox.");
+    py_cls.def("as_bbox_collection", &pu::as_bbox_collection,
+               "Returns a BBoxCollection representation of this BBox.");
 }
