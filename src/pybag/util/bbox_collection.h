@@ -3,16 +3,39 @@
 
 #include <pybind11/pybind11.h>
 
+#include <pybind11_generics/iterable.h>
+
 #include <pybag/util/bbox_array.h>
 
 namespace pybag {
 namespace util {
 
-class box_collection {
-  public:
-    std::vector<c_box_arr> barr_list;
+class box_col_iter;
 
+class box_collection {
+  private:
+    std::vector<c_box_arr> data_;
+
+  public:
     box_collection();
+    box_collection(pyg::Iterable<c_box_arr> barr_iter);
+
+    std::size_t size() const;
+
+    std::string to_string() const;
+
+    bool operator==(const box_collection &other) const;
+
+    c_box_arr as_bbox_array() const;
+    c_box as_bbox() const;
+
+    box_col_iter begin() const;
+    box_col_iter end() const;
+
+    c_box get_bounding_box() const;
+    box_collection get_transform(offset_t dx, offset_t dy, uint32_t ocode) const;
+    box_collection get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
+                                        bool unit_mode) const;
 };
 
 } // namespace util

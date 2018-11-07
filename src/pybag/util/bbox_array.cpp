@@ -170,4 +170,7 @@ void bind_bbox_array(py::module &m) {
     py_cls.def("transform", &c_box_arr::get_transform_compat, "Returns a transformed BBoxArray.",
                py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
                py::arg("unit_mode") = true);
+
+    py_cls.def("as_bbox", &c_box_arr::as_bbox,
+               "Returns a BBox representation of this BBoxArray if able.");
 }
