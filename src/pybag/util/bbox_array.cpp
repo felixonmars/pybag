@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iterator>
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <cbag/common/box_t.h>
 #include <cbag/common/transformation.h>
