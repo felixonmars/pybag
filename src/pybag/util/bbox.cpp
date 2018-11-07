@@ -60,7 +60,7 @@ pyg::Tuple<coord_t, coord_t, coord_t, coord_t> immutable_key(const c_box &self) 
                                                                       self.xh(), self.yh());
 }
 
-c_box_arr to_bbox_array(const c_box &self) { return {self, 1, 1, 0, 0}; }
+c_box_arr as_bbox_array(const c_box &self) { return {self, 1, 1, 0, 0}; }
 
 } // namespace util
 } // namespace pybag
@@ -117,6 +117,6 @@ void bind_bbox(py::module &m) {
                "Returns a new BBox with flipped X and Y coordinates.");
     py_cls.def("get_immutable_key", &pu::immutable_key, "Returns a tuple representing this box.");
 
-    py_cls.def("to_bbox_array", &pu::to_bbox_array,
+    py_cls.def("as_bbox_array", &pu::as_bbox_array,
                "Returns a BBoxArray representation of this BBox.");
 }

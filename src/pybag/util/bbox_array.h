@@ -46,6 +46,8 @@ class box_arr {
 
     c_box get_overall_bbox() const;
 
+    c_box as_bbox() const;
+
     box_arr get_move_by(offset_t dx, offset_t dy, bool unit_mode) const;
 
     box_arr get_transform(offset_t dx, offset_t dy, uint32_t ocode) const;

@@ -19,10 +19,14 @@ namespace util {
 
 box_arr::box_arr() = default;
 box_arr::box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy)
-    : base(std::move(base)), nx(nx), ny(ny), spx(spx), spy(spy) {}
+    : base(std::move(base)), nx(nx), ny(ny), spx(spx), spy(spy) {
+    if (nx <= 0 || ny <= 0)
+        throw std::invalid_argument(
+            fmt::format("nx = {} and ny = {} cannot be non-positive.", nx, ny));
+}
 box_arr::box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy,
                  py::kwargs kwargs)
-    : base(std::move(base)), nx(nx), ny(ny), spx(spx), spy(spy) {}
+    : box_arr(std::move(base), nx, ny, spx, spy) {}
 
 coord_t box_arr::xl() const { return (spx >= 0) ? base.xl() : (nx - 1) * spx + base.xl(); }
 coord_t box_arr::xh() const { return (spx >= 0) ? (nx - 1) * spx + base.xh() : base.xh(); }
@@ -46,6 +50,13 @@ c_box box_arr::get_bbox(uint32_t idx) const {
 }
 
 c_box box_arr::get_overall_bbox() const { return {xl(), yl(), xh(), yh()}; }
+
+c_box box_arr::as_bbox() const {
+    if (nx != 1 || ny != 1)
+        throw std::invalid_argument(
+            fmt::format("Cannot cast this BBoxArray to BBox (nx = {}, ny = {})", nx, ny));
+    return base;
+}
 
 box_arr box_arr::get_move_by(offset_t dx, offset_t dy, bool unit_mode) const {
     if (!unit_mode)
