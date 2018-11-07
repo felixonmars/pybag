@@ -3,20 +3,16 @@
 
 #include <pybind11/stl.h>
 
-#include <cbag/common/box_t.h>
 #include <cbag/common/orientation.h>
 #include <cbag/common/transformation.h>
 
 #include <pybind11_generics/tuple.h>
 
 #include <pybag/util/bbox.h>
+#include <pybag/util/bbox_array.h>
 #include <pybag/util/orient_conv.h>
 
 namespace pyg = pybind11_generics;
-
-using offset_t = cbag::offset_t;
-using coord_t = cbag::coord_t;
-using c_box = cbag::box_t;
 
 namespace pybag {
 namespace util {
@@ -64,58 +60,63 @@ pyg::Tuple<coord_t, coord_t, coord_t, coord_t> immutable_key(const c_box &self) 
                                                                       self.xh(), self.yh());
 }
 
+c_box_arr to_bbox_array(const c_box &self) { return {self, 1, 1, 0, 0}; }
+
 } // namespace util
 } // namespace pybag
 
 namespace pu = pybag::util;
 
 void bind_bbox(py::module &m) {
-    auto py_box = py::class_<c_box>(m, "BBox");
-    py_box.doc() = "The bounding box class.";
-    py_box.def(py::init(&pu::bbox_init), "Construct a new BBox.", py::arg("xl"), py::arg("yl"),
+    auto py_cls = py::class_<c_box>(m, "BBox");
+    py_cls.doc() = "The bounding box class.";
+    py_cls.def(py::init(&pu::bbox_init), "Construct a new BBox.", py::arg("xl"), py::arg("yl"),
                py::arg("xh"), py::arg("yh"));
 
-    py_box.def("__repr__", &c_box::to_string, "Returns a string representation of BBox.");
-    py_box.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
+    py_cls.def("__repr__", &c_box::to_string, "Returns a string representation of BBox.");
+    py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
                py::arg("other"));
 
-    py_box.def_static("get_invalid_bbox", &pu::invalid_bbox, "Create an invalid BBox.");
-    py_box.def_property_readonly("xl", &c_box::xl, "Left coordinate.");
-    py_box.def_property_readonly("left_unit", &c_box::xl, "Left coordinate.");
-    py_box.def_property_readonly("yl", &c_box::yl, "Bottom coordinate.");
-    py_box.def_property_readonly("bottom_unit", &c_box::yl, "Bottom coordinate.");
-    py_box.def_property_readonly("xh", &c_box::xh, "Right coordinate.");
-    py_box.def_property_readonly("right_unit", &c_box::xh, "Right coordinate.");
-    py_box.def_property_readonly("yh", &c_box::yh, "Top coordinate.");
-    py_box.def_property_readonly("top_unit", &c_box::yh, "Top coordinate.");
-    py_box.def_property_readonly("xm", &c_box::xm, "Center X coordinate.");
-    py_box.def_property_readonly("xc_unit", &c_box::xm, "Center X coordinate.");
-    py_box.def_property_readonly("ym", &c_box::ym, "Center Y coordinate.");
-    py_box.def_property_readonly("yc_unit", &c_box::ym, "Center Y coordinate.");
-    py_box.def_property_readonly("w", &c_box::w, "Width.");
-    py_box.def_property_readonly("width_unit", &c_box::w, "Width.");
-    py_box.def_property_readonly("h", &c_box::h, "Height.");
-    py_box.def_property_readonly("height_unit", &c_box::h, "Height.");
+    py_cls.def_static("get_invalid_bbox", &pu::invalid_bbox, "Create an invalid BBox.");
+    py_cls.def_property_readonly("xl", &c_box::xl, "Left coordinate.");
+    py_cls.def_property_readonly("left_unit", &c_box::xl, "Left coordinate.");
+    py_cls.def_property_readonly("yl", &c_box::yl, "Bottom coordinate.");
+    py_cls.def_property_readonly("bottom_unit", &c_box::yl, "Bottom coordinate.");
+    py_cls.def_property_readonly("xh", &c_box::xh, "Right coordinate.");
+    py_cls.def_property_readonly("right_unit", &c_box::xh, "Right coordinate.");
+    py_cls.def_property_readonly("yh", &c_box::yh, "Top coordinate.");
+    py_cls.def_property_readonly("top_unit", &c_box::yh, "Top coordinate.");
+    py_cls.def_property_readonly("xm", &c_box::xm, "Center X coordinate.");
+    py_cls.def_property_readonly("xc_unit", &c_box::xm, "Center X coordinate.");
+    py_cls.def_property_readonly("ym", &c_box::ym, "Center Y coordinate.");
+    py_cls.def_property_readonly("yc_unit", &c_box::ym, "Center Y coordinate.");
+    py_cls.def_property_readonly("w", &c_box::w, "Width.");
+    py_cls.def_property_readonly("width_unit", &c_box::w, "Width.");
+    py_cls.def_property_readonly("h", &c_box::h, "Height.");
+    py_cls.def_property_readonly("height_unit", &c_box::h, "Height.");
 
-    py_box.def("is_physical", &c_box::is_physical, "True if this BBox has positive area.");
-    py_box.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
-    py_box.def("overlaps", &c_box::overlaps, "True if the two BBox overlaps.", py::arg("bbox"));
+    py_cls.def("is_physical", &c_box::is_physical, "True if this BBox has positive area.");
+    py_cls.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
+    py_cls.def("overlaps", &c_box::overlaps, "True if the two BBox overlaps.", py::arg("bbox"));
 
-    py_box.def("merge", &c_box::get_merge, "Returns a new merged BBox.", py::arg("bbox"));
-    py_box.def("intersect", &c_box::get_intersect, "Returns a new intersection BBox.",
+    py_cls.def("merge", &c_box::get_merge, "Returns a new merged BBox.", py::arg("bbox"));
+    py_cls.def("intersect", &c_box::get_intersect, "Returns a new intersection BBox.",
                py::arg("bbox"));
-    py_box.def("extend", &pu::extend, "Returns an extended BBox to the given coordinates.",
+    py_cls.def("extend", &pu::extend, "Returns an extended BBox to the given coordinates.",
                py::arg("x") = py::none(), py::arg("y") = py::none(), py::arg("unit_mode") = true);
-    py_box.def("expand", &pu::expand, "Returns an expanded BBox (on all sides).", py::arg("dx") = 0,
+    py_cls.def("expand", &pu::expand, "Returns an expanded BBox (on all sides).", py::arg("dx") = 0,
                py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_box.def("transform", &pu::transform, "Returns a transformed BBox.", py::arg("dx") = 0,
+    py_cls.def("transform", &pu::transform, "Returns a transformed BBox.", py::arg("dx") = 0,
                py::arg("dy") = 0, py::arg("ocode") = code_R0);
-    py_box.def("transform", &pu::transform_compat, "Returns a transformed BBox.",
+    py_cls.def("transform", &pu::transform_compat, "Returns a transformed BBox.",
                py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
                py::arg("unit_mode") = true);
-    py_box.def("move_by", &pu::move_by, "Returns a new moved BBox.", py::arg("dx") = 0,
+    py_cls.def("move_by", &pu::move_by, "Returns a new moved BBox.", py::arg("dx") = 0,
                py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_box.def("flip_xy", &c_box::get_flip_xy,
+    py_cls.def("flip_xy", &c_box::get_flip_xy,
                "Returns a new BBox with flipped X and Y coordinates.");
-    py_box.def("get_immutable_key", &pu::immutable_key, "Returns a tuple representing this box.");
+    py_cls.def("get_immutable_key", &pu::immutable_key, "Returns a tuple representing this box.");
+
+    py_cls.def("to_bbox_array", &pu::to_bbox_array,
+               "Returns a BBoxArray representation of this BBox.");
 }
