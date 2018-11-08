@@ -25,3 +25,39 @@ class Orientation(IntEnum):
 class Orient2D(IntEnum):
     x = 0
     y = 1
+
+
+class PathStyle(IntEnum):
+    truncate = 0
+    extend = 1
+    round = 2
+    triangle = 3
+
+
+class BlockageType(IntEnum):
+    routing = 0
+    via = 1
+    placement = 2
+    wiring = 3
+    fill = 4
+    slot = 5
+    pin = 6
+    feed_thru = 7
+    screen = 8
+
+
+class BoundaryType(IntEnum):
+    PR = 0
+    snap = 1
+
+
+class GeometryMode(IntEnum):
+    POLY_90 = 0
+    POLY_45 = 1
+    POLY = 2
+
+
+class SpaceQueryMode(IntEnum):
+    LINE_END = 0
+    DIFF_COLOR = 1
+    SAME_COLOR = 2
