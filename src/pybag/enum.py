@@ -20,3 +20,8 @@ class Orientation(IntEnum):
     R270 = 5
     R90 = 6
     MYR90 = 7
+
+
+class Orient2D(IntEnum):
+    x = 0
+    y = 1
