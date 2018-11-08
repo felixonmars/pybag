@@ -9,3 +9,4 @@ python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.oa
 python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.schematic
 python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.util.geometry
 python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.util.interval
+python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.layout.tech

@@ -103,6 +103,18 @@ target_link_libraries(oa
   pybind11_generics
   )
 
+pybind11_add_module(tech
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/layout/tech.cpp
+  )
+
+target_link_libraries(tech
+  PUBLIC
+  cbag
+  PRIVATE
+  fmt-header-only
+  pybind11_generics
+  )
+
 if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
   set_target_properties(schematic
     PROPERTIES
@@ -119,6 +131,10 @@ if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
   set_target_properties(geometry
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
+    )
+  set_target_properties(tech
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/layout
     )
 else()
   message( FATAL_ERROR "CMAKE_LIBRARY_OUTPUT_DIRECTORY not defined!" )

@@ -91,6 +91,7 @@ setup(
     packages=[
         pkg_name,
         pkg_name + '.util',
+        pkg_name + '.layout',
     ],
     package_dir={'': 'src'},
     package_data={
