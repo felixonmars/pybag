@@ -64,6 +64,10 @@ void implement_lay_list(const c_db &db, const std::string &lib_name, const std::
 namespace pyoa = pybag::oa;
 
 PYBIND11_MODULE(oa, m) {
+
+    // make sure PySchCellView is defined
+    py::module::import("pybag.schematic");
+
     m.doc() = "This module contains various classes for reading/writing OA database.";
 
     auto py_cls = py::class_<c_db>(m, "PyOADatabase");
