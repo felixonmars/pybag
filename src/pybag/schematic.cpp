@@ -27,6 +27,14 @@ using c_cellview = cbag::sch::cellview;
 namespace pybag {
 namespace schematic {
 
+std::string get_connection(const c_instance &inst, const std::string &term_name) {
+    auto iter = inst.connections.find(term_name);
+    if (iter == inst.connections.end())
+        return "";
+    return iter->second;
+}
+
+
 class const_inst_iterator {
   public:
     using iterator_category = std::forward_iterator_tag;
@@ -150,6 +158,8 @@ PYBIND11_MODULE(schematic, m) {
                     &c_instance::update_connection),
                 "Update instance pin connection.", py::arg("inst_name"), py::arg("term"),
                 py::arg("net"));
+    py_inst.def("get_connection", pysch::get_connection, "Get net connected to the given terminal.",
+                py::arg("term_name"));
 
     pyg::declare_iterator<pysch::const_inst_iterator>();
     pyg::declare_iterator<pysch::const_term_iterator>();
