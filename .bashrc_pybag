@@ -12,3 +12,6 @@ export OA_INCLUDE_DIR=/home/erichang/programs/oa_dist/include
 # python/pytest executables
 export PYBAG_PYTHON=$(which python)
 export PYBAG_PYTEST=$(which pytest)
+
+# set LD_LIBRARY_PATH; needed for OA binaries
+export LD_LIBRARY_PATH=${OA_LINK_DIR}
