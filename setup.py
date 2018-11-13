@@ -87,7 +87,10 @@ setup(
     long_description='',
     install_requires=[],
     setup_requires=[],
-    tests_require=['pytest'],
+    tests_require=[
+        'pytest',
+        'pytest-xdist',
+    ],
     packages=[
         pkg_name,
         pkg_name + '.util',
