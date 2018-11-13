@@ -4,13 +4,7 @@ import os
 
 import pkg_resources
 
-import pytest
-
 from pybag.schematic import PySchCellView
-
-cv_files = [
-    'sense_amp_strongarm.yaml',
-]
 
 
 def build_cv(fname):
@@ -19,23 +13,18 @@ def build_cv(fname):
     return PySchCellView(yaml_file)
 
 
-@pytest.mark.parametrize("fname", cv_files)
-def test_constructor(fname):
+def test_constructor():
     """Check PySchCellView is constructed properly."""
+    fname = 'inv.yaml'
 
-    # TODO: update yaml file
-    """
     cv = build_cv(fname)
+    assert list(cv.terminals()) == [('VDD', 0), ('VSS', 0), ('in', 0), ('out', 1)]
 
-    assert list(cv.in_terms()) == ['clk', 'inn', 'inp']
-    """
 
-@pytest.mark.parametrize("fname", cv_files)
-def test_array_instance(fname):
+def test_array_instance():
     """Check array_instance works."""
+    fname = 'inv.yaml'
 
-    # TODO: update yaml file
-    """
     cv = build_cv(fname)
 
     conn1 = [('B', 'foo'), ('D', 'bar')]
@@ -43,10 +32,11 @@ def test_array_instance(fname):
 
     name_conn_range = [('XFOO1', conn1), ('XFOO2', iter(conn2))]
 
-    cv.array_instance('XRMR', 0, 0, name_conn_range)
+    cv.array_instance('XP', 0, 0, name_conn_range)
 
+    """
     # make sure old instance is deleted
-    assert cv.get_inst_ref('XRMR') is None
+    assert cv.get_inst_ref('XP') is None
     inst1 = cv.get_inst_ref('XFOO1')
     inst2 = cv.get_inst_ref('XFOO2')
     # make sure new instance exists
@@ -54,10 +44,10 @@ def test_array_instance(fname):
     assert inst2 is not None
 
     # make sure new instance properties are correct
-    assert inst1.name == 'XFOO1'
-    assert inst2.name == 'XFOO2'
-    for i in (inst1, inst2):
-        assert i.lib_name == 'BAG_prim'
-        assert i.cell_name == 'pmos4_standard'
-        assert not i.is_primitive
+    for inst, conn in ((inst1, conn1), (inst2, conn2)):
+        assert inst.lib_name == 'BAG_prim'
+        assert inst.cell_name == 'pmos4_standard'
+        assert not inst.is_primitive
+        for term, net in conn:
+            assert inst.get_connection(term) == net
     """
