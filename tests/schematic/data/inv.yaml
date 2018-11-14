@@ -27,6 +27,7 @@ terminals:
             {}
           params:
             {}
+          is_primitive: true
         attr:
           layer: 229
           purpose: 237
@@ -65,6 +66,7 @@ terminals:
             {}
           params:
             {}
+          is_primitive: true
         attr:
           layer: 229
           purpose: 237
@@ -103,6 +105,7 @@ terminals:
             {}
           params:
             {}
+          is_primitive: true
         attr:
           layer: 229
           purpose: 237
@@ -141,6 +144,7 @@ terminals:
             {}
           params:
             {}
+          is_primitive: true
         attr:
           layer: 229
           purpose: 237
@@ -405,6 +409,7 @@ instances:
       S: VSS
     params:
       {}
+    is_primitive: true
   XP:
     lib_name: BAG_prim
     cell_name: pmos4_standard
@@ -425,6 +430,7 @@ instances:
       S: VDD
     params:
       {}
+    is_primitive: true
 props:
   connectivityLastUpdated:
     - 0

@@ -46,7 +46,7 @@ def test_array_instance():
     for inst, conn in ((inst1, conn1), (inst2, conn2)):
         assert inst.lib_name == 'BAG_prim'
         assert inst.cell_name == 'pmos4_standard'
-        assert not inst.is_primitive
+        assert inst.is_primitive
         for term, net in conn:
             assert inst.get_connection(term) == net
 
