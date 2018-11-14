@@ -11,7 +11,7 @@ from typing import Union
 from typing import Any
 
 
-def implment_yaml(*args: Any, **kwargs: Any) -> Any: ...
+def implement_yaml(fname: str, content_list: Iterable[Tuple[str, PySchCellView]]) -> None: ...
 
 
 class PySchCellView:

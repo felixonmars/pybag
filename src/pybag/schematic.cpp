@@ -172,9 +172,6 @@ namespace pysch = pybag::schematic;
 PYBIND11_MODULE(schematic, m) {
     m.doc() = "This module contains various classes for schematic manipulation.";
 
-    m.def("implement_yaml", &pysch::implement_yaml, "Write the given schematics to YAML file.",
-          py::arg("fname"), py::arg("content_list"));
-
     auto py_inst = py::class_<c_instance>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";
     py_inst.def_property_readonly("width", &c_instance::width, "Instance symbol width.");
@@ -231,4 +228,7 @@ PYBIND11_MODULE(schematic, m) {
               py::arg("old_name"), py::arg("dx"), py::arg("dy"), py::arg("name_conn_range"));
     py_cv.def("to_yaml", &pysch::cv_to_yaml,
               "Returns a YAML format string representing this cellview.");
+
+    m.def("implement_yaml", &pysch::implement_yaml, "Write the given schematics to YAML file.",
+          py::arg("fname"), py::arg("content_list"));
 }
