@@ -87,6 +87,7 @@ target_link_libraries(schematic
   PRIVATE
   fmt-header-only
   pybind11_generics
+  boost_filesystem
   )
 
 pybind11_add_module(oa

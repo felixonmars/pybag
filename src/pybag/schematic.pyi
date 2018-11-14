@@ -11,6 +11,9 @@ from typing import Union
 from typing import Any
 
 
+def implment_yaml(*args: Any, **kwargs: Any) -> Any: ...
+
+
 class PySchCellView:
     @property
     def cell_name(self) -> str: ...

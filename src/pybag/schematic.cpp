@@ -1,7 +1,12 @@
 
+#include <fstream>
 #include <memory>
 #include <string>
 #include <variant>
+
+#include <boost/filesystem.hpp>
+
+#include <yaml-cpp/yaml.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -10,8 +15,6 @@
 #include <pybind11_generics/iterator.h>
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
-
-#include <yaml-cpp/yaml.h>
 
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
@@ -141,6 +144,26 @@ std::string cv_to_yaml(const c_cellview &cv) {
     return str;
 }
 
+void implement_yaml(const std::string &fname,
+                    pyg::Iterable<std::pair<std::string, c_cellview *>> content_list) {
+
+    YAML::Emitter emitter;
+    emitter << YAML::BeginMap;
+    for (const auto &p : content_list) {
+        emitter << YAML::Key << p.first;
+        emitter << YAML::Value << YAML::Node(*(p.second));
+    }
+    emitter << YAML::EndMap;
+
+    boost::filesystem::path path(fname);
+    if (path.has_parent_path()) {
+        boost::filesystem::create_directories(path.parent_path());
+    }
+    std::ofstream outfile(path.string(), std::ios_base::out);
+    outfile << emitter.c_str() << std::endl;
+    outfile.close();
+}
+
 } // namespace schematic
 } // namespace pybag
 
@@ -148,6 +171,9 @@ namespace pysch = pybag::schematic;
 
 PYBIND11_MODULE(schematic, m) {
     m.doc() = "This module contains various classes for schematic manipulation.";
+
+    m.def("implement_yaml", &pysch::implement_yaml, "Write the given schematics to YAML file.",
+          py::arg("fname"), py::arg("content_list"));
 
     auto py_inst = py::class_<c_instance>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";
