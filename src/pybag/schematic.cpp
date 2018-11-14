@@ -11,11 +11,11 @@
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
 #include <cbag/schematic/instance.h>
-#include <cbag/schematic/pin_figure.h>
-#include <cbag/schematic/shape_t_def.h>
 
 #include <cbagyaml/cbagyaml.h>
 
@@ -33,7 +33,6 @@ std::string get_connection(const c_instance &inst, const std::string &term_name)
         return "";
     return iter->second;
 }
-
 
 class const_inst_iterator {
   public:
@@ -133,6 +132,15 @@ void array_instance(
     cbag::sch::array_instance(cv.instances, old_name, dx, dy, name_conn_range);
 }
 
+std::string cv_to_yaml(const c_cellview &cv) {
+    YAML::Node node(cv);
+    YAML::Emitter emitter;
+    emitter << node;
+    std::string str = emitter.c_str();
+    str += "\n";
+    return str;
+}
+
 } // namespace schematic
 } // namespace pybag
 
@@ -195,4 +203,6 @@ PYBIND11_MODULE(schematic, m) {
               py::arg("name"));
     py_cv.def("array_instance", &pysch::array_instance, "Arrays the given instance.",
               py::arg("old_name"), py::arg("dx"), py::arg("dy"), py::arg("name_conn_range"));
+    py_cv.def("to_yaml", &pysch::cv_to_yaml,
+              "Returns a YAML format string representing this cellview.");
 }

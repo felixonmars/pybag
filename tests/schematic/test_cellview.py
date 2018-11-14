@@ -34,7 +34,6 @@ def test_array_instance():
 
     cv.array_instance('XP', 0, 0, name_conn_range)
 
-    """
     # make sure old instance is deleted
     assert cv.get_inst_ref('XP') is None
     inst1 = cv.get_inst_ref('XFOO1')
@@ -50,4 +49,17 @@ def test_array_instance():
         assert not inst.is_primitive
         for term, net in conn:
             assert inst.get_connection(term) == net
-    """
+
+
+def test_to_yaml():
+    """Check yaml conversion method works."""
+    fname = 'inv.yaml'
+
+    cv = build_cv(fname)
+
+    content = cv.to_yaml()
+    yaml_file = pkg_resources.resource_filename(__name__, os.path.join('data', fname))
+    with open(yaml_file, 'r') as f:
+        file_content = f.read()
+
+    assert content == file_content
