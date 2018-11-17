@@ -3,5 +3,11 @@
 
 source .bashrc
 
+if [ -z ${OA_LINK_DIR+x} ]
+then
+    echo "OA_LINK_DIR is unset"
+    exit 1
+fi
+
 ${PYBAG_PYTHON} setup.py build --parallel 8 --build-temp ${PYBAG_BUILD_TEMP} \
                 --build-lib ${PYBAG_BUILD_LIB}
