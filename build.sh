@@ -9,5 +9,11 @@ then
     exit 1
 fi
 
+if [ -z ${PYBAG_PYTHON+x} ]
+then
+    echo "PYBAG_PYTHON is unset"
+    exit 1
+fi
+
 ${PYBAG_PYTHON} setup.py build --parallel 8 --build-temp ${PYBAG_BUILD_TEMP} \
                 --build-lib ${PYBAG_BUILD_LIB}
