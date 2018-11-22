@@ -11,6 +11,9 @@ from typing import Union
 from typing import Any
 
 
+def implement_netlist(fname: str, content_list: Iterable[Tuple[str, PySchCellView]], format: int, flat: bool, shell: bool, rmin: int, prim_fname: str) -> None: ...
+
+
 def implement_yaml(fname: str, content_list: Iterable[Tuple[str, PySchCellView]]) -> None: ...
 
 

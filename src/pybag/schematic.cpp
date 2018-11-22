@@ -16,6 +16,7 @@
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
+#include <cbag/netlist/netlist.h>
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
 #include <cbag/schematic/instance.h>
@@ -163,6 +164,15 @@ void implement_yaml(const std::string &fname,
     outfile.close();
 }
 
+void implement_netlist(const std::string &fname,
+                       pyg::Iterable<std::pair<std::string, c_cellview *>> content_list,
+                       uint8_t format, bool flat, bool shell, uint32_t rmin,
+                       const std::string &prim_fname) {
+    cbag::netlist::write_netlist(content_list, fname,
+                                 static_cast<cbag::netlist::netlist_fmt>(format), flat, shell, rmin,
+                                 prim_fname);
+}
+
 } // namespace schematic
 } // namespace pybag
 
@@ -230,4 +240,8 @@ PYBIND11_MODULE(schematic, m) {
 
     m.def("implement_yaml", &pysch::implement_yaml, "Write the given schematics to YAML file.",
           py::arg("fname"), py::arg("content_list"));
+    m.def("implement_netlist", &pysch::implement_netlist,
+          "Write the given schematics to a netlist file.", py::arg("fname"),
+          py::arg("content_list"), py::arg("format"), py::arg("flat"), py::arg("shell"),
+          py::arg("rmin"), py::arg("prim_fname"));
 }
