@@ -83,7 +83,6 @@ pybind11_add_module(schematic
 target_link_libraries(schematic
   PUBLIC
   cbag
-  cbagyaml
   PRIVATE
   fmt-header-only
   pybind11_generics
@@ -98,7 +97,6 @@ target_link_libraries(oa
   PUBLIC
   cbag
   cbagoa
-  cbagyaml
   PRIVATE
   fmt-header-only
   pybind11_generics

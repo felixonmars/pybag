@@ -19,8 +19,7 @@
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
 #include <cbag/schematic/instance.h>
-
-#include <cbagyaml/cbagyaml.h>
+#include <cbag/yaml/cellviews.h>
 
 namespace pyg = pybind11_generics;
 
@@ -197,8 +196,8 @@ PYBIND11_MODULE(schematic, m) {
 
     auto py_cv = py::class_<c_cellview>(m, "PySchCellView");
     py_cv.doc() = "A schematic master cellview.";
-    py_cv.def(py::init(&cbag::cv_from_file), "Load cellview from yaml file.", py::arg("yaml_fname"),
-              py::arg("sym_view") = "");
+    py_cv.def(py::init<std::string, std::string>(), "Load cellview from yaml file.",
+              py::arg("yaml_fname"), py::arg("sym_view") = "");
     py_cv.def_readonly("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readonly("view_name", &c_cellview::view_name, "Master view name.");
     py_cv.def_readwrite("cell_name", &c_cellview::cell_name, "Master cell name.");

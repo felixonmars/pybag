@@ -5,6 +5,11 @@
 from enum import IntEnum
 
 
+class NetlistType(IntEnum):
+    CDL = 0
+    VERILOG = 1
+
+
 class TermType(IntEnum):
     input = 0
     output = 1
