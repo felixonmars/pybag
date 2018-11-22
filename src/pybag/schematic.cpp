@@ -168,9 +168,8 @@ void implement_netlist(const std::string &fname,
                        pyg::Iterable<std::pair<std::string, c_cellview *>> content_list,
                        uint8_t fmt_code, bool flat, bool shell, uint32_t rmin,
                        const std::string &prim_fname) {
-    cbag::netlist::write_netlist(content_list, fname,
-                                 static_cast<cbag::netlist::netlist_fmt>(fmt_code), flat, shell,
-                                 rmin, prim_fname);
+    cbag::netlist::write_netlist(content_list, fname, static_cast<cbag::design_output>(fmt_code),
+                                 flat, shell, rmin, prim_fname);
 }
 
 } // namespace schematic

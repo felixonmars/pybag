@@ -5,9 +5,13 @@
 from enum import IntEnum
 
 
-class NetlistType(IntEnum):
-    CDL = 0
-    VERILOG = 1
+class DesignOutput(IntEnum):
+    LAYOUT = 0
+    GDS = 1
+    SCHEMATIC = 2
+    YAML = 3
+    CDL = 4
+    VERILOG = 5
 
 
 class TermType(IntEnum):
