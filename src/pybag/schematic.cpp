@@ -13,6 +13,7 @@
 
 #include <pybind11_generics/iterable.h>
 #include <pybind11_generics/iterator.h>
+#include <pybind11_generics/list.h>
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
@@ -165,7 +166,7 @@ void implement_yaml(const std::string &fname,
 }
 
 void implement_netlist(const std::string &fname,
-                       pyg::Iterable<std::pair<std::string, c_cellview *>> content_list,
+                       pyg::List<std::pair<std::string, c_cellview *>> content_list,
                        uint8_t fmt_code, bool flat, bool shell, uint32_t rmin,
                        const std::string &prim_fname) {
     cbag::netlist::write_netlist(content_list, fname, static_cast<cbag::design_output>(fmt_code),
