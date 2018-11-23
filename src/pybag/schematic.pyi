@@ -9,9 +9,10 @@ from typing import Optional
 from typing import Iterator
 from typing import Union
 from typing import Any
+from typing import List
 
 
-def implement_netlist(fname: str, content_list: Iterable[Tuple[str, PySchCellView]], fmt_code: int, flat: bool, shell: bool, rmin: int, prim_fname: str) -> None: ...
+def implement_netlist(fname: str, content_list: List[Tuple[str, PySchCellView]], fmt_code: int, flat: bool, shell: bool, rmin: int, prim_fname: str) -> None: ...
 
 
 def implement_yaml(fname: str, content_list: Iterable[Tuple[str, PySchCellView]]) -> None: ...
