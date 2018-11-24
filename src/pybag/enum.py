@@ -12,6 +12,7 @@ class DesignOutput(IntEnum):
     YAML = 3
     CDL = 4
     VERILOG = 5
+    SYSVERILOG = 6
 
 
 class TermType(IntEnum):
@@ -70,3 +71,29 @@ class SpaceQueryMode(IntEnum):
     LINE_END = 0
     DIFF_COLOR = 1
     SAME_COLOR = 2
+
+
+def get_extension(output_type: DesignOutput) -> str:
+    """Get file extension of the given output type."""
+    if output_type is DesignOutput.GDS:
+        return 'gds'
+    elif output_type is DesignOutput.YAML:
+        return 'yaml'
+    elif output_type is DesignOutput.CDL:
+        return 'cdl'
+    elif output_type is DesignOutput.VERILOG:
+        return 'v'
+    elif output_type is DesignOutput.SYSVERILOG:
+        return 'sv'
+    else:
+        raise ValueError('Unsupported output type: {}'.format(output_type.name))
+
+
+def is_model_type(output_type: DesignOutput) -> bool:
+    """Returns true if the given output type represents a behavioral model."""
+    return output_type is DesignOutput.SYSVERILOG
+
+
+def is_netlist_type(output_type: DesignOutput) -> bool:
+    """Returns true if the given output type represents a netlist."""
+    return output_type is DesignOutput.CDL or output_type is DesignOutput.VERILOG
