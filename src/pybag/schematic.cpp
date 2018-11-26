@@ -145,14 +145,15 @@ std::string cv_to_yaml(const c_cellview &cv) {
     return str;
 }
 
-void implement_yaml(const std::string &fname,
-                    pyg::Iterable<std::pair<std::string, c_cellview *>> content_list) {
+void implement_yaml(
+    const std::string &fname,
+    pyg::Iterable<std::pair<std::string, std::pair<c_cellview *, std::string>>> content_list) {
 
     YAML::Emitter emitter;
     emitter << YAML::BeginMap;
     for (const auto &p : content_list) {
         emitter << YAML::Key << p.first;
-        emitter << YAML::Value << YAML::Node(*(p.second));
+        emitter << YAML::Value << YAML::Node(*(p.second.first));
     }
     emitter << YAML::EndMap;
 
