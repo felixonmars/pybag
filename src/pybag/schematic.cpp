@@ -211,6 +211,7 @@ PYBIND11_MODULE(schematic, m) {
     py_cv.def_readonly("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readonly("view_name", &c_cellview::view_name, "Master view name.");
     py_cv.def_readwrite("cell_name", &c_cellview::cell_name, "Master cell name.");
+    py_cv.def("get_copy", &c_cellview::get_copy, "Returns a copy of this cellview.");
     py_cv.def("clear_params", &c_cellview::clear_params, "Clear all schematic parameters.");
     py_cv.def("set_param", &c_cellview::set_param, "Set schematic parameter value.",
               py::arg("name"), py::arg("val"));
