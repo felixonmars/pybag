@@ -152,8 +152,11 @@ void implement_yaml(
     YAML::Emitter emitter;
     emitter << YAML::BeginMap;
     for (const auto &p : content_list) {
-        emitter << YAML::Key << p.first;
-        emitter << YAML::Value << YAML::Node(*(p.second.first));
+        c_cellview *ptr = p.second.first;
+        if (ptr) {
+            emitter << YAML::Key << p.first;
+            emitter << YAML::Value << YAML::Node(*ptr);
+        }
     }
     emitter << YAML::EndMap;
 
@@ -209,8 +212,8 @@ PYBIND11_MODULE(schematic, m) {
     py_cv.doc() = "A schematic master cellview.";
     py_cv.def(py::init<std::string, std::string>(), "Load cellview from yaml file.",
               py::arg("yaml_fname"), py::arg("sym_view") = "");
-    py_cv.def_readonly("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readonly("view_name", &c_cellview::view_name, "Master view name.");
+    py_cv.def_readwrite("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readwrite("cell_name", &c_cellview::cell_name, "Master cell name.");
     py_cv.def("get_copy", &c_cellview::get_copy, "Returns a copy of this cellview.");
     py_cv.def("clear_params", &c_cellview::clear_params, "Clear all schematic parameters.");
