@@ -56,8 +56,8 @@ pybind11_add_module(interval
 target_link_libraries(interval
   PUBLIC
   cbag
+  fmt
   PRIVATE
-  fmt-header-only
   pybind11_generics
   )
 
@@ -71,8 +71,8 @@ pybind11_add_module(geometry
 target_link_libraries(geometry
   PUBLIC
   cbag
+  fmt
   PRIVATE
-  fmt-header-only
   pybind11_generics
   )
 
@@ -83,8 +83,8 @@ pybind11_add_module(schematic
 target_link_libraries(schematic
   PUBLIC
   cbag
+  fmt
   PRIVATE
-  fmt-header-only
   pybind11_generics
   boost_filesystem
   )
@@ -97,8 +97,8 @@ target_link_libraries(oa
   PUBLIC
   cbag
   cbagoa
+  fmt
   PRIVATE
-  fmt-header-only
   pybind11_generics
   )
 
@@ -109,8 +109,8 @@ pybind11_add_module(tech
 target_link_libraries(tech
   PUBLIC
   cbag
+  fmt
   PRIVATE
-  fmt-header-only
   pybind11_generics
   )
 
