@@ -96,7 +96,6 @@ pybind11_add_module(oa
 target_link_libraries(oa
   PUBLIC
   cbag
-  cbagoa
   fmt
   PRIVATE
   pybind11_generics

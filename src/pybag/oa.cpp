@@ -8,9 +8,9 @@
 #include <cbag/schematic/pin_figure.h>
 #include <cbag/schematic/shape_t_def.h>
 
-#include <cbagoa/cbagoa.h>
-#include <cbagoa/oa_read_lib.h>
-#include <cbagoa/oa_write_lib.h>
+#include <cbag/oa/oa_database.h>
+#include <cbag/oa/oa_read_lib.h>
+#include <cbag/oa/oa_write_lib.h>
 
 using c_db = cbagoa::oa_database;
 
