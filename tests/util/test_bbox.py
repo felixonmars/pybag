@@ -2,7 +2,7 @@
 
 import pytest
 
-from pybag.util.geometry import BBox
+from pybag.core import BBox
 from pybag.enum import Orientation
 
 # test data for PyDisjointIntervals

@@ -23,6 +23,8 @@
 #include <cbag/schematic/instance.h>
 #include <cbag/yaml/cellviews.h>
 
+#include <pybag/schematic.h>
+
 namespace pyg = pybind11_generics;
 
 using c_instance = cbag::sch::instance;
@@ -182,8 +184,7 @@ void implement_netlist(
 
 namespace pysch = pybag::schematic;
 
-PYBIND11_MODULE(schematic, m) {
-    m.doc() = "This module contains various classes for schematic manipulation.";
+void bind_schematic(py::module &m) {
 
     auto py_inst = py::class_<c_instance>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";

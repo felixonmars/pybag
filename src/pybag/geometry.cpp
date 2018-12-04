@@ -1,10 +1,9 @@
-#include <pybag/util/bbox.h>
-#include <pybag/util/bbox_array.h>
-#include <pybag/util/bbox_collection.h>
+#include <pybag/bbox.h>
+#include <pybag/bbox_array.h>
+#include <pybag/bbox_collection.h>
+#include <pybag/geometry.h>
 
-PYBIND11_MODULE(geometry, m) {
-    m.doc() = "This module contains various geometry utility classes.";
-
+void bind_geometry(py::module &m) {
     auto py_box = py::class_<c_box>(m, "BBox");
     auto py_barr = py::class_<c_box_arr>(m, "BBoxArray");
     auto py_bcol = py::class_<c_box_col>(m, "BBoxCollection");

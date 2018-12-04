@@ -8,10 +8,10 @@
 
 #include <pybind11_generics/tuple.h>
 
-#include <pybag/util/bbox.h>
-#include <pybag/util/bbox_array.h>
-#include <pybag/util/bbox_collection.h>
-#include <pybag/util/orient_conv.h>
+#include <pybag/bbox.h>
+#include <pybag/bbox_array.h>
+#include <pybag/bbox_collection.h>
+#include <pybag/orient_conv.h>
 
 namespace pyg = pybind11_generics;
 

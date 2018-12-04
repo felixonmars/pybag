@@ -9,6 +9,8 @@
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
+#include <pybag/interval.h>
+
 namespace pyg = pybind11_generics;
 
 using coord_type = cbag::offset_t;
@@ -119,12 +121,10 @@ bool add(c_dis_intvs &self, pyg::Tuple<int, int> intv, py::object val = py::none
 
 namespace pu = pybag::util;
 
-PYBIND11_MODULE(interval, m) {
+void bind_interval(py::module &m) {
     pyg::declare_iterator<c_dis_intvs::const_iterator>();
     pyg::declare_iterator<c_dis_intvs::const_intv_iterator>();
     pyg::declare_iterator<pu::const_val_iterator>();
-
-    m.doc() = "This module contains utility classes for manipulating intervals.";
 
     // add interval class
     auto py_dis_intvs = py::class_<c_dis_intvs>(m, "PyDisjointIntervals");

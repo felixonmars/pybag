@@ -49,38 +49,20 @@ include_directories(
 link_directories($ENV{OA_LINK_DIR})
 
 # add python bindings for cbag
-pybind11_add_module(interval
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/interval.cpp
-  )
-
-target_link_libraries(interval
-  PUBLIC
-  cbag
-  fmt
-  PRIVATE
-  pybind11_generics
-  )
-
-pybind11_add_module(geometry
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/bbox.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/bbox_array.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/bbox_collection.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/util/geometry.cpp
-  )
-
-target_link_libraries(geometry
-  PUBLIC
-  cbag
-  fmt
-  PRIVATE
-  pybind11_generics
-  )
-
-pybind11_add_module(schematic
+pybind11_add_module(core
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox_array.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox_collection.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/core.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/geometry.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/interval.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/oa.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/orient_conv.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/schematic.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/tech.cpp
   )
 
-target_link_libraries(schematic
+target_link_libraries(core
   PUBLIC
   cbag
   fmt
@@ -89,50 +71,10 @@ target_link_libraries(schematic
   boost_filesystem
   )
 
-pybind11_add_module(oa
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/oa.cpp
-  )
-
-target_link_libraries(oa
-  PUBLIC
-  cbag
-  fmt
-  PRIVATE
-  pybind11_generics
-  )
-
-pybind11_add_module(tech
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/layout/tech.cpp
-  )
-
-target_link_libraries(tech
-  PUBLIC
-  cbag
-  fmt
-  PRIVATE
-  pybind11_generics
-  )
-
 if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
-  set_target_properties(schematic
+  set_target_properties(core
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-    )
-  set_target_properties(oa
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-    )
-  set_target_properties(interval
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
-    )
-  set_target_properties(geometry
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/util
-    )
-  set_target_properties(tech
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/layout
     )
 else()
   message( FATAL_ERROR "CMAKE_LIBRARY_OUTPUT_DIRECTORY not defined!" )

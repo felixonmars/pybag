@@ -5,7 +5,7 @@
 
 #include <pybind11_generics/iterable.h>
 
-#include <pybag/util/bbox_array.h>
+#include <pybag/bbox_array.h>
 
 namespace pybag {
 namespace util {

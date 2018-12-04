@@ -2,11 +2,13 @@
 
 #include <cbag/layout/tech.h>
 
+#include <pybag/tech.h>
+
 namespace py = pybind11;
 
 using c_tech = cbag::layout::tech;
 
-PYBIND11_MODULE(tech, m) {
+void bind_tech(py::module &m) {
     m.doc() = "This module defines the layout technology information class.";
 
     // add interval class

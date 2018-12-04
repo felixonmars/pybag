@@ -1,7 +1,7 @@
 #include <fmt/core.h>
 
-#include <pybag/util/bbox_collection.h>
-#include <pybag/util/orient_conv.h>
+#include <pybag/bbox_collection.h>
+#include <pybag/orient_conv.h>
 
 namespace pybag {
 namespace util {

@@ -4,7 +4,7 @@ import os
 
 import pkg_resources
 
-from pybag.schematic import PySchCellView
+from pybag.core import PySchCellView
 
 
 def build_cv(fname):

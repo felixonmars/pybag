@@ -12,6 +12,9 @@
 #include <cbag/oa/oa_read_lib.h>
 #include <cbag/oa/oa_write_lib.h>
 
+#include <pybag/oa.h>
+#include <pybag/schematic.h>
+
 using c_db = cbagoa::oa_database;
 
 namespace py = pybind11;
@@ -63,12 +66,10 @@ void implement_lay_list(const c_db &db, const std::string &lib_name, const std::
 
 namespace pyoa = pybag::oa;
 
-PYBIND11_MODULE(oa, m) {
+void bind_oa(py::module &m) {
 
     // make sure PySchCellView is defined
-    py::module::import("pybag.schematic");
-
-    m.doc() = "This module contains various classes for reading/writing OA database.";
+    bind_schematic(m);
 
     auto py_cls = py::class_<c_db>(m, "PyOADatabase");
     py_cls.doc() = "A class that reads/writes OA Database.";

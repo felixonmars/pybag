@@ -9,9 +9,9 @@
 
 #include <pybind11_generics/iterator.h>
 
-#include <pybag/util/bbox_array.h>
-#include <pybag/util/bbox_collection.h>
-#include <pybag/util/orient_conv.h>
+#include <pybag/bbox_array.h>
+#include <pybag/bbox_collection.h>
+#include <pybag/orient_conv.h>
 
 namespace pyg = pybind11_generics;
 

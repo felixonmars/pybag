@@ -2,7 +2,7 @@
 
 import pytest
 
-from pybag.util.geometry import BBox, BBoxArray
+from pybag.core import BBox, BBoxArray
 from pybag.enum import Orientation
 
 transform_data = [
