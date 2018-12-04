@@ -19,6 +19,11 @@ add_compile_options(-Wno-delete-non-virtual-dtor)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # generate compilation commands file for emacs
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Set to build position independent code
+# Since Python wrappers are always shared library,
+# We need to build static library dependencies with
+# position independent code.
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
 # prefer pthreads
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
