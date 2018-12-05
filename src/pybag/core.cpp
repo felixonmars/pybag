@@ -1,5 +1,6 @@
 #include <pybag/geometry.h>
 #include <pybag/interval.h>
+#include <pybag/lay_objects.h>
 #include <pybag/oa.h>
 #include <pybag/tech.h>
 
@@ -14,4 +15,5 @@ PYBIND11_MODULE(core, m) {
     bind_geometry(m);
     bind_tech(m);
     bind_oa(m);
+    bind_lay_objects(m);
 }

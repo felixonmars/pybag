@@ -9,9 +9,6 @@ namespace py = pybind11;
 using c_tech = cbag::layout::tech;
 
 void bind_tech(py::module &m) {
-    m.doc() = "This module defines the layout technology information class.";
-
-    // add interval class
     auto py_cls = py::class_<c_tech>(m, "PyTech");
     py_cls.doc() = "A class that handles technology-specific information.";
     py_cls.def(py::init<std::string>(), "Create a new PyTech class from file.",
