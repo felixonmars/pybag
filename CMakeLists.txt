@@ -62,6 +62,7 @@ pybind11_add_module(core
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/geometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/interval.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/lay_objects.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/layout.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/oa.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/orient_conv.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/schematic.cpp

@@ -14,8 +14,6 @@
 
 #include <pybag/lay_objects.h>
 
-namespace py = pybind11;
-
 template <class Shape> decltype(auto) bind_shape_ref(py::module &m, const char *name) {
     auto py_cls = py::class_<cbag::layout::shape_ref<Shape>>(m, name);
     py_cls.def(py::init<>(), "Create an empty layout object.");
