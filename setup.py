@@ -20,7 +20,17 @@ class CMakePyBind11Extension(Extension):
 
 
 class CMakePyBind11Build(build_ext):
+    user_options = build_ext.user_options
+    user_options.append(('compiler-launcher', None, "specify compiler launcher program"))
+
+    def initialize_options(self):
+        build_ext.initialize_options(self)
+        # noinspection PyAttributeOutsideInit
+        self.compiler_launcher = ''
+
     def run(self):
+        print('comp_launcher =', self.compiler_launcher)
+        print('parallel =', self.parallel)
         try:
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
@@ -45,37 +55,42 @@ class CMakePyBind11Build(build_ext):
         return 1 if workers is None else workers
 
     def build_extension(self, ext):
+        cfg = 'Debug' if self.debug else 'Release'
+
         extdir = os.path.abspath(os.path.join(self.build_lib, pkg_name))
         cmake_args = [
+            'cmake',
+            ext.sourcedir,
             '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
             '-DPYTHON_EXECUTABLE=' + sys.executable,
+            '-DCMAKE_BUILD_TYPE=' + cfg,
+        ]
+        build_args = [
+            'cmake',
+            '--build',
+            '.',
+            '--',
         ]
 
-        cfg = 'Debug' if self.debug else 'Release'
-        build_args = ['--config', cfg]
+        if self.compiler_launcher:
+            cmake_args.append('-DCMAKE_CXX_COMPILER_LAUNCHER=' + self.compiler_launcher)
 
         if platform.system() == "Windows":
-            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
-                cfg.upper(),
-                extdir)]
             if sys.maxsize > 2 ** 32:
-                cmake_args += ['-A', 'x64']
-            build_args += ['--', '/m']
-        else:
-            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j{:d}'.format(self._get_num_workers())]
-
+                cmake_args.append('-A')
+                cmake_args.append('x64')
+            build_args.append('/m')
+        
+        build_args.append('-j' + str(self._get_num_workers()))
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
-                              cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args,
-                              cwd=self.build_temp)
-
-        print()  # Add an empty line for cleaner output
+        subprocess.check_call(cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call(build_args, cwd=self.build_temp)
+        # Add an empty line for cleaner output
+        print()
 
 
 setup(
@@ -104,6 +119,8 @@ setup(
     ext_modules=[
         CMakePyBind11Extension('all'),
     ],
-    cmdclass=dict(build_ext=CMakePyBind11Build),
+    cmdclass={
+        'build_ext': CMakePyBind11Build,
+    },
     zip_safe=False,
 )

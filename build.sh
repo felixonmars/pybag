@@ -15,5 +15,6 @@ then
     exit 1
 fi
 
-${PYBAG_PYTHON} setup.py build --parallel 8 --build-temp ${PYBAG_BUILD_TEMP} \
-                --build-lib ${PYBAG_BUILD_LIB}
+${PYBAG_PYTHON} setup.py build \
+    --build-temp ${PYBAG_BUILD_TEMP} \
+    --build-lib ${PYBAG_BUILD_LIB} \
