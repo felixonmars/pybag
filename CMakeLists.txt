@@ -76,6 +76,7 @@ target_link_libraries(core
   PRIVATE
   pybind11_generics
   ${Boost_LIBRARIES}
+  yaml-cpp
   )
 
 if( DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
