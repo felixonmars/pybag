@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # set up environment variables needed to build library
 
-# Use gcc 7; latest gcc 8 has internal compiler error
-export CC=/usr/bin/gcc-7
-export CXX=/usr/bin/g++-7
+# latest gcc 8 (8.2.1) fixed internal compiler errors
+export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++
 
 # OA library/include directories
 export OA_LINK_DIR=/home/erichang/programs/oa_dist/lib/linux_rhel50_gcc44x_64/opt
