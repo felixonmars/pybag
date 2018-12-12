@@ -4,8 +4,6 @@
 #include <string>
 #include <variant>
 
-#include <boost/filesystem.hpp>
-
 #include <yaml-cpp/yaml.h>
 
 #include <pybind11/pybind11.h>
@@ -21,6 +19,7 @@
 #include <cbag/schematic/cellview.h>
 #include <cbag/schematic/cellview_inst_mod.h>
 #include <cbag/schematic/instance.h>
+#include <cbag/util/io.h>
 #include <cbag/yaml/cellviews.h>
 
 #include <pybag/schematic.h>
@@ -162,11 +161,8 @@ void implement_yaml(
     }
     emitter << YAML::EndMap;
 
-    boost::filesystem::path path(fname);
-    if (path.has_parent_path()) {
-        boost::filesystem::create_directories(path.parent_path());
-    }
-    std::ofstream outfile(path.string(), std::ios_base::out);
+    cbag::util::make_parent_dirs(fname);
+    std::ofstream outfile(fname, std::ios_base::out);
     outfile << emitter.c_str() << std::endl;
     outfile.close();
 }

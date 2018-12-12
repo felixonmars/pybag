@@ -75,7 +75,6 @@ target_link_libraries(core
   fmt
   PRIVATE
   pybind11_generics
-  ${Boost_LIBRARIES}
   yaml-cpp
   )
 
