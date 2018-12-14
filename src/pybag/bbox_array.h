@@ -7,12 +7,12 @@
 
 #include <cbag/common/box_t.h>
 
+#include <pybag/typedefs.h>
+
 namespace py = pybind11;
 namespace pyg = pybind11_generics;
 
 using c_box = cbag::box_t;
-using coord_t = cbag::coord_t;
-using offset_t = cbag::offset_t;
 
 namespace pybag {
 namespace util {
