@@ -37,7 +37,7 @@ class box_collection {
     const_iterator end() const;
 
     c_box get_bounding_box() const;
-    box_collection get_transform(offset_t dx, offset_t dy, uint32_t ocode) const;
+    box_collection get_transform(const cbag::transformation &xform) const;
     box_collection get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
                                         bool unit_mode) const;
 };

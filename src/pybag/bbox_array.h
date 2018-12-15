@@ -54,7 +54,7 @@ class box_arr {
 
     box_arr get_move_by(offset_t dx, offset_t dy, bool unit_mode) const;
 
-    box_arr get_transform(offset_t dx, offset_t dy, uint32_t ocode) const;
+    box_arr get_transform(const cbag::transformation &xform) const;
 
     box_arr get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
                                  bool unit_mode) const;
@@ -62,7 +62,7 @@ class box_arr {
     box_arr_iter begin() const;
     box_arr_iter end() const;
 
-    box_arr &transform(offset_t dx, offset_t dy, uint32_t ocode);
+    box_arr &transform(const cbag::transformation &xform);
 };
 
 } // namespace util

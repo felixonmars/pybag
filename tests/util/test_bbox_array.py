@@ -2,7 +2,7 @@
 
 import pytest
 
-from pybag.core import BBox, BBoxArray
+from pybag.core import BBox, BBoxArray, Transform
 from pybag.enum import Orientation
 
 transform_data = [
@@ -20,7 +20,7 @@ def make_bbox_array(barr_info):
 def test_transform(barr1_info, dx, dy, orient, barr2_info):
     barr1 = make_bbox_array(barr1_info)
     barr2 = make_bbox_array(barr2_info)
-    a = barr1.transform(dx, dy, Orientation[orient])
+    a = barr1.transform(Transform(dx, dy, Orientation[orient]))
     b = barr1.transform((dx, dy), orient)
     assert a == barr2
     assert b == barr2

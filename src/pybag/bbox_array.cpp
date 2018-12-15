@@ -67,19 +67,18 @@ box_arr box_arr::get_move_by(offset_t dx, offset_t dy, bool unit_mode) const {
     return {base.get_move_by(dx, dy), nx, ny, spx, spy};
 }
 
-box_arr box_arr::get_transform(offset_t dx, offset_t dy, uint32_t ocode) const {
-    return box_arr(*this).transform(dx, dy, ocode);
+box_arr box_arr::get_transform(const cbag::transformation &xform) const {
+    return box_arr(*this).transform(xform);
 }
 
 box_arr box_arr::get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
                                       bool unit_mode) const {
     if (!unit_mode)
         throw std::invalid_argument("unit_mode = False is not supported.");
-    return get_transform(loc.get<0>(), loc.get<1>(), get_orient_code(orient));
+    return get_transform(cbag::transformation(loc.get<0>(), loc.get<1>(), get_orient_code(orient)));
 }
 
-box_arr &box_arr::transform(offset_t dx, offset_t dy, uint32_t ocode) {
-    cbag::transformation xform(dx, dy, ocode);
+box_arr &box_arr::transform(const cbag::transformation &xform) {
     xform.get_axis_transformation().transform(spx, spy);
     if (xform.flips_xy()) {
         auto tmp = nx;
@@ -170,7 +169,7 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def("move_by", &c_box_arr::get_move_by, "Returns a new translated BBoxArray.",
                py::arg("dx") = 0, py::arg("dy") = 0, py::arg("unit_mode") = true);
     py_cls.def("transform", &c_box_arr::get_transform, "Returns a transformed BBoxArray.",
-               py::arg("dx") = 0, py::arg("dy") = 0, py::arg("ocode") = code_R0);
+               py::arg("xform"));
     py_cls.def("transform", &c_box_arr::get_transform_compat, "Returns a transformed BBoxArray.",
                py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
                py::arg("unit_mode") = true);
