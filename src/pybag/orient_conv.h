@@ -16,6 +16,8 @@ namespace util {
 
 uint32_t get_orient_code(const py::str &orient);
 
+py::object code_to_orient(uint32_t code);
+
 } // namespace util
 } // namespace pybag
 

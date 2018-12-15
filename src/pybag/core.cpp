@@ -4,6 +4,7 @@
 #include <pybag/layout.h>
 #include <pybag/oa.h>
 #include <pybag/tech.h>
+#include <pybag/transform.h>
 
 #include <pybind11/pybind11.h>
 
@@ -13,6 +14,7 @@ PYBIND11_MODULE(core, m) {
     m.doc() = "Python wrappers for cbag library.";
 
     bind_interval(m);
+    bind_transform(m);
     bind_geometry(m);
     bind_tech(m);
     bind_oa(m);

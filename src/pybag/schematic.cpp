@@ -185,7 +185,7 @@ void bind_schematic(py::module &m) {
     auto py_inst = py::class_<c_instance>(m, "PySchInstRef");
     py_inst.doc() = "A reference to a schematic instance inside a cellview.";
     py_inst.def_property_readonly("width", &c_instance::width, "Instance symbol width.");
-    py_inst.def_property_readonly("height", &c_instance::width, "Instance symbol height.");
+    py_inst.def_property_readonly("height", &c_instance::height, "Instance symbol height.");
     py_inst.def_readwrite("lib_name", &c_instance::lib_name, "Instance master library name.");
     py_inst.def_readwrite("cell_name", &c_instance::cell_name, "Instance master cell name.");
     py_inst.def_readwrite("is_primitive", &c_instance::is_primitive,
