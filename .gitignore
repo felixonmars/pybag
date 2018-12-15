@@ -3,7 +3,6 @@
 *.log
 
 # IntelliJ IDEA related files
-.idea
 cmake-build-debug
 
 # emacs related files
