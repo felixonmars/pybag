@@ -67,6 +67,7 @@ pybind11_add_module(core
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/orient_conv.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/schematic.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/tech.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/transform.cpp
   )
 
 target_link_libraries(core

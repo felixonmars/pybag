@@ -36,16 +36,17 @@ c_box expand(const c_box &self, offset_t dx, offset_t dy, bool unit_mode) {
     return self.get_expand(dx, dy);
 }
 
-c_box transform(const c_box &self, offset_t dx, offset_t dy, uint32_t ocode) {
-    return self.get_transform(cbag::transformation(dx, dy, ocode));
+c_box get_transform(const c_box &self, const cbag::transformation &xform) {
+    return self.get_transform(xform);
 }
 
-c_box transform_compat(const c_box &self, pyg::Tuple<offset_t, offset_t> loc, py::str orient,
-                       bool unit_mode) {
+c_box get_transform_compat(const c_box &self, pyg::Tuple<offset_t, offset_t> loc, py::str orient,
+                           bool unit_mode) {
     if (!unit_mode)
         throw std::invalid_argument("unit_mode = False is not supported.");
 
-    return transform(self, loc.get<0>(), loc.get<1>(), get_orient_code(orient));
+    return get_transform(self,
+                         cbag::transformation(loc.get<0>(), loc.get<1>(), get_orient_code(orient)));
 }
 
 c_box move_by(const c_box &self, offset_t dx, offset_t dy, bool unit_mode) {
@@ -108,9 +109,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
                py::arg("x") = py::none(), py::arg("y") = py::none(), py::arg("unit_mode") = true);
     py_cls.def("expand", &pu::expand, "Returns an expanded BBox (on all sides).", py::arg("dx") = 0,
                py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_cls.def("transform", &pu::transform, "Returns a transformed BBox.", py::arg("dx") = 0,
-               py::arg("dy") = 0, py::arg("ocode") = code_R0);
-    py_cls.def("transform", &pu::transform_compat, "Returns a transformed BBox.",
+    py_cls.def("transform", &pu::get_transform, "Returns a transformed BBox.", py::arg("xform"));
+    py_cls.def("transform", &pu::get_transform_compat, "Returns a transformed BBox.",
                py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
                py::arg("unit_mode") = true);
     py_cls.def("move_by", &pu::move_by, "Returns a new moved BBox.", py::arg("dx") = 0,
