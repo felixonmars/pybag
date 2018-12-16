@@ -6,6 +6,7 @@
 #include <cbag/common/orientation.h>
 #include <cbag/common/transformation.h>
 
+#include <pybind11_generics/custom.h>
 #include <pybind11_generics/tuple.h>
 
 #include <pybag/bbox.h>
@@ -21,6 +22,13 @@ namespace util {
 std::unique_ptr<c_box> bbox_init(coord_t xl, coord_t yl, coord_t xh, coord_t yh, py::args args,
                                  py::kwargs kwargs) {
     return std::make_unique<c_box>(xl, yl, xh, yh);
+}
+
+pyg::Custom<c_box> merge(pyg::Custom<c_box> self, const c_box &bbox, bool copy = true) {
+    if (copy)
+        return py::cast(self->get_merge(bbox));
+    self->merge(bbox);
+    return self;
 }
 
 c_box extend(const c_box &self, const std::optional<coord_t> &x, const std::optional<coord_t> &y,
@@ -102,7 +110,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
     py_cls.def("overlaps", &c_box::overlaps, "True if the two BBox overlaps.", py::arg("bbox"));
 
-    py_cls.def("merge", &c_box::get_merge, "Returns a new merged BBox.", py::arg("bbox"));
+    py_cls.def("merge", &pu::merge, "Returns a new merged BBox.", py::arg("bbox"),
+               py::arg("copy") = true);
     py_cls.def("intersect", &c_box::get_intersect, "Returns a new intersection BBox.",
                py::arg("bbox"));
     py_cls.def("extend", &pu::extend, "Returns an extended BBox to the given coordinates.",

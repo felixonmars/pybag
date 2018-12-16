@@ -76,5 +76,15 @@ def test_merge_invalid():
     a = BBox(0, 0, 2, 3)
     b = BBox(100, 103, 200, 102)
 
-    assert a.merge(b) == a
-    assert b.merge(a) == a
+    a2 = a.merge(b)
+    a3 = b.merge(a)
+    assert a2 == a
+    assert a3 == a
+    assert a2 is not a
+    assert a3 is not a
+
+    a2 = a.merge(b, copy=False)
+    assert a2 is a
+    b2 = b.merge(a, copy=False)
+    assert b2 is b
+    assert b2 == a
