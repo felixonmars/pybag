@@ -19,51 +19,7 @@ namespace pyg = pybind11_generics;
 namespace pybag {
 namespace util {
 
-std::unique_ptr<c_box> bbox_init(coord_t xl, coord_t yl, coord_t xh, coord_t yh, py::args args,
-                                 py::kwargs kwargs) {
-    return std::make_unique<c_box>(xl, yl, xh, yh);
-}
-
-pyg::Custom<c_box> merge(pyg::Custom<c_box> self, const c_box &bbox, bool copy = true) {
-    if (copy)
-        return py::cast(self->get_merge(bbox));
-    self->merge(bbox);
-    return self;
-}
-
-c_box extend(const c_box &self, const std::optional<coord_t> &x, const std::optional<coord_t> &y,
-             bool unit_mode) {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return self.get_extend(x, y);
-}
-
-c_box expand(const c_box &self, offset_t dx, offset_t dy, bool unit_mode) {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return self.get_expand(dx, dy);
-}
-
-c_box get_transform(const c_box &self, const cbag::transformation &xform) {
-    return self.get_transform(xform);
-}
-
-c_box get_transform_compat(const c_box &self, pyg::Tuple<offset_t, offset_t> loc, py::str orient,
-                           bool unit_mode) {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-
-    return get_transform(self,
-                         cbag::transformation(loc.get<0>(), loc.get<1>(), get_orient_code(orient)));
-}
-
-c_box move_by(const c_box &self, offset_t dx, offset_t dy, bool unit_mode) {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return self.get_move_by(dx, dy);
-}
-
-pyg::Tuple<coord_t, coord_t, coord_t, coord_t> immutable_key(const c_box &self) {
+pyg::Tuple<coord_t, coord_t, coord_t, coord_t> get_immutable_key(const c_box &self) {
     return pyg::Tuple<coord_t, coord_t, coord_t, coord_t>::make_tuple(self.xl(), self.yl(),
                                                                       self.xh(), self.yh());
 }
@@ -81,8 +37,8 @@ namespace pu = pybag::util;
 
 void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.doc() = "The bounding box class.";
-    py_cls.def(py::init(&pu::bbox_init), "Construct a new BBox.", py::arg("xl"), py::arg("yl"),
-               py::arg("xh"), py::arg("yh"));
+    py_cls.def(py::init<coord_t, coord_t, coord_t, coord_t>(), "Construct a new BBox.",
+               py::arg("xl"), py::arg("yl"), py::arg("xh"), py::arg("yh"));
 
     py_cls.def("__repr__", &c_box::to_string, "Returns a string representation of BBox.");
     py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
@@ -90,43 +46,55 @@ void bind_bbox(py::class_<c_box> &py_cls) {
 
     py_cls.def_static("get_invalid_bbox", &c_box::invalid_box, "Create an invalid BBox.");
     py_cls.def_property_readonly("xl", &c_box::xl, "Left coordinate.");
-    py_cls.def_property_readonly("left_unit", &c_box::xl, "Left coordinate.");
+
     py_cls.def_property_readonly("yl", &c_box::yl, "Bottom coordinate.");
-    py_cls.def_property_readonly("bottom_unit", &c_box::yl, "Bottom coordinate.");
     py_cls.def_property_readonly("xh", &c_box::xh, "Right coordinate.");
-    py_cls.def_property_readonly("right_unit", &c_box::xh, "Right coordinate.");
     py_cls.def_property_readonly("yh", &c_box::yh, "Top coordinate.");
-    py_cls.def_property_readonly("top_unit", &c_box::yh, "Top coordinate.");
     py_cls.def_property_readonly("xm", &c_box::xm, "Center X coordinate.");
-    py_cls.def_property_readonly("xc_unit", &c_box::xm, "Center X coordinate.");
     py_cls.def_property_readonly("ym", &c_box::ym, "Center Y coordinate.");
-    py_cls.def_property_readonly("yc_unit", &c_box::ym, "Center Y coordinate.");
     py_cls.def_property_readonly("w", &c_box::w, "Width.");
-    py_cls.def_property_readonly("width_unit", &c_box::w, "Width.");
     py_cls.def_property_readonly("h", &c_box::h, "Height.");
+
+    /*
+    py_cls.def_property_readonly("left_unit", &c_box::xl, "Left coordinate.");
+    py_cls.def_property_readonly("bottom_unit", &c_box::yl, "Bottom coordinate.");
+    py_cls.def_property_readonly("right_unit", &c_box::xh, "Right coordinate.");
+    py_cls.def_property_readonly("top_unit", &c_box::yh, "Top coordinate.");
+    py_cls.def_property_readonly("xc_unit", &c_box::xm, "Center X coordinate.");
+    py_cls.def_property_readonly("yc_unit", &c_box::ym, "Center Y coordinate.");
+    py_cls.def_property_readonly("width_unit", &c_box::w, "Width.");
     py_cls.def_property_readonly("height_unit", &c_box::h, "Height.");
+    */
 
     py_cls.def("is_physical", &c_box::is_physical, "True if this BBox has positive area.");
     py_cls.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
     py_cls.def("overlaps", &c_box::overlaps, "True if the two BBox overlaps.", py::arg("bbox"));
 
-    py_cls.def("merge", &pu::merge, "Returns a new merged BBox.", py::arg("bbox"),
-               py::arg("copy") = true);
-    py_cls.def("intersect", &c_box::get_intersect, "Returns a new intersection BBox.",
-               py::arg("bbox"));
-    py_cls.def("extend", &pu::extend, "Returns an extended BBox to the given coordinates.",
-               py::arg("x") = py::none(), py::arg("y") = py::none(), py::arg("unit_mode") = true);
-    py_cls.def("expand", &pu::expand, "Returns an expanded BBox (on all sides).", py::arg("dx") = 0,
-               py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_cls.def("transform", &pu::get_transform, "Returns a transformed BBox.", py::arg("xform"));
-    py_cls.def("transform", &pu::get_transform_compat, "Returns a transformed BBox.",
-               py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
-               py::arg("unit_mode") = true);
-    py_cls.def("move_by", &pu::move_by, "Returns a new moved BBox.", py::arg("dx") = 0,
-               py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_cls.def("flip_xy", &c_box::get_flip_xy,
-               "Returns a new BBox with flipped X and Y coordinates.");
-    py_cls.def("get_immutable_key", &pu::immutable_key, "Returns a tuple representing this box.");
+    py_cls.def("merge", &c_box::merge, "Set to union of BBox", py::arg("bbox"));
+    py_cls.def("get_merge", &c_box::get_merge, "Get union of BBox", py::arg("bbox"));
+    py_cls.def("intersect", &c_box::intersect, "Set to intersection of BBox", py::arg("bbox"));
+    py_cls.def("get_intersect", &c_box::get_intersect, "Get intersection of BBox", py::arg("bbox"));
+    py_cls.def("extend", &c_box::extend, "Extend BBox to the given coordinates.",
+               py::arg("x") = py::none(), py::arg("y") = py::none());
+    py_cls.def("get_extend", &c_box::get_extend,
+               "Returns an extended BBox to the given coordinates.", py::arg("x") = py::none(),
+               py::arg("y") = py::none());
+    py_cls.def("expand", &c_box::expand, "Expand BBox (on all sides).", py::arg("dx") = 0,
+               py::arg("dy") = 0);
+    py_cls.def("get_expand", &c_box::get_expand, "Returns an expanded BBox (on all sides).",
+               py::arg("dx") = 0, py::arg("dy") = 0);
+    py_cls.def("transform", &c_box::transform, "Transforms the BBox.", py::arg("xform"));
+    py_cls.def("get_transform", &c_box::get_transform, "Returns a transformed BBox.",
+               py::arg("xform"));
+    py_cls.def("move_by", &c_box::move_by, "Moves the BBox.", py::arg("dx") = 0, py::arg("dy") = 0);
+    py_cls.def("get_move_by", &c_box::get_move_by, "Returns a moved BBox.", py::arg("dx") = 0,
+               py::arg("dy") = 0);
+    py_cls.def("flip_xy", &c_box::flip_xy, "Flips the BBox X and Y coordinates.");
+    py_cls.def("get_flip_xy", &c_box::get_flip_xy,
+               "Returns a flipped the BBox X and Y coordinates.");
+
+    py_cls.def("get_immutable_key", &pu::get_immutable_key,
+               "Returns a tuple representing this box.");
 
     py_cls.def("as_bbox_array", &pu::as_bbox_array,
                "Returns a BBoxArray representation of this BBox.");
