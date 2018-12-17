@@ -37,9 +37,12 @@ class box_collection {
     const_iterator end() const;
 
     c_box get_bounding_box() const;
+
+    box_collection get_move_by(offset_t dx = 0, offset_t dy = 0) const;
     box_collection get_transform(const cbag::transformation &xform) const;
-    box_collection get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
-                                        bool unit_mode) const;
+
+    box_collection &move_by(offset_t dx = 0, offset_t dy = 0);
+    box_collection &transform(const cbag::transformation &xform);
 };
 
 } // namespace util

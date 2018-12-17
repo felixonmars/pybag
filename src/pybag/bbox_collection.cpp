@@ -68,20 +68,26 @@ c_box box_collection::get_bounding_box() const {
     return ans;
 }
 
-box_collection box_collection::get_transform(const cbag::transformation &xform) const {
-    std::vector<c_box_arr> temp(data_);
-    for (auto &barr : temp) {
-        barr.transform(xform);
+box_collection &box_collection::move_by(offset_t dx, offset_t dy) {
+    for (auto &barr : data_) {
+        barr.move_by(dx, dy);
     }
-
-    return {std::move(temp)};
+    return *this;
 }
 
-box_collection box_collection::get_transform_compat(pyg::Tuple<offset_t, offset_t> loc,
-                                                    py::str orient, bool unit_mode) const {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return get_transform(cbag::transformation(loc.get<0>(), loc.get<1>(), get_orient_code(orient)));
+box_collection box_collection::get_move_by(offset_t dx, offset_t dy) const {
+    return box_collection(*this).move_by(dx, dy);
+}
+
+box_collection &box_collection::transform(const cbag::transformation &xform) {
+    for (auto &barr : data_) {
+        barr.transform(xform);
+    }
+    return *this;
+}
+
+box_collection box_collection::get_transform(const cbag::transformation &xform) const {
+    return box_collection(*this).transform(xform);
 }
 
 pyg::Iterator<c_box_arr> get_box_arr_iter(const box_collection &bcol) {
@@ -111,12 +117,14 @@ void bind_bbox_collection(py::class_<c_box_col> &py_cls) {
 
     py_cls.def("get_bounding_box", &c_box_col::get_bounding_box,
                "Returns the bounding box of this collection.");
-    py_cls.def("transform", &c_box_col::get_transform, "Returns a transformed BBoxCollection.",
+
+    py_cls.def("move_by", &c_box_col::move_by, "Moves this BBoxCollection.", py::arg("dx") = 0,
+               py::arg("dy") = 0);
+    py_cls.def("get_move_by", &c_box_col::get_move_by, "Returns a moved BBoxCollection.",
+               py::arg("dx") = 0, py::arg("dy") = 0);
+    py_cls.def("transform", &c_box_col::transform, "Transforms BBoxCollection.", py::arg("xform"));
+    py_cls.def("get_transform", &c_box_col::get_transform, "Returns a transformed BBoxCollection.",
                py::arg("xform"));
-    py_cls.def("transform", &c_box_col::get_transform_compat,
-               "Returns a transformed BBoxCollection.",
-               py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
-               py::arg("unit_mode") = true);
 
     py_cls.def("as_bbox_array", &c_box_col::as_bbox_array,
                "Cast this BBoxCollection to BBoxArray if able.");
