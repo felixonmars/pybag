@@ -11,6 +11,7 @@ from typing import Any
 from typing import List
 from typing import Union
 
+from .enum import Orientation
 
 def implement_netlist(fname: str, content_list: List[Tuple[str, Tuple[PySchCellView, str]]], fmt_code: int, flat: bool, shell: bool, rmin: int, prim_fname: str) -> None: ...
 
@@ -289,7 +290,7 @@ class Transform:
     @property
     def location(self) -> Tuple[int, int]: ...
     @property
-    def orient(self) -> object: ...
+    def orient(self) -> Orientation: ...
     @property
     def x(self) -> int: ...
     @property

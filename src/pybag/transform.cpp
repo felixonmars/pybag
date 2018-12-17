@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
 
-#include <pybind11_generics/tuple.h>
+#include <pybind11_generics/type_name.h>
 
 #include <cbag/common/transformation.h>
 
@@ -10,9 +10,34 @@
 
 namespace py = pybind11;
 
+// custom orientation typing definition
+
+namespace pybind11_generics {
+
+using obj_base = py::object;
+
+class PyOrient : public obj_base {
+  public:
+    static bool true_check(PyObject *ptr) { return true; }
+
+    PYBIND11_OBJECT_DEFAULT(PyOrient, obj_base, true_check);
+};
+
+} // namespace pybind11_generics
+
+namespace pybind11 {
+namespace detail {
+
+template <> struct handle_type_name<pybind11_generics::PyOrient> {
+    static constexpr auto name = _("Orientation");
+};
+
+} // namespace detail
+} // namespace pybind11
+
 using c_transform = cbag::transformation;
 
-py::object get_xform_orient(const c_transform &xform) {
+pybind11_generics::PyOrient get_xform_orient(const c_transform &xform) {
     return pybag::util::code_to_orient(xform.orient_code());
 }
 
