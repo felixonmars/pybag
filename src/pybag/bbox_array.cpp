@@ -25,9 +25,6 @@ box_arr::box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t sp
         throw std::invalid_argument(
             fmt::format("nx = {} and ny = {} cannot be non-positive.", nx, ny));
 }
-box_arr::box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy,
-                 py::kwargs kwargs)
-    : box_arr(std::move(base), nx, ny, spx, spy) {}
 
 coord_t box_arr::xl() const { return (spx >= 0) ? base.xl() : (nx - 1) * spx + base.xl(); }
 coord_t box_arr::xh() const { return (spx >= 0) ? (nx - 1) * spx + base.xh() : base.xh(); }
@@ -61,21 +58,13 @@ c_box box_arr::as_bbox() const {
 
 box_collection box_arr::as_bbox_collection() const { return {std::vector<box_arr>{*this}}; }
 
-box_arr box_arr::get_move_by(offset_t dx, offset_t dy, bool unit_mode) const {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return {base.get_move_by(dx, dy), nx, ny, spx, spy};
+box_arr &box_arr::move_by(offset_t dx, offset_t dy) {
+    base.move_by(dx, dy);
+    return *this;
 }
 
-box_arr box_arr::get_transform(const cbag::transformation &xform) const {
-    return box_arr(*this).transform(xform);
-}
-
-box_arr box_arr::get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
-                                      bool unit_mode) const {
-    if (!unit_mode)
-        throw std::invalid_argument("unit_mode = False is not supported.");
-    return get_transform(cbag::transformation(loc.get<0>(), loc.get<1>(), get_orient_code(orient)));
+box_arr box_arr::get_move_by(offset_t dx, offset_t dy) const {
+    return box_arr(*this).move_by(dx, dy);
 }
 
 box_arr &box_arr::transform(const cbag::transformation &xform) {
@@ -87,6 +76,10 @@ box_arr &box_arr::transform(const cbag::transformation &xform) {
     }
     base.transform(xform);
     return *this;
+}
+
+box_arr box_arr::get_transform(const cbag::transformation &xform) const {
+    return box_arr(*this).transform(xform);
 }
 
 class box_arr_iter {
@@ -136,7 +129,7 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     pyg::declare_iterator<pu::box_arr_iter>();
 
     py_cls.doc() = "The bounding box array class.";
-    py_cls.def(py::init<c_box, uint32_t, uint32_t, offset_t, offset_t, py::kwargs>(),
+    py_cls.def(py::init<c_box, uint32_t, uint32_t, offset_t, offset_t>(),
                "Construct a new BBoxArray.", py::arg("base"), py::arg("nx") = 1, py::arg("ny") = 1,
                py::arg("spx") = 0, py::arg("spy") = 0);
 
@@ -148,31 +141,37 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def_readonly("base", &c_box_arr::base, "The base BBox object.");
     py_cls.def_readonly("nx", &c_box_arr::nx, "Number of columns.");
     py_cls.def_readonly("ny", &c_box_arr::ny, "Number of rows.");
+    py_cls.def_readonly("spx", &c_box_arr::spx, "Column pitch");
+    py_cls.def_readonly("spy", &c_box_arr::spy, "Row pitch.");
+    py_cls.def_property_readonly("xl", &c_box_arr::xl, "Left-most edge");
+    py_cls.def_property_readonly("xh", &c_box_arr::xh, "Right-most edge");
+    py_cls.def_property_readonly("yl", &c_box_arr::yl, "Bottom-most edge");
+    py_cls.def_property_readonly("yh", &c_box_arr::yh, "Top-most edge");
+    py_cls.def_property_readonly("xm", &c_box_arr::xm, "Cetner X coordinate");
+    py_cls.def_property_readonly("ym", &c_box_arr::ym, "Cetner X coordinate");
+
+    /*
+    py_cls.def_property_readonly("left_unit", &c_box_arr::xl, "Left-most edge");
+    py_cls.def_property_readonly("right_unit", &c_box_arr::xh, "Right-most edge");
+    py_cls.def_property_readonly("bottom_unit", &c_box_arr::yl, "Bottom-most edge");
+    py_cls.def_property_readonly("top_unit", &c_box_arr::yh, "Top-most edge");
+    py_cls.def_property_readonly("xc_unit", &c_box_arr::xm, "Center X coordinate");
+    py_cls.def_property_readonly("yc_unit", &c_box_arr::ym, "Center X coordinate");
     py_cls.def_readonly("spx_unit", &c_box_arr::spx, "Column pitch");
     py_cls.def_readonly("spy_unit", &c_box_arr::spy, "Row pitch.");
-    py_cls.def_property_readonly("xl", &c_box_arr::xl, "Left-most edge");
-    py_cls.def_property_readonly("left_unit", &c_box_arr::xl, "Left-most edge");
-    py_cls.def_property_readonly("xh", &c_box_arr::xh, "Right-most edge");
-    py_cls.def_property_readonly("right_unit", &c_box_arr::xh, "Right-most edge");
-    py_cls.def_property_readonly("yl", &c_box_arr::yl, "Bottom-most edge");
-    py_cls.def_property_readonly("bottom_unit", &c_box_arr::yl, "Bottom-most edge");
-    py_cls.def_property_readonly("yh", &c_box_arr::yh, "Top-most edge");
-    py_cls.def_property_readonly("top_unit", &c_box_arr::yh, "Top-most edge");
-    py_cls.def_property_readonly("xm", &c_box_arr::xm, "Cetner X coordinate");
-    py_cls.def_property_readonly("xc_unit", &c_box_arr::xm, "Center X coordinate");
-    py_cls.def_property_readonly("ym", &c_box_arr::ym, "Cetner X coordinate");
-    py_cls.def_property_readonly("yc_unit", &c_box_arr::ym, "Center X coordinate");
+    */
 
     py_cls.def("get_bbox", &c_box_arr::get_bbox, "Returns the BBox with the given index.",
                py::arg("idx"));
     py_cls.def("get_overall_bbox", &c_box_arr::get_overall_bbox, "Returns the overall BBox.");
-    py_cls.def("move_by", &c_box_arr::get_move_by, "Returns a new translated BBoxArray.",
-               py::arg("dx") = 0, py::arg("dy") = 0, py::arg("unit_mode") = true);
-    py_cls.def("transform", &c_box_arr::get_transform, "Returns a transformed BBoxArray.",
+
+    py_cls.def("move_by", &c_box_arr::move_by, "Moves this BBoxArray.", py::arg("dx") = 0,
+               py::arg("dy") = 0);
+    py_cls.def("get_move_by", &c_box_arr::get_move_by, "Returns a moved BBoxArray.",
+               py::arg("dx") = 0, py::arg("dy") = 0);
+    py_cls.def("transform", &c_box_arr::transform, "Transforms this BBoxArray.", py::arg("xform"));
+    py_cls.def("get_transform", &c_box_arr::get_transform, "Returns a transformed BBoxArray.",
                py::arg("xform"));
-    py_cls.def("transform", &c_box_arr::get_transform_compat, "Returns a transformed BBoxArray.",
-               py::arg("loc") = std::pair<offset_t, offset_t>(0, 0), py::arg("orient") = "R0",
-               py::arg("unit_mode") = true);
 
     py_cls.def("as_bbox", &c_box_arr::as_bbox,
                "Returns a BBox representation of this BBoxArray if able.");

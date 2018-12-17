@@ -31,7 +31,6 @@ class box_arr {
 
     box_arr();
     box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy);
-    box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy, py::kwargs kwargs);
 
     coord_t xl() const;
     coord_t xh() const;
@@ -52,16 +51,14 @@ class box_arr {
 
     box_collection as_bbox_collection() const;
 
-    box_arr get_move_by(offset_t dx, offset_t dy, bool unit_mode) const;
+    box_arr get_move_by(offset_t dx = 0, offset_t dy = 0) const;
 
     box_arr get_transform(const cbag::transformation &xform) const;
-
-    box_arr get_transform_compat(pyg::Tuple<offset_t, offset_t> loc, py::str orient,
-                                 bool unit_mode) const;
 
     box_arr_iter begin() const;
     box_arr_iter end() const;
 
+    box_arr &move_by(offset_t dx = 0, offset_t dy = 0);
     box_arr &transform(const cbag::transformation &xform);
 };
 

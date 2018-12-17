@@ -20,11 +20,11 @@ def make_bbox_array(barr_info):
 def test_transform(barr1_info, dx, dy, orient, barr2_info):
     barr1 = make_bbox_array(barr1_info)
     barr2 = make_bbox_array(barr2_info)
-    a = barr1.transform(Transform(dx, dy, Orientation[orient]))
-    b = barr1.transform((dx, dy), orient)
+    xform = Transform(dx, dy, Orientation[orient])
+    a = barr1.get_transform(xform)
     assert a == barr2
-    assert b == barr2
-    if orient == 'R0':
-        assert barr1.transform((dx, dy)) == barr2
-    if dx == 0 and dy == 0:
-        assert barr1.transform(orient=orient) == barr2
+    assert a is not barr1
+
+    b = barr1.transform(xform)
+    assert barr1 == barr2
+    assert b is barr1
