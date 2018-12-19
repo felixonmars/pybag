@@ -120,6 +120,12 @@ void bind_cellview(py::module &m) {
                py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
                py::arg("widths"), py::arg("spaces"), py::arg("style0"), py::arg("style1"),
                py::arg("stylem"), py::arg("commit"));
+    py_cls.def("add_via_arr", &c_cellview::add_via_arr, "Add an array of vias.", py::arg("xform"),
+               py::arg("via_id"), py::arg("add_layers"), py::arg("bot_horiz"), py::arg("top_horiz"),
+               py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"), py::arg("vspx"),
+               py::arg("vspy"), py::arg("enc1x"), py::arg("enc1y"), py::arg("off1x"),
+               py::arg("off1y"), py::arg("enc2x"), py::arg("enc2y"), py::arg("off2x"),
+               py::arg("off2y"), py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
 }
 
 void bind_layout(py::module &m) {
