@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 
+#include <cbag/layout/cellview.h>
 #include <cbag/layout/cv_obj_ref.h>
 #include <cbag/layout/instance.h>
 
@@ -7,6 +8,7 @@
 
 using c_instance = cbag::layout::instance;
 using c_inst_ref = cbag::layout::cv_obj_ref<c_instance>;
+using c_cellview = cbag::layout::cellview;
 
 namespace pybag {
 namespace lay {
@@ -75,4 +77,36 @@ void bind_inst_ref(py::module &m) {
     py_cls.def("commit", &c_inst_ref::commit, "Commits the instance object.");
 }
 
-void bind_layout(py::module &m) { bind_inst_ref(m); }
+void bind_cellview(py::module &m) {
+
+    auto py_cls = py::class_<c_cellview>(m, "PyLayCellView");
+    py_cls.doc() = "A layout cellview.";
+
+    py_cls.def(py::init<cbag::layout::tech *, std::string, uint8_t>(), "Construct a new cellview.",
+               py::arg("tech"), py::arg("cell_name"), py::arg("geo_mode") = 0);
+    py_cls.def_property_readonly("is_empty", &c_cellview::empty, "True if this cellview is empty.");
+    py_cls.def_readonly("cell_name", &c_cellview::cell_name, "The cell name.");
+
+    py_cls.def("set_geometry_mode", &c_cellview::set_geometry_mode, "Set the geometry mode.",
+               py::arg("new_mode"));
+    py_cls.def("get_rect_bbox", &c_cellview::get_bbox,
+               "Get the overall bounding box on the given layer.", py::arg("layer"),
+               py::arg("purpose"));
+    py_cls.def("add_prim_instance", &c_cellview::add_prim_instance, "Adds a primitive instance.",
+               py::arg("lib"), py::arg("cell"), py::arg("view"), py::arg("name"), py::arg("xform"),
+               py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"), py::arg("commit"));
+    py_cls.def("add_instance", &c_cellview::add_instance, "Adds an instance", py::arg("cv"),
+               py::arg("name"), py::arg("xform"), py::arg("nx"), py::arg("ny"), py::arg("spx"),
+               py::arg("spy"), py::arg("commit"));
+    py_cls.def("add_rect", &c_cellview::add_rect, "Adds a rectangle.", py::arg("layer"),
+               py::arg("purpose"), py::arg("is_horiz"), py::arg("xl"), py::arg("yl"), py::arg("xh"),
+               py::arg("yh"), py::arg("commit"));
+    py_cls.def("add_rect_arr", &c_cellview::add_rect_arr, "Adds an array of rectangles.",
+               py::arg("layer"), py::arg("purpose"), py::arg("box"), py::arg("is_horiz"),
+               py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
+}
+
+void bind_layout(py::module &m) {
+    bind_inst_ref(m);
+    bind_cellview(m);
+}
