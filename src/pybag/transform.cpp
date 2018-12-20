@@ -29,7 +29,7 @@ namespace pybind11 {
 namespace detail {
 
 template <> struct handle_type_name<pybind11_generics::PyOrient> {
-    static constexpr auto name = _("Orientation");
+    static constexpr auto name = _("pybag.enum.Orientation");
 };
 
 } // namespace detail
