@@ -4,6 +4,7 @@
 #include <cbag/layout/cv_obj_ref.h>
 #include <cbag/layout/instance.h>
 
+#include <pybag/bbox_array.h>
 #include <pybag/layout.h>
 
 using c_instance = cbag::layout::instance;
@@ -57,6 +58,11 @@ void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {
     ref.obj.set_master(new_master);
 }
 
+void add_rect_arr(c_cellview &self, const std::string &layer, const std::string &purpose,
+                  bool is_horiz, const util::box_arr &barr) {
+    self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx, barr.ny, barr.spx, barr.spy);
+}
+
 } // namespace lay
 } // namespace pybag
 
@@ -104,6 +110,8 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_rect_arr", &c_cellview::add_rect_arr, "Adds an array of rectangles.",
                py::arg("layer"), py::arg("purpose"), py::arg("box"), py::arg("is_horiz"),
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
+    py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
+               py::arg("purpose"), py::arg("is_horiz"), py::arg("barr"));
     py_cls.def("add_poly", &c_cellview::add_poly, "Adds a new polygon.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_blockage", &c_cellview::add_blockage, "Adds a blockage object.",
