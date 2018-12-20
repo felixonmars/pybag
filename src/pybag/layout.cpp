@@ -105,8 +105,7 @@ void bind_cellview(py::module &m) {
                py::arg("name"), py::arg("xform"), py::arg("nx"), py::arg("ny"), py::arg("spx"),
                py::arg("spy"), py::arg("commit"));
     py_cls.def("add_rect", &c_cellview::add_rect, "Adds a rectangle.", py::arg("layer"),
-               py::arg("purpose"), py::arg("is_horiz"), py::arg("xl"), py::arg("yl"), py::arg("xh"),
-               py::arg("yh"), py::arg("commit"));
+               py::arg("purpose"), py::arg("is_horiz"), py::arg("bbox"), py::arg("commit"));
     py_cls.def("add_rect_arr", &c_cellview::add_rect_arr, "Adds an array of rectangles.",
                py::arg("layer"), py::arg("purpose"), py::arg("box"), py::arg("is_horiz"),
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
@@ -119,8 +118,7 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_boundary", &c_cellview::add_boundary, "Adds a boundary object.",
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
-               py::arg("xl"), py::arg("yl"), py::arg("xh"), py::arg("yh"), py::arg("net"),
-               py::arg("label"));
+               py::arg("net"), py::arg("label"), py::arg("bbox"));
     py_cls.def("add_path", &c_cellview::add_path, "Adds a new path.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("half_width"),
                py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
