@@ -119,6 +119,7 @@ void bind_cellview(py::module &m) {
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
+    /*
     py_cls.def("add_path", &c_cellview::add_path, "Adds a new path.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("half_width"),
                py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
@@ -126,6 +127,7 @@ void bind_cellview(py::module &m) {
                py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
                py::arg("widths"), py::arg("spaces"), py::arg("style0"), py::arg("style1"),
                py::arg("stylem"), py::arg("commit"));
+    */
     py_cls.def("add_via_arr", &c_cellview::add_via_arr, "Add an array of vias.", py::arg("xform"),
                py::arg("via_id"), py::arg("add_layers"), py::arg("bot_horiz"), py::arg("top_horiz"),
                py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"), py::arg("vspx"),
