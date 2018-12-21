@@ -1,11 +1,12 @@
 #include <pybind11/pybind11.h>
 
 #include <cbag/layout/cellview.h>
-#include <cbag/layout/cv_obj_ref.h>
+#include <cbag/layout/cellview_poly.h>
 #include <cbag/layout/instance.h>
 
 #include <pybag/bbox_array.h>
 #include <pybag/layout.h>
+#include <pybag/py_pt_vector.h>
 
 using c_instance = cbag::layout::instance;
 using c_inst_ref = cbag::layout::cv_obj_ref<c_instance>;
@@ -63,6 +64,12 @@ void add_rect_arr(c_cellview &self, const std::string &layer, const std::string 
     self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx, barr.ny, barr.spx, barr.spy);
 }
 
+cbag::layout::shape_ref<cbag::layout::polygon> add_poly(c_cellview &self, const std::string &layer,
+                                                        const std::string &purpose, bool is_horiz,
+                                                        const py_pt_vector &data, bool commit) {
+    return cbag::layout::add_poly(self, layer, purpose, is_horiz, data, commit);
+}
+
 } // namespace lay
 } // namespace pybag
 
@@ -111,12 +118,14 @@ void bind_cellview(py::module &m) {
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
     py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("barr"));
-    py_cls.def("add_poly", &c_cellview::add_poly, "Adds a new polygon.", py::arg("layer"),
+    py_cls.def("add_poly", &pl::add_poly, "Adds a new polygon.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("commit"));
+    /*
     py_cls.def("add_blockage", &c_cellview::add_blockage, "Adds a blockage object.",
                py::arg("layer"), py::arg("blk_code"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_boundary", &c_cellview::add_boundary, "Adds a boundary object.",
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
+    */
     py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
     /*
