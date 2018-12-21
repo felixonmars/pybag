@@ -3,6 +3,7 @@
 #include <cbag/layout/cellview.h>
 #include <cbag/layout/cellview_poly.h>
 #include <cbag/layout/instance.h>
+#include <cbag/layout/path_util.h>
 
 #include <pybag/bbox_array.h>
 #include <pybag/layout.h>
@@ -64,12 +65,6 @@ void add_rect_arr(c_cellview &self, const std::string &layer, const std::string 
     self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx, barr.ny, barr.spx, barr.spy);
 }
 
-cbag::layout::shape_ref<cbag::layout::polygon> add_poly(c_cellview &self, const std::string &layer,
-                                                        const std::string &purpose, bool is_horiz,
-                                                        const py_pt_vector &data, bool commit) {
-    return cbag::layout::add_poly(self, layer, purpose, is_horiz, data, commit);
-}
-
 } // namespace lay
 } // namespace pybag
 
@@ -118,25 +113,23 @@ void bind_cellview(py::module &m) {
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
     py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("barr"));
-    py_cls.def("add_poly", &pl::add_poly, "Adds a new polygon.", py::arg("layer"),
-               py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("commit"));
-    /*
-    py_cls.def("add_blockage", &c_cellview::add_blockage, "Adds a blockage object.",
+    py_cls.def("add_poly", &cbag::layout::add_poly<py_pt_vector>, "Adds a new polygon.",
+               py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
+               py::arg("commit"));
+    py_cls.def("add_blockage", &cbag::layout::add_blockage<py_pt_vector>, "Adds a blockage object.",
                py::arg("layer"), py::arg("blk_code"), py::arg("points"), py::arg("commit"));
-    py_cls.def("add_boundary", &c_cellview::add_boundary, "Adds a boundary object.",
+    py_cls.def("add_boundary", &cbag::layout::add_boundary<py_pt_vector>, "Adds a boundary object.",
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
-    */
     py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
-    /*
-    py_cls.def("add_path", &c_cellview::add_path, "Adds a new path.", py::arg("layer"),
-               py::arg("purpose"), py::arg("is_horiz"), py::arg("points"), py::arg("half_width"),
-               py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
-    py_cls.def("add_path45_bus", &c_cellview::add_path45_bus, "Adds a new 45 degree path bus.",
+    py_cls.def("add_path", &cbag::layout::add_path<py_pt_vector>, "Adds a new path.",
                py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
-               py::arg("widths"), py::arg("spaces"), py::arg("style0"), py::arg("style1"),
-               py::arg("stylem"), py::arg("commit"));
-    */
+               py::arg("half_width"), py::arg("style0"), py::arg("style1"), py::arg("stylem"),
+               py::arg("commit"));
+    py_cls.def("add_path45_bus", &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<int32_t>>,
+               "Adds a new 45 degree path bus.", py::arg("layer"), py::arg("purpose"),
+               py::arg("is_horiz"), py::arg("points"), py::arg("widths"), py::arg("spaces"),
+               py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
     py_cls.def("add_via_arr", &c_cellview::add_via_arr, "Add an array of vias.", py::arg("xform"),
                py::arg("via_id"), py::arg("add_layers"), py::arg("bot_horiz"), py::arg("top_horiz"),
                py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"), py::arg("vspx"),
