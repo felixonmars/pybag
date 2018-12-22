@@ -2,6 +2,8 @@
 
 """This package contains various enums used by the C++ extension."""
 
+from __future__ import annotations
+
 from enum import IntEnum
 
 
@@ -35,6 +37,9 @@ class Orientation(IntEnum):
 class Orient2D(IntEnum):
     x = 0
     y = 1
+
+    def perpendicular(self) -> Orient2D:
+        return Orient2D(1 - self.value)
 
 
 class PathStyle(IntEnum):
