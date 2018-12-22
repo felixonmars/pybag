@@ -26,6 +26,22 @@ box_arr::box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t sp
             fmt::format("nx = {} and ny = {} cannot be non-positive.", nx, ny));
 }
 
+box_arr::box_arr(c_box base, uint8_t orient_code, uint32_t nt, offset_t spt, uint32_t np,
+                 offset_t spp)
+    : base(std::move(base)) {
+    if (orient_code == 0) {
+        nx = nt;
+        ny = np;
+        spx = spt;
+        spy = spp;
+    } else {
+        nx = np;
+        ny = nt;
+        spx = spp;
+        spy = spt;
+    }
+}
+
 coord_t box_arr::xl() const { return (spx >= 0) ? base.xl() : (nx - 1) * spx + base.xl(); }
 coord_t box_arr::xh() const { return (spx >= 0) ? (nx - 1) * spx + base.xh() : base.xh(); }
 coord_t box_arr::yl() const { return (spx >= 0) ? base.yl() : (ny - 1) * spy + base.yl(); }
@@ -132,13 +148,17 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def(py::init<c_box, uint32_t, uint32_t, offset_t, offset_t>(),
                "Construct a new BBoxArray.", py::arg("base"), py::arg("nx") = 1, py::arg("ny") = 1,
                py::arg("spx") = 0, py::arg("spy") = 0);
+    py_cls.def(py::init<c_box, uint8_t, uint32_t, offset_t, uint32_t, offset_t>(),
+               "Construct a new BBoxArray from orientation.", py::arg("base"),
+               py::arg("orient_code"), py::arg("nt") = 1, py::arg("spt") = 0, py::arg("np") = 1,
+               py::arg("spp") = 0);
 
     py_cls.def("__repr__", &c_box_arr::to_string, "Returns a string representation of BBoxArray.");
     py_cls.def("__eq__", &c_box_arr::operator==, "Returns True if the two BBoxArray are equal.",
                py::arg("other"));
     py_cls.def("__iter__", &pu::get_box_iter, "Returns an iterator over BBox in this BBoxArray.");
 
-    py_cls.def_readonly("base", &c_box_arr::base, "The base BBox object.");
+    py_cls.def_readonly("base", &c_box_arr::base, "The base bounding box.");
     py_cls.def_readonly("nx", &c_box_arr::nx, "Number of columns.");
     py_cls.def_readonly("ny", &c_box_arr::ny, "Number of rows.");
     py_cls.def_readonly("spx", &c_box_arr::spx, "Column pitch");

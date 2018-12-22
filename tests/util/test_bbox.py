@@ -3,7 +3,7 @@
 import pytest
 
 from pybag.core import BBox, Transform
-from pybag.enum import Orientation
+from pybag.enum import Orientation, Orient2D
 
 # test data for PyDisjointIntervals
 bbox_data = [
@@ -58,6 +58,12 @@ def test_physical_valid(xl, yl, xh, yh, physical, valid):
     ans = BBox(xl, yl, xh, yh)
     assert ans.is_physical() == physical
     assert ans.is_valid() == valid
+
+    # check orientation based constructor works
+    b1 = BBox(Orient2D.x, xl, xh, yl, yh)
+    b2 = BBox(Orient2D.y, yl, yh, xl, xh)
+    assert b1 == ans
+    assert b2 == ans
 
 
 @pytest.mark.parametrize("box0, dx, dy, orient, box1", transform_data)

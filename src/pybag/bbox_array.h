@@ -30,7 +30,9 @@ class box_arr {
     offset_t spy = 0;
 
     box_arr();
-    box_arr(c_box base, uint32_t nx, uint32_t ny, offset_t spx, offset_t spy);
+    box_arr(c_box base, uint32_t nx = 1, uint32_t ny = 1, offset_t spx = 0, offset_t spy = 0);
+    box_arr(c_box base, uint8_t orient_code, uint32_t nt = 1, offset_t spt = 0, uint32_t np = 1,
+            offset_t spp = 0);
 
     coord_t xl() const;
     coord_t xh() const;
