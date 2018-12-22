@@ -39,6 +39,9 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.doc() = "The bounding box class.";
     py_cls.def(py::init<coord_t, coord_t, coord_t, coord_t>(), "Construct a new BBox.",
                py::arg("xl"), py::arg("yl"), py::arg("xh"), py::arg("yh"));
+    py_cls.def(py::init<uint8_t, coord_t, coord_t, coord_t, coord_t>(),
+               "Construct a new BBox from orientation.", py::arg("orient_code"), py::arg("tl"),
+               py::arg("th"), py::arg("pl"), py::arg("ph"));
 
     py_cls.def("__repr__", &c_box::to_string, "Returns a string representation of BBox.");
     py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
