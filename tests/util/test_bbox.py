@@ -41,6 +41,8 @@ def test_properties(xl, yl, xh, yh, physical, valid):
     assert ans.w == xh - xl
     assert ans.h == yh - yl
     assert ans.get_immutable_key() == (xl, yl, xh, yh)
+    assert ans.get_dim(Orient2D.x) == ans.w
+    assert ans.get_dim(Orient2D.y) == ans.h
 
     """
     assert ans.left_unit == xl
@@ -52,6 +54,7 @@ def test_properties(xl, yl, xh, yh, physical, valid):
     assert ans.width_unit == xh - xl
     assert ans.height_unit == yh - yl
     """
+
 
 @pytest.mark.parametrize("xl, yl, xh, yh, physical, valid", bbox_data)
 def test_physical_valid(xl, yl, xh, yh, physical, valid):

@@ -69,6 +69,11 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def_property_readonly("height_unit", &c_box::h, "Height.");
     */
 
+    py_cls.def("get_dim", &c_box::get_dim, "Returns the dimension along the given orientation.",
+               py::arg("orient_code"));
+    py_cls.def("get_coord", &c_box::get_coord, "Returns coordinate given orient/bound code.",
+               py::arg("orient_code"), py::arg("bnd_code"));
+
     py_cls.def("is_physical", &c_box::is_physical, "True if this BBox has positive area.");
     py_cls.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
     py_cls.def("overlaps", &c_box::overlaps, "True if the two BBox overlaps.", py::arg("bbox"));

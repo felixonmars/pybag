@@ -22,17 +22,24 @@ class box_arr_iter;
 class box_collection;
 
 class box_arr {
+  private:
+    std::array<uint32_t, 2> num;
+    std::array<offset_t, 2> sp;
+
   public:
     c_box base;
-    uint32_t nx = 1;
-    uint32_t ny = 1;
-    offset_t spx = 0;
-    offset_t spy = 0;
 
     box_arr();
-    box_arr(c_box base, uint32_t nx = 1, uint32_t ny = 1, offset_t spx = 0, offset_t spy = 0);
-    box_arr(c_box base, uint8_t orient_code, uint32_t nt = 1, offset_t spt = 0, uint32_t np = 1,
+    box_arr(c_box base, int32_t nx = 1, int32_t ny = 1, offset_t spx = 0, offset_t spy = 0);
+    box_arr(c_box base, uint8_t orient_code, int32_t nt = 1, offset_t spt = 0, int32_t np = 1,
             offset_t spp = 0);
+
+    uint32_t nx() const;
+    uint32_t ny() const;
+    offset_t spx() const;
+    offset_t spy() const;
+
+    coord_t get_coord(uint8_t orient_code, uint8_t bnd_code) const;
 
     coord_t xl() const;
     coord_t xh() const;

@@ -62,7 +62,8 @@ void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {
 
 void add_rect_arr(c_cellview &self, const std::string &layer, const std::string &purpose,
                   bool is_horiz, const util::box_arr &barr) {
-    self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx, barr.ny, barr.spx, barr.spy);
+    self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx(), barr.ny(), barr.spx(),
+                      barr.spy());
 }
 
 } // namespace lay
