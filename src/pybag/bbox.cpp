@@ -94,6 +94,10 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("get_extend", &c_box::get_extend,
                "Returns an extended BBox to the given coordinates.", py::arg("x") = py::none(),
                py::arg("y") = py::none());
+    py_cls.def("extend_orient", &c_box::extend_orient, "Extends this BBox.", py::arg("orient_code"),
+               py::arg("ct") = py::none(), py::arg("cp") = py::none());
+    py_cls.def("get_extend_orient", &c_box::get_extend_orient, "Returns an extended BBox.",
+               py::arg("orient_code"), py::arg("ct") = py::none(), py::arg("cp") = py::none());
     py_cls.def("expand", &c_box::expand, "Expand BBox (on all sides).", py::arg("dx") = 0,
                py::arg("dy") = 0);
     py_cls.def("get_expand", &c_box::get_expand, "Returns an expanded BBox (on all sides).",

@@ -1,6 +1,7 @@
 #ifndef PYBAG_BBOX_ARRAY_H
 #define PYBAG_BBOX_ARRAY_H
 
+#include <optional>
 #include <utility>
 
 #include <pybind11/pybind11.h>
@@ -63,15 +64,19 @@ class box_arr {
 
     box_collection as_bbox_collection() const;
 
+    box_arr get_copy() const;
     box_arr get_move_by(offset_t dx = 0, offset_t dy = 0) const;
-
     box_arr get_transform(const cbag::transformation &xform) const;
+    box_arr get_extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
+                              const std::optional<coord_t> &cp) const;
 
     box_arr_iter begin() const;
     box_arr_iter end() const;
 
     box_arr &move_by(offset_t dx = 0, offset_t dy = 0);
     box_arr &transform(const cbag::transformation &xform);
+    box_arr &extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
+                           const std::optional<coord_t> &cp);
 };
 
 } // namespace util

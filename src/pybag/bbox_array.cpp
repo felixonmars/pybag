@@ -3,6 +3,8 @@
 
 #include <fmt/core.h>
 
+#include <pybind11/stl.h>
+
 #include <cbag/common/box_t.h>
 #include <cbag/common/transformation.h>
 #include <cbag/util/floor_half.h>
@@ -113,6 +115,18 @@ box_arr box_arr::get_transform(const cbag::transformation &xform) const {
     return box_arr(*this).transform(xform);
 }
 
+box_arr &box_arr::extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
+                                const std::optional<coord_t> &cp) {
+    base.extend_orient(orient_code, ct, cp);
+    return *this;
+}
+box_arr box_arr::get_extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
+                                   const std::optional<coord_t> &cp) const {
+    return box_arr(*this).extend_orient(orient_code, ct, cp);
+}
+
+box_arr box_arr::get_copy() const { return box_arr(*this); }
+
 class box_arr_iter {
   public:
     using iterator_category = std::input_iterator_tag;
@@ -212,6 +226,11 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def("transform", &c_box_arr::transform, "Transforms this BBoxArray.", py::arg("xform"));
     py_cls.def("get_transform", &c_box_arr::get_transform, "Returns a transformed BBoxArray.",
                py::arg("xform"));
+    py_cls.def("extend_orient", &c_box_arr::extend_orient, "Extends this BBoxArray.",
+               py::arg("orient_code"), py::arg("ct") = py::none(), py::arg("cp") = py::none());
+    py_cls.def("get_extend_orient", &c_box_arr::get_extend_orient, "Returns an extended BBoxArray.",
+               py::arg("orient_code"), py::arg("ct") = py::none(), py::arg("cp") = py::none());
+    py_cls.def("get_copy", &c_box_arr::get_copy, "Returns a copy of this BBoxArray.");
 
     py_cls.def("as_bbox", &c_box_arr::as_bbox,
                "Returns a BBox representation of this BBoxArray if able.");
