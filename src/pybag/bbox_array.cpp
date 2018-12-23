@@ -53,6 +53,10 @@ coord_t box_arr::get_coord(uint8_t orient_code, uint8_t bnd_code) const {
     return cur_coord + bnd_code * delta;
 }
 
+std::pair<uint32_t, offset_t> box_arr::get_array_info(uint8_t orient_code) const {
+    return {num[orient_code], sp[orient_code]};
+}
+
 coord_t box_arr::xl() const { return get_coord(0, 0); }
 coord_t box_arr::xh() const { return get_coord(0, 1); }
 coord_t box_arr::yl() const { return get_coord(1, 0); }
@@ -194,6 +198,8 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
 
     py_cls.def("get_coord", &c_box_arr::get_coord, "Returns coordinate given orient/bound code.",
                py::arg("orient_code"), py::arg("bnd_code"));
+    py_cls.def("get_array_info", &c_box_arr::get_array_info, "Returns num/pitch given orient code.",
+               py::arg("orient_code"));
 
     py_cls.def("get_bbox", &c_box_arr::get_bbox, "Returns the BBox with the given index.",
                py::arg("idx"));

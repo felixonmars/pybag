@@ -1,6 +1,8 @@
 #ifndef PYBAG_BBOX_ARRAY_H
 #define PYBAG_BBOX_ARRAY_H
 
+#include <utility>
+
 #include <pybind11/pybind11.h>
 
 #include <pybind11_generics/tuple.h>
@@ -40,6 +42,7 @@ class box_arr {
     offset_t spy() const;
 
     coord_t get_coord(uint8_t orient_code, uint8_t bnd_code) const;
+    std::pair<uint32_t, offset_t> get_array_info(uint8_t orient_code) const;
 
     coord_t xl() const;
     coord_t xh() const;
