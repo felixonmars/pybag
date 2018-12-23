@@ -78,6 +78,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
                py::arg("orient_code"));
     py_cls.def("get_coord", &c_box::get_coord, "Returns coordinate given orient/bound code.",
                py::arg("orient_code"), py::arg("bnd_code"));
+    py_cls.def("get_center", &c_box::get_center, "Returns center coordinate given orient code.",
+               py::arg("orient_code"));
     py_cls.def("get_interval", &pu::get_interval, "Returns interval given orient code.",
                py::arg("orient_code"));
 
