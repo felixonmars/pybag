@@ -30,6 +30,11 @@ c_box_col as_bbox_collection(const c_box &self) {
     return {std::vector<c_box_arr>{as_bbox_array(self)}};
 }
 
+std::pair<coord_t, coord_t> get_interval(const c_box &self, uint8_t orient_code) {
+    auto &intv = self.get_interval(orient_code);
+    return {intv[0], intv[1]};
+}
+
 } // namespace util
 } // namespace pybag
 
@@ -73,6 +78,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
                py::arg("orient_code"));
     py_cls.def("get_coord", &c_box::get_coord, "Returns coordinate given orient/bound code.",
                py::arg("orient_code"), py::arg("bnd_code"));
+    py_cls.def("get_interval", &pu::get_interval, "Returns interval given orient code.",
+               py::arg("orient_code"));
 
     py_cls.def("is_physical", &c_box::is_physical, "True if this BBox has positive area.");
     py_cls.def("is_valid", &c_box::is_valid, "True if this BBox has nonnegative area.");
@@ -97,6 +104,10 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("move_by", &c_box::move_by, "Moves the BBox.", py::arg("dx") = 0, py::arg("dy") = 0);
     py_cls.def("get_move_by", &c_box::get_move_by, "Returns a moved BBox.", py::arg("dx") = 0,
                py::arg("dy") = 0);
+    py_cls.def("move_by_orient", &c_box::move_by_orient, "Moves the BBox.", py::arg("orient_code"),
+               py::arg("dt") = 0, py::arg("dp") = 0);
+    py_cls.def("get_move_by_orient", &c_box::get_move_by_orient, "Returns a moved BBox.",
+               py::arg("orient_code"), py::arg("dt") = 0, py::arg("dp") = 0);
     py_cls.def("flip_xy", &c_box::flip_xy, "Flips the BBox X and Y coordinates.");
     py_cls.def("get_flip_xy", &c_box::get_flip_xy,
                "Returns a flipped the BBox X and Y coordinates.");

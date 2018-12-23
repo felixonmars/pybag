@@ -43,6 +43,8 @@ def test_properties(xl, yl, xh, yh, physical, valid):
     assert ans.get_immutable_key() == (xl, yl, xh, yh)
     assert ans.get_dim(Orient2D.x) == ans.w
     assert ans.get_dim(Orient2D.y) == ans.h
+    assert ans.get_interval(Orient2D.x) == (xl, xh)
+    assert ans.get_interval(Orient2D.y) == (yl, yh)
 
     """
     assert ans.left_unit == xl
