@@ -9,6 +9,7 @@
 #include <pybind11_generics/tuple.h>
 
 #include <cbag/common/box_t.h>
+#include <cbag/common/transformation_fwd.h>
 
 #include <pybag/typedefs.h>
 
@@ -16,10 +17,6 @@ namespace py = pybind11;
 namespace pyg = pybind11_generics;
 
 using c_box = cbag::box_t;
-
-namespace cbag {
-class transformation;
-}
 
 namespace pybag {
 namespace util {

@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 
+#include <cbag/common/transformation_util.h>
 #include <cbag/layout/cellview.h>
 #include <cbag/layout/cellview_poly.h>
 #include <cbag/layout/instance.h>
@@ -47,12 +48,12 @@ void set_spy(c_inst_ref &ref, cbag::offset_t val) {
 
 void move_by(c_inst_ref &ref, cbag::offset_t dx, cbag::offset_t dy) {
     check_ref(ref);
-    ref.obj.xform.move_by(dx, dy);
+    cbag::move_by(ref.obj.xform, dx, dy);
 }
 
 void transform(c_inst_ref &ref, const cbag::transformation &xform) {
     check_ref(ref);
-    ref.obj.xform.transform_by(xform);
+    cbag::transform_by(ref.obj.xform, xform);
 }
 
 void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {

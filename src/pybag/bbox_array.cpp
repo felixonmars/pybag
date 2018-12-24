@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include <cbag/common/box_t_util.h>
-#include <cbag/common/transformation.h>
+#include <cbag/common/transformation_util.h>
 #include <cbag/util/floor_half.h>
 
 #include <pybind11_generics/iterator.h>
@@ -102,7 +102,7 @@ box_arr box_arr::get_move_by(offset_t dx, offset_t dy) const {
 
 box_arr &box_arr::transform(const cbag::transformation &xform) {
     xform.get_axis_transformation().transform(sp[0], sp[1]);
-    if (xform.flips_xy()) {
+    if (cbag::flips_xy(xform)) {
         auto tmp = num[0];
         num[0] = num[1];
         num[1] = tmp;
