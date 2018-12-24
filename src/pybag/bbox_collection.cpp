@@ -1,5 +1,6 @@
 #include <fmt/core.h>
 
+#include <cbag/common/box_t_util.h>
 #include <cbag/common/transformation.h>
 
 #include <pybag/bbox_collection.h>
@@ -61,9 +62,9 @@ c_box box_collection::as_bbox() const {
 }
 
 c_box box_collection::get_bounding_box() const {
-    c_box ans = c_box::invalid_box();
+    auto ans = c_box::get_invalid_box();
     for (const auto &barr : data_) {
-        ans.merge(barr.get_overall_bbox());
+        merge(ans, barr.get_overall_bbox());
     }
     return ans;
 }

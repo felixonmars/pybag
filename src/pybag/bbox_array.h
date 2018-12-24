@@ -17,6 +17,10 @@ namespace pyg = pybind11_generics;
 
 using c_box = cbag::box_t;
 
+namespace cbag {
+class transformation;
+}
+
 namespace pybag {
 namespace util {
 

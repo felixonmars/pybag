@@ -5,7 +5,7 @@
 
 #include <pybind11/stl.h>
 
-#include <cbag/common/box_t.h>
+#include <cbag/common/box_t_util.h>
 #include <cbag/common/transformation.h>
 #include <cbag/util/floor_half.h>
 
@@ -48,7 +48,7 @@ offset_t box_arr::spx() const { return sp[0]; }
 offset_t box_arr::spy() const { return sp[1]; }
 
 coord_t box_arr::get_coord(uint8_t orient_code, uint8_t bnd_code) const {
-    auto cur_coord = base.get_coord(orient_code, bnd_code);
+    auto cur_coord = base.intvs[orient_code][bnd_code];
     offset_t delta = (num[orient_code] - 1) * sp[orient_code];
     if (delta < 0)
         bnd_code = 1 - bnd_code;
@@ -67,8 +67,8 @@ coord_t box_arr::xm() const { return cbag::util::floor_half(xl() + xh()); }
 coord_t box_arr::ym() const { return cbag::util::floor_half(yl() + yh()); }
 
 std::string box_arr::to_string() const {
-    return fmt::format("BBoxArray({}, {}, {}, {}, {})", base.to_string(), num[0], num[1], sp[0],
-                       sp[1]);
+    return fmt::format("BBoxArray({}, {}, {}, {}, {})", cbag::to_string(base), num[0], num[1],
+                       sp[0], sp[1]);
 }
 
 bool box_arr::operator==(const box_arr &other) const {
@@ -77,7 +77,7 @@ bool box_arr::operator==(const box_arr &other) const {
 
 c_box box_arr::get_bbox(uint32_t idx) const {
     auto result = std::div(static_cast<long>(idx), static_cast<long>(num[0]));
-    return base.get_move_by(result.rem * sp[0], result.quot * sp[1]);
+    return cbag::get_move_by(base, result.rem * sp[0], result.quot * sp[1]);
 }
 
 c_box box_arr::get_overall_bbox() const { return {xl(), yl(), xh(), yh()}; }
@@ -92,7 +92,7 @@ c_box box_arr::as_bbox() const {
 box_collection box_arr::as_bbox_collection() const { return {std::vector<box_arr>{*this}}; }
 
 box_arr &box_arr::move_by(offset_t dx, offset_t dy) {
-    base.move_by(dx, dy);
+    cbag::move_by(base, dx, dy);
     return *this;
 }
 
@@ -107,7 +107,7 @@ box_arr &box_arr::transform(const cbag::transformation &xform) {
         num[0] = num[1];
         num[1] = tmp;
     }
-    base.transform(xform);
+    cbag::transform(base, xform);
     return *this;
 }
 
@@ -117,7 +117,7 @@ box_arr box_arr::get_transform(const cbag::transformation &xform) const {
 
 box_arr &box_arr::extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
                                 const std::optional<coord_t> &cp) {
-    base.extend_orient(orient_code, ct, cp);
+    cbag::extend_orient(base, orient_code, ct, cp);
     return *this;
 }
 box_arr box_arr::get_extend_orient(uint8_t orient_code, const std::optional<coord_t> &ct,
