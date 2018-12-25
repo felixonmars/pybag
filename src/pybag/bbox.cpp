@@ -4,8 +4,8 @@
 #include <pybind11/stl.h>
 
 #include <cbag/common/box_t_util.h>
-#include <cbag/common/orientation.h>
 #include <cbag/common/transformation.h>
+#include <cbag/enum/orientation.h>
 
 #include <pybind11_generics/custom.h>
 #include <pybind11_generics/tuple.h>
@@ -31,7 +31,7 @@ c_box_col as_bbox_collection(const c_box &self) {
     return {std::vector<c_box_arr>{as_bbox_array(self)}};
 }
 
-std::pair<coord_t, coord_t> get_interval(const c_box &self, uint8_t orient_code) {
+std::pair<coord_t, coord_t> get_interval(const c_box &self, bool orient_code) {
     const auto &intv = self.intvs[orient_code];
     return {intv[0], intv[1]};
 }
@@ -45,7 +45,9 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.doc() = "The bounding box class.";
     py_cls.def(py::init<coord_t, coord_t, coord_t, coord_t>(), "Construct a new BBox.",
                py::arg("xl"), py::arg("yl"), py::arg("xh"), py::arg("yh"));
-    py_cls.def(py::init<uint8_t, coord_t, coord_t, coord_t, coord_t>(),
+    py_cls.def(py::init([](bool orient_code, coord_t tl, coord_t th, coord_t pl, coord_t ph) {
+                   return c_box{static_cast<cbag::orient_2d>(orient_code), tl, th, pl, ph};
+               }),
                "Construct a new BBox from orientation.", py::arg("orient_code"), py::arg("tl"),
                py::arg("th"), py::arg("pl"), py::arg("ph"));
 
@@ -75,16 +77,22 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def_property_readonly("height_unit", &c_box::h, "Height.");
     */
 
-    py_cls.def("get_dim", &cbag::get_dim, "Returns the dimension along the given orientation.",
-               py::arg("orient_code"));
+    py_cls.def("get_dim",
+               [](const c_box &self, bool orient_code) {
+                   return cbag::get_dim(self, static_cast<cbag::orient_2d>(orient_code));
+               },
+               "Returns the dimension along the given orientation.", py::arg("orient_code"));
     py_cls.def("get_coord",
-               [](const c_box &self, uint8_t orient_code, uint8_t bnd_code) {
+               [](const c_box &self, bool orient_code, bool bnd_code) {
                    return self.intvs[orient_code][bnd_code];
                },
                "Returns coordinate given orient/bound code.", py::arg("orient_code"),
                py::arg("bnd_code"));
-    py_cls.def("get_center", &cbag::get_center, "Returns center coordinate given orient code.",
-               py::arg("orient_code"));
+    py_cls.def("get_center",
+               [](const c_box &self, bool orient_code) {
+                   return cbag::get_center(self, static_cast<cbag::orient_2d>(orient_code));
+               },
+               "Returns center coordinate given orient code.", py::arg("orient_code"));
     py_cls.def("get_interval", &pu::get_interval, "Returns interval given orient code.",
                py::arg("orient_code"));
 
@@ -101,10 +109,22 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("get_extend", &cbag::get_extend,
                "Returns an extended BBox to the given coordinates.", py::arg("x") = py::none(),
                py::arg("y") = py::none());
-    py_cls.def("extend_orient", &cbag::extend_orient, "Extends this BBox.", py::arg("orient_code"),
-               py::arg("ct") = py::none(), py::arg("cp") = py::none());
-    py_cls.def("get_extend_orient", &cbag::get_extend_orient, "Returns an extended BBox.",
-               py::arg("orient_code"), py::arg("ct") = py::none(), py::arg("cp") = py::none());
+    py_cls.def("extend_orient",
+               [](c_box &self, bool orient_code, const std::optional<coord_t> &ct,
+                  const std::optional<coord_t> &cp) {
+                   return cbag::extend_orient(self, static_cast<cbag::orient_2d>(orient_code), ct,
+                                              cp);
+               },
+               "Extends this BBox.", py::arg("orient_code"), py::arg("ct") = py::none(),
+               py::arg("cp") = py::none());
+    py_cls.def("get_extend_orient",
+               [](const c_box &self, bool orient_code, const std::optional<coord_t> &ct,
+                  const std::optional<coord_t> &cp) {
+                   return cbag::get_extend_orient(self, static_cast<cbag::orient_2d>(orient_code),
+                                                  ct, cp);
+               },
+               "Returns an extended BBox.", py::arg("orient_code"), py::arg("ct") = py::none(),
+               py::arg("cp") = py::none());
     py_cls.def("expand", &cbag::expand, "Expand BBox (on all sides).", py::arg("dx") = 0,
                py::arg("dy") = 0);
     py_cls.def("get_expand", &cbag::get_expand, "Returns an expanded BBox (on all sides).",
@@ -115,10 +135,19 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("move_by", &cbag::move_by, "Moves the BBox.", py::arg("dx") = 0, py::arg("dy") = 0);
     py_cls.def("get_move_by", &cbag::get_move_by, "Returns a moved BBox.", py::arg("dx") = 0,
                py::arg("dy") = 0);
-    py_cls.def("move_by_orient", &cbag::move_by_orient, "Moves the BBox.", py::arg("orient_code"),
-               py::arg("dt") = 0, py::arg("dp") = 0);
-    py_cls.def("get_move_by_orient", &cbag::get_move_by_orient, "Returns a moved BBox.",
-               py::arg("orient_code"), py::arg("dt") = 0, py::arg("dp") = 0);
+    py_cls.def("move_by_orient",
+               [](c_box &self, bool orient_code, offset_t dt, offset_t dp) {
+                   return cbag::move_by_orient(self, static_cast<cbag::orient_2d>(orient_code), dt,
+                                               dp);
+               },
+               "Moves the BBox.", py::arg("orient_code"), py::arg("dt") = 0, py::arg("dp") = 0);
+    py_cls.def("get_move_by_orient",
+               [](const c_box &self, bool orient_code, offset_t dt, offset_t dp) {
+                   return cbag::get_move_by_orient(self, static_cast<cbag::orient_2d>(orient_code),
+                                                   dt, dp);
+               },
+               "Returns a moved BBox.", py::arg("orient_code"), py::arg("dt") = 0,
+               py::arg("dp") = 0);
     py_cls.def("flip_xy", &cbag::flip_xy, "Flips the BBox X and Y coordinates.");
     py_cls.def("get_flip_xy", &cbag::get_flip_xy,
                "Returns a flipped the BBox X and Y coordinates.");

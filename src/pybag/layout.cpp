@@ -23,18 +23,22 @@ void check_ref(const c_inst_ref &ref) {
     }
 }
 
-uint32_t get_nx(const c_inst_ref &ref) { return ref.obj.nx; }
-uint32_t get_ny(const c_inst_ref &ref) { return ref.obj.ny; }
+cbag::cnt_t get_nx(const c_inst_ref &ref) { return ref.obj.nx; }
+cbag::cnt_t get_ny(const c_inst_ref &ref) { return ref.obj.ny; }
 cbag::offset_t get_spx(const c_inst_ref &ref) { return ref.obj.spx; }
 cbag::offset_t get_spy(const c_inst_ref &ref) { return ref.obj.spy; }
 const cbag::transformation &get_xform(const c_inst_ref &ref) { return ref.obj.xform; }
 
-void set_nx(c_inst_ref &ref, uint32_t val) {
+void set_nx(c_inst_ref &ref, cbag::int_t val) {
     check_ref(ref);
+    if (val < 0)
+        throw std::runtime_error("Cannot set nx to be negative.");
     ref.obj.nx = val;
 }
-void set_ny(c_inst_ref &ref, uint32_t val) {
+void set_ny(c_inst_ref &ref, cbag::int_t val) {
     check_ref(ref);
+    if (val < 0)
+        throw std::runtime_error("Cannot set nx to be negative.");
     ref.obj.ny = val;
 }
 void set_spx(c_inst_ref &ref, cbag::offset_t val) {
@@ -92,13 +96,21 @@ void bind_cellview(py::module &m) {
     auto py_cls = py::class_<c_cellview>(m, "PyLayCellView");
     py_cls.doc() = "A layout cellview.";
 
-    py_cls.def(py::init<cbag::layout::tech *, std::string, uint8_t>(), "Construct a new cellview.",
-               py::arg("tech"), py::arg("cell_name"), py::arg("geo_mode") = 0);
+    py_cls.def(
+        py::init([](cbag::layout::tech *tech_ptr, std::string cell_name, cbag::enum_t geo_mode) {
+            return c_cellview{tech_ptr, std::move(cell_name),
+                              static_cast<cbag::geometry_mode>(geo_mode)};
+        }),
+        "Construct a new cellview.", py::arg("tech"), py::arg("cell_name"),
+        py::arg("geo_mode") = 0);
     py_cls.def_property_readonly("is_empty", &c_cellview::empty, "True if this cellview is empty.");
     py_cls.def_readonly("cell_name", &c_cellview::cell_name, "The cell name.");
 
-    py_cls.def("set_geometry_mode", &c_cellview::set_geometry_mode, "Set the geometry mode.",
-               py::arg("new_mode"));
+    py_cls.def("set_geometry_mode",
+               [](c_cellview &self, cbag::enum_t new_mode) {
+                   self.set_geometry_mode(static_cast<cbag::geometry_mode>(new_mode));
+               },
+               "Set the geometry mode.", py::arg("new_mode"));
     py_cls.def("get_rect_bbox", &c_cellview::get_bbox,
                "Get the overall bounding box on the given layer.", py::arg("layer"),
                py::arg("purpose"));
@@ -128,7 +140,8 @@ void bind_cellview(py::module &m) {
                py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
                py::arg("half_width"), py::arg("style0"), py::arg("style1"), py::arg("stylem"),
                py::arg("commit"));
-    py_cls.def("add_path45_bus", &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<int32_t>>,
+    py_cls.def("add_path45_bus",
+               &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<cbag::int_t>>,
                "Adds a new 45 degree path bus.", py::arg("layer"), py::arg("purpose"),
                py::arg("is_horiz"), py::arg("points"), py::arg("widths"), py::arg("spaces"),
                py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));

@@ -41,7 +41,7 @@ pybind11_generics::PyOrient get_xform_orient(const c_transform &xform) {
     return pybag::util::code_to_orient(cbag::orient_code(xform));
 }
 
-c_transform make_xform(coord_t dx, coord_t dy, uint32_t mode) {
+c_transform make_xform(coord_t dx, coord_t dy, cbag::orient_t mode) {
     return cbag::make_xform(dx, dy, static_cast<cbag::orientation>(mode));
 }
 

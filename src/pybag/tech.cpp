@@ -19,7 +19,7 @@ void bind_tech(py::module &m) {
     py_cls.def_property_readonly("default_purpose", &c_tech::get_default_purpose_name,
                                  "The default purpose name.");
     py_cls.def("get_min_space",
-               py::overload_cast<const std::string &, cbag::offset_t, uint32_t>(
+               py::overload_cast<const std::string &, cbag::offset_t, cbag::enum_t>(
                    &c_tech::get_min_space, py::const_),
                "Returns the minimum required spacing.", py::arg("layer_type"), py::arg("width"),
                py::arg("sp_type"));
