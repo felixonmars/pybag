@@ -31,7 +31,7 @@ c_box_col as_bbox_collection(const c_box &self) {
     return {std::vector<c_box_arr>{as_bbox_array(self)}};
 }
 
-std::pair<coord_t, coord_t> get_interval(const c_box &self, bool orient_code) {
+std::pair<coord_t, coord_t> get_interval(const c_box &self, cbag::orient_2d_t orient_code) {
     const auto &intv = self.intvs[orient_code];
     return {intv[0], intv[1]};
 }
@@ -45,11 +45,12 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.doc() = "The bounding box class.";
     py_cls.def(py::init<coord_t, coord_t, coord_t, coord_t>(), "Construct a new BBox.",
                py::arg("xl"), py::arg("yl"), py::arg("xh"), py::arg("yh"));
-    py_cls.def(py::init([](bool orient_code, coord_t tl, coord_t th, coord_t pl, coord_t ph) {
-                   return c_box{static_cast<cbag::orient_2d>(orient_code), tl, th, pl, ph};
-               }),
-               "Construct a new BBox from orientation.", py::arg("orient_code"), py::arg("tl"),
-               py::arg("th"), py::arg("pl"), py::arg("ph"));
+    py_cls.def(
+        py::init([](cbag::orient_2d_t orient_code, coord_t tl, coord_t th, coord_t pl, coord_t ph) {
+            return c_box{static_cast<cbag::orient_2d>(orient_code), tl, th, pl, ph};
+        }),
+        "Construct a new BBox from orientation.", py::arg("orient_code"), py::arg("tl"),
+        py::arg("th"), py::arg("pl"), py::arg("ph"));
 
     py_cls.def("__repr__", &cbag::to_string, "Returns a string representation of BBox.");
     py_cls.def("__eq__", &cbag::operator==, "Returns True if the two BBox are equal.",
@@ -78,18 +79,18 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     */
 
     py_cls.def("get_dim",
-               [](const c_box &self, bool orient_code) {
+               [](const c_box &self, cbag::orient_2d_t orient_code) {
                    return cbag::get_dim(self, static_cast<cbag::orient_2d>(orient_code));
                },
                "Returns the dimension along the given orientation.", py::arg("orient_code"));
     py_cls.def("get_coord",
-               [](const c_box &self, bool orient_code, bool bnd_code) {
+               [](const c_box &self, cbag::orient_2d_t orient_code, bool bnd_code) {
                    return self.intvs[orient_code][bnd_code];
                },
                "Returns coordinate given orient/bound code.", py::arg("orient_code"),
                py::arg("bnd_code"));
     py_cls.def("get_center",
-               [](const c_box &self, bool orient_code) {
+               [](const c_box &self, cbag::orient_2d_t orient_code) {
                    return cbag::get_center(self, static_cast<cbag::orient_2d>(orient_code));
                },
                "Returns center coordinate given orient code.", py::arg("orient_code"));
@@ -110,7 +111,7 @@ void bind_bbox(py::class_<c_box> &py_cls) {
                "Returns an extended BBox to the given coordinates.", py::arg("x") = py::none(),
                py::arg("y") = py::none());
     py_cls.def("extend_orient",
-               [](c_box &self, bool orient_code, const std::optional<coord_t> &ct,
+               [](c_box &self, cbag::orient_2d_t orient_code, const std::optional<coord_t> &ct,
                   const std::optional<coord_t> &cp) {
                    return cbag::extend_orient(self, static_cast<cbag::orient_2d>(orient_code), ct,
                                               cp);
@@ -118,8 +119,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
                "Extends this BBox.", py::arg("orient_code"), py::arg("ct") = py::none(),
                py::arg("cp") = py::none());
     py_cls.def("get_extend_orient",
-               [](const c_box &self, bool orient_code, const std::optional<coord_t> &ct,
-                  const std::optional<coord_t> &cp) {
+               [](const c_box &self, cbag::orient_2d_t orient_code,
+                  const std::optional<coord_t> &ct, const std::optional<coord_t> &cp) {
                    return cbag::get_extend_orient(self, static_cast<cbag::orient_2d>(orient_code),
                                                   ct, cp);
                },
@@ -136,13 +137,13 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("get_move_by", &cbag::get_move_by, "Returns a moved BBox.", py::arg("dx") = 0,
                py::arg("dy") = 0);
     py_cls.def("move_by_orient",
-               [](c_box &self, bool orient_code, offset_t dt, offset_t dp) {
+               [](c_box &self, cbag::orient_2d_t orient_code, offset_t dt, offset_t dp) {
                    return cbag::move_by_orient(self, static_cast<cbag::orient_2d>(orient_code), dt,
                                                dp);
                },
                "Moves the BBox.", py::arg("orient_code"), py::arg("dt") = 0, py::arg("dp") = 0);
     py_cls.def("get_move_by_orient",
-               [](const c_box &self, bool orient_code, offset_t dt, offset_t dp) {
+               [](const c_box &self, cbag::orient_2d_t orient_code, offset_t dt, offset_t dp) {
                    return cbag::get_move_by_orient(self, static_cast<cbag::orient_2d>(orient_code),
                                                    dt, dp);
                },

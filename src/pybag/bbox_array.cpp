@@ -30,8 +30,8 @@ box_arr::box_arr(c_box base, cbag::int_t nx, cbag::int_t ny, offset_t spx, offse
             fmt::format("nx = {} and ny = {} cannot be non-positive.", nx, ny));
 }
 
-box_arr::box_arr(c_box base, bool orient_code, cbag::int_t nt, offset_t spt, cbag::int_t np,
-                 offset_t spp)
+box_arr::box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::int_t nt, offset_t spt,
+                 cbag::int_t np, offset_t spp)
     : base(std::move(base)) {
     if (nt <= 0 || np <= 0)
         throw std::invalid_argument(
@@ -47,7 +47,7 @@ cbag::cnt_t box_arr::ny() const { return num[1]; }
 offset_t box_arr::spx() const { return sp[0]; }
 offset_t box_arr::spy() const { return sp[1]; }
 
-coord_t box_arr::get_coord(bool orient_code, bool bnd_code) const {
+coord_t box_arr::get_coord(cbag::orient_2d_t orient_code, bool bnd_code) const {
     auto cur_coord = base.intvs[orient_code][bnd_code];
     offset_t delta = (num[orient_code] - 1) * sp[orient_code];
     if (delta < 0)
@@ -55,7 +55,7 @@ coord_t box_arr::get_coord(bool orient_code, bool bnd_code) const {
     return cur_coord + bnd_code * delta;
 }
 
-std::pair<cbag::cnt_t, offset_t> box_arr::get_array_info(bool orient_code) const {
+std::pair<cbag::cnt_t, offset_t> box_arr::get_array_info(cbag::orient_2d_t orient_code) const {
     return {num[orient_code], sp[orient_code]};
 }
 
@@ -115,12 +115,12 @@ box_arr box_arr::get_transform(const cbag::transformation &xform) const {
     return box_arr(*this).transform(xform);
 }
 
-box_arr &box_arr::extend_orient(bool orient_code, const std::optional<coord_t> &ct,
+box_arr &box_arr::extend_orient(cbag::orient_2d_t orient_code, const std::optional<coord_t> &ct,
                                 const std::optional<coord_t> &cp) {
     cbag::extend_orient(base, static_cast<cbag::orient_2d>(orient_code), ct, cp);
     return *this;
 }
-box_arr box_arr::get_extend_orient(bool orient_code, const std::optional<coord_t> &ct,
+box_arr box_arr::get_extend_orient(cbag::orient_2d_t orient_code, const std::optional<coord_t> &ct,
                                    const std::optional<coord_t> &cp) const {
     return box_arr(*this).extend_orient(orient_code, ct, cp);
 }
@@ -177,7 +177,7 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def(py::init<c_box, cbag::int_t, cbag::int_t, offset_t, offset_t>(),
                "Construct a new BBoxArray.", py::arg("base"), py::arg("nx") = 1, py::arg("ny") = 1,
                py::arg("spx") = 0, py::arg("spy") = 0);
-    py_cls.def(py::init<c_box, bool, cbag::int_t, offset_t, cbag::int_t, offset_t>(),
+    py_cls.def(py::init<c_box, cbag::orient_2d_t, cbag::int_t, offset_t, cbag::int_t, offset_t>(),
                "Construct a new BBoxArray from orientation.", py::arg("base"),
                py::arg("orient_code"), py::arg("nt") = 1, py::arg("spt") = 0, py::arg("np") = 1,
                py::arg("spp") = 0);
