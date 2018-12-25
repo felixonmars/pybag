@@ -104,7 +104,7 @@ void bind_cellview(py::module &m) {
         "Construct a new cellview.", py::arg("tech"), py::arg("cell_name"),
         py::arg("geo_mode") = 0);
     py_cls.def_property_readonly("is_empty", &c_cellview::empty, "True if this cellview is empty.");
-    py_cls.def_readonly("cell_name", &c_cellview::cell_name, "The cell name.");
+    py_cls.def_property_readonly("cell_name", &c_cellview::get_name, "The cell name.");
 
     py_cls.def("set_geometry_mode",
                [](c_cellview &self, cbag::enum_t new_mode) {
