@@ -1,8 +1,8 @@
 #include <pybind11/pybind11.h>
 
 #include <cbag/common/transformation_util.h>
-#include <cbag/layout/cellview.h>
 #include <cbag/layout/cellview_poly.h>
+#include <cbag/layout/cellview_util.h>
 #include <cbag/layout/instance.h>
 #include <cbag/layout/path_util.h>
 
@@ -67,8 +67,8 @@ void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {
 
 void add_rect_arr(c_cellview &self, const std::string &layer, const std::string &purpose,
                   bool is_horiz, const util::box_arr &barr) {
-    self.add_rect_arr(layer, purpose, barr.base, is_horiz, barr.nx(), barr.ny(), barr.spx(),
-                      barr.spy());
+    cbag::layout::add_rect_arr(self, layer, purpose, barr.base, is_horiz, barr.nx(), barr.ny(),
+                               barr.spx(), barr.spy());
 }
 
 } // namespace lay
@@ -111,18 +111,18 @@ void bind_cellview(py::module &m) {
                    self.set_geometry_mode(static_cast<cbag::geometry_mode>(new_mode));
                },
                "Set the geometry mode.", py::arg("new_mode"));
-    py_cls.def("get_rect_bbox", &c_cellview::get_bbox,
+    py_cls.def("get_rect_bbox", &cbag::layout::get_bbox,
                "Get the overall bounding box on the given layer.", py::arg("layer"),
                py::arg("purpose"));
-    py_cls.def("add_prim_instance", &c_cellview::add_prim_instance, "Adds a primitive instance.",
+    py_cls.def("add_prim_instance", &cbag::layout::add_prim_instance, "Adds a primitive instance.",
                py::arg("lib"), py::arg("cell"), py::arg("view"), py::arg("name"), py::arg("xform"),
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"), py::arg("commit"));
-    py_cls.def("add_instance", &c_cellview::add_instance, "Adds an instance", py::arg("cv"),
+    py_cls.def("add_instance", &cbag::layout::add_instance, "Adds an instance", py::arg("cv"),
                py::arg("name"), py::arg("xform"), py::arg("nx"), py::arg("ny"), py::arg("spx"),
                py::arg("spy"), py::arg("commit"));
-    py_cls.def("add_rect", &c_cellview::add_rect, "Adds a rectangle.", py::arg("layer"),
+    py_cls.def("add_rect", &cbag::layout::add_rect, "Adds a rectangle.", py::arg("layer"),
                py::arg("purpose"), py::arg("is_horiz"), py::arg("bbox"), py::arg("commit"));
-    py_cls.def("add_rect_arr", &c_cellview::add_rect_arr, "Adds an array of rectangles.",
+    py_cls.def("add_rect_arr", &cbag::layout::add_rect_arr, "Adds an array of rectangles.",
                py::arg("layer"), py::arg("purpose"), py::arg("box"), py::arg("is_horiz"),
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
     py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
@@ -145,13 +145,13 @@ void bind_cellview(py::module &m) {
                "Adds a new 45 degree path bus.", py::arg("layer"), py::arg("purpose"),
                py::arg("is_horiz"), py::arg("points"), py::arg("widths"), py::arg("spaces"),
                py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
-    py_cls.def("add_via", &c_cellview::add_via, "Add a via.", py::arg("xform"), py::arg("via_id"),
+    py_cls.def("add_via", &cbag::layout::add_via, "Add a via.", py::arg("xform"), py::arg("via_id"),
                py::arg("add_layers"), py::arg("bot_horiz"), py::arg("top_horiz"), py::arg("vnx"),
                py::arg("vny"), py::arg("w"), py::arg("h"), py::arg("vspx"), py::arg("vspy"),
                py::arg("enc1l"), py::arg("enc1r"), py::arg("enc1t"), py::arg("enc1b"),
                py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"),
                py::arg("commit"));
-    py_cls.def("add_via_arr", &c_cellview::add_via_arr, "Add an array of vias.", py::arg("xform"),
+    py_cls.def("add_via_arr", &cbag::layout::add_via_arr, "Add an array of vias.", py::arg("xform"),
                py::arg("via_id"), py::arg("add_layers"), py::arg("bot_horiz"), py::arg("top_horiz"),
                py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"), py::arg("vspx"),
                py::arg("vspy"), py::arg("enc1l"), py::arg("enc1r"), py::arg("enc1t"),
