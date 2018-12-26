@@ -14,6 +14,6 @@ using c_lay_cv_info = std::pair<std::string, cbag::layout::cellview *>;
 
 void bind_gds(py::module &m) {
     m.def("implement_gds", &cbag::gdsii::implement_gds<pyg::Iterable<c_lay_cv_info>>,
-          "Write the given layouts to GDS.", py::arg("fname"), py::arg("lib_name"), py::arg("view"),
+          "Write the given layouts to GDS.", py::arg("fname"), py::arg("lib_name"),
           py::arg("resolution"), py::arg("user_unit"), py::arg("cv_list"));
 }
