@@ -18,7 +18,7 @@ namespace pybag {
 namespace lay {
 
 void check_ref(const c_inst_ref &ref) {
-    if (ref.parent == nullptr) {
+    if (!ref.editable()) {
         throw std::runtime_error("Cannot modify committed instance");
     }
 }
