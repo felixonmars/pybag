@@ -14,6 +14,9 @@ from typing import Any
 from typing import Union
 
 
+def implement_gds(fname: str, lib_name: str, view: str, resolution: float, user_unit: float, cv_list: Iterable[Tuple[str, PyLayCellView]]) -> None: ...
+
+
 def implement_netlist(fname: str, content_list: List[Tuple[str, Tuple[PySchCellView, str]]], fmt_code: int, flat: bool, shell: bool, rmin: int, prim_fname: str) -> None: ...
 
 
