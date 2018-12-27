@@ -5,6 +5,7 @@
 #include <cbag/layout/cellview_util.h>
 #include <cbag/layout/instance.h>
 #include <cbag/layout/path_util.h>
+#include <cbag/layout/via_wrapper.h>
 
 #include <pybag/bbox_array.h>
 #include <pybag/layout.h>

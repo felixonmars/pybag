@@ -10,7 +10,8 @@
 #include <cbag/layout/polygon45_set_fwd.h>
 #include <cbag/layout/polygon90_fwd.h>
 #include <cbag/layout/polygon_fwd.h>
-#include <cbag/layout/via.h>
+#include <cbag/layout/via_util.h>
+#include <cbag/layout/via_wrapper.h>
 
 #include <pybag/lay_objects.h>
 
@@ -30,12 +31,12 @@ template <class Object> decltype(auto) bind_cv_obj_ref(py::module &m, const char
     return py_cls;
 }
 
-cbag::box_t via_bot_box(const cbag::layout::cv_obj_ref<cbag::layout::via> &ref) {
-    return ref.obj.bot_box();
+cbag::box_t via_bot_box(const cbag::layout::cv_obj_ref<cbag::layout::via_wrapper> &ref) {
+    return cbag::layout::get_bot_box(ref.obj.v);
 }
 
-cbag::box_t via_top_box(const cbag::layout::cv_obj_ref<cbag::layout::via> &ref) {
-    return ref.obj.top_box();
+cbag::box_t via_top_box(const cbag::layout::cv_obj_ref<cbag::layout::via_wrapper> &ref) {
+    return cbag::layout::get_top_box(ref.obj.v);
 }
 
 void bind_lay_objects(py::module &m) {
@@ -47,7 +48,7 @@ void bind_lay_objects(py::module &m) {
 
     bind_cv_obj_ref<cbag::layout::blockage>(m, "PyBlockage");
     bind_cv_obj_ref<cbag::layout::boundary>(m, "PyBoundary");
-    auto py_cls = bind_cv_obj_ref<cbag::layout::via>(m, "PyVia");
+    auto py_cls = bind_cv_obj_ref<cbag::layout::via_wrapper>(m, "PyVia");
     py_cls.def_property_readonly("bottom_box", &via_bot_box,
                                  "Returns the via bottom bounding box.");
     py_cls.def_property_readonly("top_box", &via_top_box, "Returns the via top bounding box.");
