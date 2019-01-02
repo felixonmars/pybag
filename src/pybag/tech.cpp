@@ -19,6 +19,6 @@ void bind_tech(py::module &m) {
     py_cls.def_property_readonly("default_purpose", &cbag::layout::get_default_purpose_name,
                                  "The default purpose name.");
     py_cls.def("get_min_space", cbag::layout::get_min_space,
-               "Returns the minimum required spacing.", py::arg("layer_type"), py::arg("width"),
-               py::arg("sp_type"));
+               "Returns the minimum required spacing.", py::arg("layer"), py::arg("purpose"),
+               py::arg("width"), py::arg("sp_type"));
 }
