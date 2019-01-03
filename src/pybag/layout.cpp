@@ -107,6 +107,8 @@ void bind_cellview(py::module &m) {
     py_cls.def_property_readonly("is_empty", &c_cellview::empty, "True if this cellview is empty.");
     py_cls.def_property_readonly("cell_name", &c_cellview::get_name, "The cell name.");
 
+    py_cls.def("__eq__", &c_cellview::operator==,
+               "Returns True if the two layout cellviews are equal.", py::arg("other"));
     py_cls.def("set_geometry_mode",
                [](c_cellview &self, cbag::enum_t new_mode) {
                    self.set_geometry_mode(static_cast<cbag::geometry_mode>(new_mode));
@@ -137,6 +139,8 @@ void bind_cellview(py::module &m) {
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
+    py_cls.def("add_label", &c_cellview::add_label, "Adds a label object.", py::arg("layer"),
+               py::arg("purpose"), py::arg("xform"), py::arg("label"));
     py_cls.def("add_path", &cbag::layout::add_path<py_pt_vector>, "Adds a new path.",
                py::arg("layer"), py::arg("purpose"), py::arg("is_horiz"), py::arg("points"),
                py::arg("half_width"), py::arg("style0"), py::arg("style1"), py::arg("stylem"),
