@@ -53,7 +53,7 @@ void bind_bbox(py::class_<c_box> &py_cls) {
         py::arg("th"), py::arg("pl"), py::arg("ph"));
 
     py_cls.def("__repr__", &cbag::to_string, "Returns a string representation of BBox.");
-    py_cls.def("__eq__", &cbag::operator==, "Returns True if the two BBox are equal.",
+    py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
                py::arg("other"));
 
     py_cls.def_static("get_invalid_bbox", &c_box::get_invalid_box, "Create an invalid BBox.");
