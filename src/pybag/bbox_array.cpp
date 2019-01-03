@@ -7,7 +7,7 @@
 
 #include <cbag/common/box_t_util.h>
 #include <cbag/common/transformation_util.h>
-#include <cbag/util/floor_half.h>
+#include <cbag/util/math.h>
 
 #include <pybind11_generics/iterator.h>
 
@@ -63,8 +63,8 @@ coord_t box_arr::xl() const { return get_coord(0, 0); }
 coord_t box_arr::xh() const { return get_coord(0, 1); }
 coord_t box_arr::yl() const { return get_coord(1, 0); }
 coord_t box_arr::yh() const { return get_coord(1, 1); }
-coord_t box_arr::xm() const { return cbag::util::floor_half(xl() + xh()); }
-coord_t box_arr::ym() const { return cbag::util::floor_half(yl() + yh()); }
+coord_t box_arr::xm() const { return cbag::util::floor2(xl() + xh()); }
+coord_t box_arr::ym() const { return cbag::util::floor2(yl() + yh()); }
 
 std::string box_arr::to_string() const {
     return fmt::format("BBoxArray({}, {}, {}, {}, {})", cbag::to_string(base), num[0], num[1],
