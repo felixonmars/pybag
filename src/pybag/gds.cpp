@@ -2,7 +2,7 @@
 
 #include <pybind11_generics/iterable.h>
 
-#include <cbag/gdsii/main.h>
+#include <cbag/gdsii/write.h>
 #include <cbag/layout/cellview.h>
 
 #include <pybag/gds.h>
