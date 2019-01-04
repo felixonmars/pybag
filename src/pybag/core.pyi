@@ -23,6 +23,9 @@ def implement_netlist(fname: str, content_list: List[Tuple[str, Tuple[PySchCellV
 def implement_yaml(fname: str, content_list: Iterable[Tuple[str, Tuple[PySchCellView, str]]]) -> None: ...
 
 
+def read_gds(fname: str, layer_map: str, obj_map: str, tech_ptr: PyTech) -> List[PyLayCellView]: ...
+
+
 class BBox:
     @property
     def h(self) -> int: ...
