@@ -17,6 +17,7 @@ PYBIND11_MODULE(core, m) {
     bind_interval(m);
     bind_transform(m);
     bind_geometry(m);
+    bind_via_param(m);
     bind_tech(m);
     bind_routing_grid(m);
     bind_oa(m);

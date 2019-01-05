@@ -9,4 +9,6 @@ void bind_tech(py::module &);
 
 void bind_routing_grid(py::module &);
 
+void bind_via_param(py::module &);
+
 #endif
