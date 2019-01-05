@@ -18,6 +18,7 @@ PYBIND11_MODULE(core, m) {
     bind_transform(m);
     bind_geometry(m);
     bind_tech(m);
+    bind_routing_grid(m);
     bind_oa(m);
     bind_lay_objects(m);
     bind_layout(m);

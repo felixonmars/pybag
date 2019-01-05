@@ -32,11 +32,11 @@ template <class Object> decltype(auto) bind_cv_obj_ref(py::module &m, const char
 }
 
 cbag::box_t via_bot_box(const cbag::layout::cv_obj_ref<cbag::layout::via_wrapper> &ref) {
-    return cbag::layout::get_bot_box(ref.obj.v);
+    return cbag::layout::get_bot_box(ref->v);
 }
 
 cbag::box_t via_top_box(const cbag::layout::cv_obj_ref<cbag::layout::via_wrapper> &ref) {
-    return cbag::layout::get_top_box(ref.obj.v);
+    return cbag::layout::get_top_box(ref->v);
 }
 
 void bind_lay_objects(py::module &m) {

@@ -8,6 +8,7 @@
 #include <cbag/gdsii/read.h>
 #include <cbag/gdsii/write.h>
 #include <cbag/layout/cellview.h>
+#include <cbag/layout/routing_grid_fwd.h>
 
 #include <pybag/gds.h>
 
@@ -22,10 +23,10 @@ namespace pybag {
 namespace util {
 
 py_cv_list read_gds(const std::string &fname, const std::string &layer_map,
-                    const std::string &obj_map, const cbag::layout::tech *tech_ptr) {
+                    const std::string &obj_map, const cbag::layout::routing_grid *grid_ptr) {
     py_cv_list ans;
 
-    cbag::gdsii::read_gds(fname, layer_map, obj_map, *tech_ptr, std::back_inserter(ans));
+    cbag::gdsii::read_gds(fname, layer_map, obj_map, *grid_ptr, std::back_inserter(ans));
 
     return ans;
 }
@@ -40,5 +41,5 @@ void bind_gds(py::module &m) {
           py::arg("cv_list"));
 
     m.def("read_gds", &pybag::util::read_gds, "Reads layout cellviews from the given GDS file.",
-          py::arg("fname"), py::arg("layer_map"), py::arg("obj_map"), py::arg("tech_ptr"));
+          py::arg("fname"), py::arg("layer_map"), py::arg("obj_map"), py::arg("grid"));
 }

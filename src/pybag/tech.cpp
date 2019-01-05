@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 
+#include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
 
 #include <pybag/tech.h>
@@ -7,6 +8,7 @@
 namespace py = pybind11;
 
 using c_tech = cbag::layout::tech;
+using c_grid = cbag::layout::routing_grid;
 
 void bind_tech(py::module &m) {
     auto py_cls = py::class_<c_tech>(m, "PyTech");
@@ -31,4 +33,11 @@ void bind_tech(py::module &m) {
     py_cls.def("get_min_length", cbag::layout::get_min_length,
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
                py::arg("width"), py::arg("even"));
+}
+
+void bind_routing_grid(py::module &m) {
+    auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
+    py_cls.doc() = "The routing grid class.";
+    py_cls.def(py::init<const c_tech *, std::string>(),
+               "Create a new PyRoutingGrid class from file.", py::arg("tech"), py::arg("fname"));
 }
