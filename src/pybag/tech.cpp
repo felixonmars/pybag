@@ -6,6 +6,7 @@
 #include <pybind11_generics/tuple.h>
 
 #include <cbag/common/transformation.h>
+#include <cbag/enum/space_type.h>
 #include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/via_param_util.h>
@@ -52,6 +53,18 @@ c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &v
                               static_cast<cbag::orient_2d>(top_dir), extend);
 }
 
+cbag::offset_t get_min_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
+                             const std::string &purpose, bool same_color) {
+    auto sp_type = (same_color) ? cbag::space_type::SAME_COLOR : cbag::space_type::DIFF_COLOR;
+    return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width, sp_type);
+}
+
+cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
+                                const std::string &purpose) {
+    return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width,
+                              cbag::space_type::LINE_END);
+}
+
 } // namespace tech
 } // namespace pybag
 
@@ -90,16 +103,19 @@ void bind_tech(py::module &m) {
                                  "The pin purpose name.");
     py_cls.def_property_readonly("make_pin", &c_tech::get_make_pin, "True to make pin objects.");
 
-    py_cls.def("get_level", &pybag::tech::get_level, "Returns the level ID of the given layer.",
-               py::arg("layer"), py::arg("purpose"));
+    py_cls.def("get_layer_id", &pybag::tech::get_level, "Returns the layer level ID.",
+               py::arg("layer"), py::arg("purpose") = "");
     py_cls.def("get_lay_purp_list", &pybag::tech::get_lay_purp_list,
-               "Returns the layer/purpose pairs on the given level.", py::arg("level"));
-    py_cls.def("get_min_space", &cbag::layout::get_min_space,
-               "Returns the minimum required spacing.", py::arg("layer"), py::arg("purpose"),
-               py::arg("width"), py::arg("sp_type"));
+               "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"));
+    py_cls.def("get_min_space", &pybag::tech::get_min_space,
+               "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
+               py::arg("purpose") = "", py::arg("same_color") = false);
+    py_cls.def("get_min_line_end_space", &pybag::tech::get_min_le_space,
+               "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
+               py::arg("purpose") = "");
     py_cls.def("get_min_length", &cbag::layout::get_min_length,
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
-               py::arg("width"), py::arg("even"));
+               py::arg("width"), py::arg("even") = false);
     py_cls.def("get_via_id", &pybag::tech::get_via_id, "Returns the via ID name.",
                py::arg("bot_lay"), py::arg("bot_purp"), py::arg("top_lay"), py::arg("top_purp"));
     py_cls.def("get_via_param", &pybag::tech::get_via_param,
@@ -112,4 +128,13 @@ void bind_routing_grid(py::module &m) {
     py_cls.doc() = "The routing grid class.";
     py_cls.def(py::init<const c_tech *, std::string>(),
                "Create a new PyRoutingGrid class from file.", py::arg("tech"), py::arg("fname"));
+    py_cls.def_property_readonly("top_private_layer", &c_grid::get_top_private_level,
+                                 "The top private layer ID.");
+    py_cls.def("get_direction", &c_grid::get_direction,
+               "Returns the track direction for the given layer.", py::arg("level"));
+    py_cls.def("get_level_offset", &c_grid::get_level_offset,
+               "Returns the track offset for the given layer.", py::arg("level"));
+    py_cls.def("set_flip_parity", &c_grid::set_flip_parity,
+               "Sets the flip_parity parameters for the given layer.", py::arg("level"),
+               py::arg("scale"), py::arg("offset"));
 }
