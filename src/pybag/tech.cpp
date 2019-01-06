@@ -38,14 +38,16 @@ pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, int level) {
     return ans;
 }
 
-c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &bot_lay,
-                          const std::string &bot_purp, const std::string &top_lay,
-                          const std::string &top_purp, cbag::orient_2d_t bot_dir,
-                          cbag::orient_2d_t top_dir, bool extend) {
+std::string get_via_id(const c_tech &tech, const std::string &bot_lay, const std::string &bot_purp,
+                       const std::string &top_lay, const std::string &top_purp) {
+    return tech.get_via_id(cbag::layout::layer_t_at(tech, bot_lay, bot_purp),
+                           cbag::layout::layer_t_at(tech, top_lay, top_purp));
+}
 
-    return tech.get_via_param(cbag::vector{w, h}, cbag::layout::layer_t_at(tech, bot_lay, bot_purp),
-                              cbag::layout::layer_t_at(tech, top_lay, top_purp),
-                              static_cast<cbag::orient_2d>(bot_dir),
+c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &via_id,
+                          cbag::orient_2d_t bot_dir, cbag::orient_2d_t top_dir, bool extend) {
+
+    return tech.get_via_param(cbag::vector{w, h}, via_id, static_cast<cbag::orient_2d>(bot_dir),
                               static_cast<cbag::orient_2d>(top_dir), extend);
 }
 
@@ -56,6 +58,9 @@ void bind_via_param(py::module &m) {
     auto py_cls = py::class_<c_via_param>(m, "ViaParam");
     py_cls.doc() = "The via parameter class.";
     py_cls.def(py::init<>(), "Create a new ViaParam object.");
+    py_cls.def_property_readonly(
+        "empty", [](const c_via_param &p) { return p.num[0] == 0 || p.num[1] == 0; },
+        "True if this ViaParam represents an empty via.");
 }
 
 void bind_tech(py::module &m) {
@@ -85,10 +90,11 @@ void bind_tech(py::module &m) {
     py_cls.def("get_min_length", &cbag::layout::get_min_length,
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
                py::arg("width"), py::arg("even"));
+    py_cls.def("get_via_id", &pybag::tech::get_via_id, "Returns the via ID name.",
+               py::arg("bot_lay"), py::arg("bot_purp"), py::arg("top_lay"), py::arg("top_purp"));
     py_cls.def("get_via_param", &pybag::tech::get_via_param,
                "Calculates the via parameters from the given specs.", py::arg("w"), py::arg("h"),
-               py::arg("bot_lay"), py::arg("bot_purp"), py::arg("top_lay"), py::arg("top_purp"),
-               py::arg("bot_dir"), py::arg("top_dir"), py::arg("extend"));
+               py::arg("via_id"), py::arg("bot_dir"), py::arg("top_dir"), py::arg("extend"));
 }
 
 void bind_routing_grid(py::module &m) {
