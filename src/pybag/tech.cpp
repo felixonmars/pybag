@@ -93,7 +93,7 @@ cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cb
 
 pyg::PyOrient2D get_direction(const c_grid &grid, int level) {
     return pybag::util::code_to_orient_2d(
-        static_cast<cbag::orient_2d_t>(grid.get_direction(level)));
+        static_cast<cbag::orient_2d_t>(grid.get_track_info(level).get_direction()));
 }
 
 } // namespace tech
@@ -154,23 +154,38 @@ void bind_tech(py::module &m) {
                py::arg("via_id"), py::arg("bot_dir"), py::arg("top_dir"), py::arg("extend"));
 }
 
+void bind_track_info(py::module &m) {
+    using c_tr_info = cbag::layout::track_info;
+
+    auto py_cls = py::class_<c_tr_info>(m, "TrackInfo");
+    py_cls.doc() = "A class containing routing grid information on a specific layer.";
+    py_cls.def_property_readonly("pitch", &c_tr_info::get_pitch, "Track pitch.");
+    py_cls.def("compatible", &c_tr_info::compatible,
+               "True if the two TrackInfo objects are compatible.", py::arg("other"));
+}
+
 void bind_routing_grid(py::module &m) {
+    bind_track_info(m);
+
     auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
     py_cls.doc() = "The routing grid class.";
     py_cls.def(py::init<const c_tech *, std::string>(),
                "Create a new PyRoutingGrid class from file.", py::arg("tech"), py::arg("fname"));
+    py_cls.def_property_readonly("bot_layer", &c_grid::get_bot_level, "The bottom layer ID.");
     py_cls.def_property_readonly("top_private_layer", &c_grid::get_top_private_level,
                                  "The top private layer ID.");
-    py_cls.def_property_readonly("tech_info", &c_grid::get_tech, "The PyTech object.");
     py_cls.def_property_readonly("resolution",
                                  [](const c_grid &g) { return g.get_tech()->get_resolution(); },
                                  "The layout resolution.");
     py_cls.def_property_readonly("layout_unit",
                                  [](const c_grid &g) { return g.get_tech()->get_layout_unit(); },
                                  "The layout resolution.");
+    py_cls.def("get_track_info", &c_grid::get_track_info,
+               "Returns the TrackInfo object on the given layer.", py::arg("lay_id"));
     py_cls.def("get_direction", &pybag::tech::get_direction,
                "Returns the track direction for the given layer.", py::arg("lay_id"));
-    py_cls.def("get_track_offset", &c_grid::get_level_offset,
+    py_cls.def("get_track_offset",
+               [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_offset(); },
                "Returns the track offset for the given layer.", py::arg("lay_id"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity,
                "Sets the flip_parity parameters for the given layer.", py::arg("lay_id"),
