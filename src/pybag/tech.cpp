@@ -5,9 +5,10 @@
 #include <pybind11_generics/list.h>
 #include <pybind11_generics/tuple.h>
 
+#include <cbag/common/transformation.h>
 #include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
-#include <cbag/layout/via_param.h>
+#include <cbag/layout/via_param_util.h>
 
 #include <pybag/tech.h>
 
@@ -61,6 +62,15 @@ void bind_via_param(py::module &m) {
     py_cls.def_property_readonly(
         "empty", [](const c_via_param &p) { return p.num[0] == 0 || p.num[1] == 0; },
         "True if this ViaParam represents an empty via.");
+    py_cls.def_property_readonly("nx", [](const c_via_param &p) { return p.num[0]; },
+                                 "Number of via columns.");
+    py_cls.def_property_readonly("ny", [](const c_via_param &p) { return p.num[1]; },
+                                 "Number of via rows.");
+    py_cls.def_property_readonly(
+        "cut_dim", [](const c_via_param &p) { return std::make_pair(p.cut_dim[0], p.cut_dim[1]); },
+        "Via cut dimension.");
+    py_cls.def("get_box", &cbag::layout::get_box, "Computes the via metal BBox.", py::arg("xform"),
+               py::arg("level"));
 }
 
 void bind_tech(py::module &m) {
