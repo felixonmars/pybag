@@ -11,10 +11,36 @@
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/via_param_util.h>
 
+#include <pybag/orient_conv.h>
 #include <pybag/tech.h>
 
 namespace py = pybind11;
 namespace pyg = pybind11_generics;
+
+// custom Orient2D typing definition
+
+namespace pybind11_generics {
+
+using obj_base = py::object;
+
+class PyOrient2D : public obj_base {
+  public:
+    static bool true_check(PyObject *ptr) { return true; }
+
+    PYBIND11_OBJECT_DEFAULT(PyOrient2D, obj_base, true_check);
+};
+
+} // namespace pybind11_generics
+
+namespace pybind11 {
+namespace detail {
+
+template <> struct handle_type_name<pybind11_generics::PyOrient2D> {
+    static constexpr auto name = _("pybag.enum.Orient2D");
+};
+
+} // namespace detail
+} // namespace pybind11
 
 using c_via_param = cbag::layout::via_param;
 using c_tech = cbag::layout::tech;
@@ -63,6 +89,11 @@ cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cb
                                 const std::string &purpose) {
     return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width,
                               cbag::space_type::LINE_END);
+}
+
+pyg::PyOrient2D get_direction(const c_grid &grid, int level) {
+    return pybag::util::code_to_orient_2d(
+        static_cast<cbag::orient_2d_t>(grid.get_direction(level)));
 }
 
 } // namespace tech
@@ -130,11 +161,18 @@ void bind_routing_grid(py::module &m) {
                "Create a new PyRoutingGrid class from file.", py::arg("tech"), py::arg("fname"));
     py_cls.def_property_readonly("top_private_layer", &c_grid::get_top_private_level,
                                  "The top private layer ID.");
-    py_cls.def("get_direction", &c_grid::get_direction,
-               "Returns the track direction for the given layer.", py::arg("level"));
-    py_cls.def("get_level_offset", &c_grid::get_level_offset,
-               "Returns the track offset for the given layer.", py::arg("level"));
+    py_cls.def_property_readonly("tech_info", &c_grid::get_tech, "The PyTech object.");
+    py_cls.def_property_readonly("resolution",
+                                 [](const c_grid &g) { return g.get_tech()->get_resolution(); },
+                                 "The layout resolution.");
+    py_cls.def_property_readonly("layout_unit",
+                                 [](const c_grid &g) { return g.get_tech()->get_layout_unit(); },
+                                 "The layout resolution.");
+    py_cls.def("get_direction", &pybag::tech::get_direction,
+               "Returns the track direction for the given layer.", py::arg("lay_id"));
+    py_cls.def("get_track_offset", &c_grid::get_level_offset,
+               "Returns the track offset for the given layer.", py::arg("lay_id"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity,
-               "Sets the flip_parity parameters for the given layer.", py::arg("level"),
+               "Sets the flip_parity parameters for the given layer.", py::arg("lay_id"),
                py::arg("scale"), py::arg("offset"));
 }

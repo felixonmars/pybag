@@ -5,6 +5,7 @@
 
 #include <pybind11/pybind11.h>
 
+#include <cbag/enum/orient_2d.h>
 #include <cbag/enum/orientation.h>
 
 namespace py = pybind11;
@@ -17,6 +18,8 @@ namespace util {
 cbag::orient_t get_orient_code(const py::str &orient);
 
 py::object code_to_orient(cbag::orient_t code);
+
+py::object code_to_orient_2d(cbag::orient_2d_t code);
 
 } // namespace util
 } // namespace pybag

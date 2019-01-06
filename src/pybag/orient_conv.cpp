@@ -14,5 +14,10 @@ py::object code_to_orient(cbag::orient_t code) {
     return orient_cls(code);
 }
 
+py::object code_to_orient_2d(cbag::orient_2d_t code) {
+    py::object orient_cls = py::module::import("pybag.enum").attr("Orient2D");
+    return orient_cls(code);
+}
+
 } // namespace util
 } // namespace pybag
