@@ -11,6 +11,7 @@
 #include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/via_param_util.h>
+#include <cbag/layout/wire_info.h>
 
 #include <pybag/orient_conv.h>
 #include <pybag/tech.h>
@@ -81,15 +82,15 @@ c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &v
 }
 
 cbag::offset_t get_min_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
-                             const std::string &purpose, bool same_color) {
+                             const std::string &purpose, bool same_color, bool even) {
     auto sp_type = (same_color) ? cbag::space_type::SAME_COLOR : cbag::space_type::DIFF_COLOR;
-    return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width, sp_type);
+    return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width, sp_type, even);
 }
 
 cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
-                                const std::string &purpose) {
+                                const std::string &purpose, bool even) {
     return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width,
-                              cbag::space_type::LINE_END);
+                              cbag::space_type::LINE_END, even);
 }
 
 pyg::PyOrient2D get_direction(const c_grid &grid, int level) {
@@ -141,10 +142,10 @@ void bind_tech(py::module &m) {
                "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"));
     py_cls.def("get_min_space", &pybag::tech::get_min_space,
                "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
-               py::arg("purpose") = "", py::arg("same_color") = false);
+               py::arg("purpose") = "", py::arg("same_color") = false, py::arg("even") = false);
     py_cls.def("get_min_line_end_space", &pybag::tech::get_min_le_space,
                "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
-               py::arg("purpose") = "");
+               py::arg("purpose") = "", py::arg("even") = false);
     py_cls.def("get_min_length", &cbag::layout::get_min_length,
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
                py::arg("width"), py::arg("even") = false);
@@ -199,10 +200,35 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_track_offset",
                [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_offset(); },
                "Returns the track offset for the given layer.", py::arg("lay_id"));
+    py_cls.def("get_track_pitch",
+               [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_pitch(); },
+               "Returns the track pitch for the given layer.", py::arg("lay_id"));
+    py_cls.def("get_min_length",
+               [](const c_grid &g, int lay_id, int num_tr, bool even) {
+                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_length(
+                       *g.get_tech(), lay_id, even);
+               },
+               "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
+               py::arg("even") = false);
+    py_cls.def("get_space",
+               [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
+                   auto sp_type =
+                       (same_color) ? cbag::space_type::SAME_COLOR : cbag::space_type::DIFF_COLOR;
+                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_space(
+                       *g.get_tech(), lay_id, sp_type, even);
+               },
+               "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
+               py::arg("same_color") = false, py::arg("even") = false);
+    py_cls.def("get_line_end_space",
+               [](const c_grid &g, int lay_id, int num_tr, bool even) {
+                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_space(
+                       *g.get_tech(), lay_id, cbag::space_type::LINE_END, even);
+               },
+               "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
+               py::arg("even") = false);
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
-
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
 }
