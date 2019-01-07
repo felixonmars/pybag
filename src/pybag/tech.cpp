@@ -7,6 +7,7 @@
 
 #include <cbag/common/transformation.h>
 #include <cbag/enum/space_type.h>
+#include <cbag/layout/flip_parity.h>
 #include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/via_param_util.h>
@@ -164,8 +165,19 @@ void bind_track_info(py::module &m) {
                "True if the two TrackInfo objects are compatible.", py::arg("other"));
 }
 
+void bind_flip_parity(py::module &m) {
+    using c_fp = cbag::layout::flip_parity;
+
+    auto py_cls = py::class_<c_fp>(m, "FlipParity");
+    py_cls.doc() = "A class containing routing grid flip parity information.";
+    py_cls.def("__eq__", &c_fp::operator==, py::arg("other"));
+    py_cls.def("__hash__", &c_fp::get_hash);
+    py_cls.def("__repr__", &c_fp::to_string);
+}
+
 void bind_routing_grid(py::module &m) {
     bind_track_info(m);
+    bind_flip_parity(m);
 
     auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
     py_cls.doc() = "The routing grid class.";
@@ -187,7 +199,10 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_track_offset",
                [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_offset(); },
                "Returns the track offset for the given layer.", py::arg("lay_id"));
-    py_cls.def("set_flip_parity", &c_grid::set_flip_parity,
-               "Sets the flip_parity parameters for the given layer.", py::arg("lay_id"),
-               py::arg("scale"), py::arg("offset"));
+    py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
+               "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
+               py::arg("top_layer"), py::arg("xform"));
+
+    py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
+               py::arg("fp_data"));
 }
