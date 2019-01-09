@@ -10,6 +10,7 @@
 #include <cbag/layout/flip_parity.h>
 #include <cbag/layout/routing_grid.h>
 #include <cbag/layout/tech_util.h>
+#include <cbag/layout/track_info_util.h>
 #include <cbag/layout/via_param_util.h>
 #include <cbag/layout/wire_info.h>
 
@@ -83,7 +84,7 @@ c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &v
 
 cbag::offset_t get_min_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
                              const std::string &purpose, bool same_color, bool even) {
-    auto sp_type = (same_color) ? cbag::space_type::SAME_COLOR : cbag::space_type::DIFF_COLOR;
+    auto sp_type = cbag::get_space_type(same_color);
     return tech.get_min_space(cbag::layout::layer_t_at(tech, layer, purpose), width, sp_type, even);
 }
 
@@ -212,8 +213,7 @@ void bind_routing_grid(py::module &m) {
                py::arg("even") = false);
     py_cls.def("get_space",
                [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
-                   auto sp_type =
-                       (same_color) ? cbag::space_type::SAME_COLOR : cbag::space_type::DIFF_COLOR;
+                   auto sp_type = cbag::get_space_type(same_color);
                    return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_space(
                        *g.get_tech(), lay_id, sp_type, even);
                },
@@ -226,6 +226,15 @@ void bind_routing_grid(py::module &m) {
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
                py::arg("even") = false);
+    py_cls.def(
+        "get_min_space_htr",
+        [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
+            return cbag::layout::get_min_space_htr(g.get_track_info(lay_id), *g.get_tech(), lay_id,
+                                                   num_tr, same_color, even);
+        },
+        "Returns the minimum space required around the given wire in number of half-pitches.",
+        py::arg("lay_id"), py::arg("num_tr"), py::arg("same_color") = false,
+        py::arg("even") = false);
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));

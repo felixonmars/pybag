@@ -73,9 +73,9 @@ class GeometryMode(IntEnum):
 
 
 class SpaceQueryMode(IntEnum):
-    LINE_END = 0
-    DIFF_COLOR = 1
-    SAME_COLOR = 2
+    DIFF_COLOR = 0
+    SAME_COLOR = 1
+    LINE_END = 2
 
 
 def get_extension(output_type: DesignOutput) -> str:
