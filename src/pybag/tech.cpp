@@ -9,6 +9,7 @@
 #include <cbag/enum/space_type.h>
 #include <cbag/layout/flip_parity.h>
 #include <cbag/layout/routing_grid.h>
+#include <cbag/layout/routing_grid_util.h>
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/track_info_util.h>
 #include <cbag/layout/via_param_util.h>
@@ -69,17 +70,20 @@ pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, int level) {
     return ans;
 }
 
-std::string get_via_id(const c_tech &tech, const std::string &bot_lay, const std::string &bot_purp,
-                       const std::string &top_lay, const std::string &top_purp) {
-    return tech.get_via_id(cbag::layout::layer_t_at(tech, bot_lay, bot_purp),
-                           cbag::layout::layer_t_at(tech, top_lay, top_purp));
+std::string get_via_id(const c_tech &tech, int lev_code, const std::string &lay,
+                       const std::string &purp, const std::string &adj_lay,
+                       const std::string &adj_purp) {
+    return tech.get_via_id(static_cast<cbag::direction>(lev_code),
+                           cbag::layout::layer_t_at(tech, lay, purp),
+                           cbag::layout::layer_t_at(tech, adj_lay, adj_purp));
 }
 
-c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &via_id,
-                          cbag::orient_2d_t bot_dir, cbag::orient_2d_t top_dir, bool extend) {
+c_via_param get_via_param(const c_tech &tech, int w, int h, const std::string &via_id, int lev_code,
+                          cbag::orient_2d_t ex_dir, cbag::orient_2d_t adj_ex_dir, bool extend) {
 
-    return tech.get_via_param(cbag::vector{w, h}, via_id, static_cast<cbag::orient_2d>(bot_dir),
-                              static_cast<cbag::orient_2d>(top_dir), extend);
+    return tech.get_via_param(cbag::vector{w, h}, via_id, static_cast<cbag::direction>(lev_code),
+                              static_cast<cbag::orient_2d>(ex_dir),
+                              static_cast<cbag::orient_2d>(adj_ex_dir), extend);
 }
 
 cbag::offset_t get_min_space(const c_tech &tech, const std::string &layer, cbag::offset_t width,
@@ -116,8 +120,11 @@ void bind_via_param(py::module &m) {
     py_cls.def_property_readonly(
         "cut_dim", [](const c_via_param &p) { return std::make_pair(p.cut_dim[0], p.cut_dim[1]); },
         "Via cut dimension.");
-    py_cls.def("get_box", &cbag::layout::get_box, "Computes the via metal BBox.", py::arg("xform"),
-               py::arg("level"));
+    py_cls.def("get_box",
+               [](const c_via_param &p, const cbag::transformation &xform, int level) {
+                   return cbag::layout::get_box(p, xform, static_cast<cbag::direction>(level));
+               },
+               "Computes the via metal BBox.", py::arg("xform"), py::arg("level"));
 }
 
 void bind_tech(py::module &m) {
@@ -151,10 +158,12 @@ void bind_tech(py::module &m) {
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
                py::arg("width"), py::arg("even") = false);
     py_cls.def("get_via_id", &pybag::tech::get_via_id, "Returns the via ID name.",
-               py::arg("bot_lay"), py::arg("bot_purp"), py::arg("top_lay"), py::arg("top_purp"));
+               py::arg("lev_code"), py::arg("lay"), py::arg("purp"), py::arg("adj_lay"),
+               py::arg("adj_purp"));
     py_cls.def("get_via_param", &pybag::tech::get_via_param,
                "Calculates the via parameters from the given specs.", py::arg("w"), py::arg("h"),
-               py::arg("via_id"), py::arg("bot_dir"), py::arg("top_dir"), py::arg("extend"));
+               py::arg("via_id"), py::arg("lev_code"), py::arg("ex_dir"), py::arg("adj_ex_dir"),
+               py::arg("extend"));
 }
 
 void bind_track_info(py::module &m) {
@@ -235,6 +244,14 @@ void bind_routing_grid(py::module &m) {
         "Returns the minimum space required around the given wire in number of half-pitches.",
         py::arg("lay_id"), py::arg("num_tr"), py::arg("same_color") = false,
         py::arg("even") = false);
+    py_cls.def("get_via_extensions",
+               [](const c_grid &g, int lev_code, int lay_id, int bot_ntr, int top_ntr) {
+                   auto tmp = cbag::layout::get_via_extensions(
+                       g, static_cast<cbag::direction>(lev_code), lay_id, bot_ntr, top_ntr);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(tmp[0], tmp[1]);
+               },
+               "Returns the via extensions .", py::arg("lev_code"), py::arg("lay_id"),
+               py::arg("num_tr"), py::arg("adj_num_tr"));
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
