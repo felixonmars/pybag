@@ -42,6 +42,14 @@ class Orient2D(IntEnum):
         return Orient2D(1 - self.value)
 
 
+class Direction(IntEnum):
+    LOWER = 0
+    UPPER = 1
+
+    def flip(self) -> Direction:
+        return Direction(1 - self.value)
+
+
 class PathStyle(IntEnum):
     truncate = 0
     extend = 1
