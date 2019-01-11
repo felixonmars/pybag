@@ -18,7 +18,7 @@
 template <class Shape> decltype(auto) bind_shape_ref(py::module &m, const char *name) {
     auto py_cls = py::class_<cbag::layout::shape_ref<Shape>>(m, name);
     py_cls.def(py::init<>(), "Create an empty layout object.");
-    py_cls.def("commint", &cbag::layout::shape_ref<Shape>::commit,
+    py_cls.def("commit", &cbag::layout::shape_ref<Shape>::commit,
                "Commit this object to cellview.");
     return py_cls;
 }
@@ -26,7 +26,7 @@ template <class Shape> decltype(auto) bind_shape_ref(py::module &m, const char *
 template <class Object> decltype(auto) bind_cv_obj_ref(py::module &m, const char *name) {
     auto py_cls = py::class_<cbag::layout::cv_obj_ref<Object>>(m, name);
     py_cls.def(py::init<>(), "Create an empty layout object.");
-    py_cls.def("commint", &cbag::layout::cv_obj_ref<Object>::commit,
+    py_cls.def("commit", &cbag::layout::cv_obj_ref<Object>::commit,
                "Commit this object to cellview.");
     return py_cls;
 }
