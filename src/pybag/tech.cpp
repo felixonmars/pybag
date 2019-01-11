@@ -252,6 +252,13 @@ void bind_routing_grid(py::module &m) {
                },
                "Returns the via extensions .", py::arg("lev_code"), py::arg("lay_id"),
                py::arg("num_tr"), py::arg("adj_num_tr"));
+    py_cls.def("get_line_end_space_htr",
+               [](const c_grid &g, int lev_code, int lay_id, int ntr) {
+                   return cbag::layout::get_line_end_space_htr(
+                       g, static_cast<cbag::direction>(lev_code), lay_id, ntr);
+               },
+               "Returns the line-end space measured in half-tracks.", py::arg("lev_code"),
+               py::arg("lay_id"), py::arg("ntr"));
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
