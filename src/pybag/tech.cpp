@@ -280,6 +280,24 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
+    py_cls.def("get_htr_parity", &c_grid::get_htr_parity,
+               "Gets parity of the given half-track index.", py::arg("layer_id"), py::arg("htr"));
+    py_cls.def("get_htr_layer_purpose",
+               [](const c_grid &g, int lay_id, int htr) {
+                   auto key = cbag::layout::get_layer_t(g, lay_id, htr);
+                   auto &tech = *g.get_tech();
+                   return pyg::Tuple<py::str, py::str>::make_tuple(
+                       tech.get_layer_name(key.first), tech.get_purpose_name(key.second));
+               },
+               "Returns the layer/purpose pair of the given half-track index.", py::arg("layer_id"),
+               py::arg("htr"));
+    py_cls.def("get_wire_bounds_htr",
+               [](const c_grid &g, int lay_id, int htr, int ntr) {
+                   auto ans = cbag::layout::get_wire_bounds(g, lay_id, htr, ntr);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
+               },
+               "Returns the wire boundary coordinates.", py::arg("layer_id"), py::arg("htr"),
+               py::arg("ntr"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
 }
