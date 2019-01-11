@@ -98,11 +98,6 @@ cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cb
                               cbag::space_type::LINE_END, even);
 }
 
-pyg::PyOrient2D get_direction(const c_grid &grid, int level) {
-    return pybag::util::code_to_orient_2d(
-        static_cast<cbag::orient_2d_t>(grid.get_track_info(level).get_direction()));
-}
-
 } // namespace tech
 } // namespace pybag
 
@@ -203,19 +198,23 @@ void bind_routing_grid(py::module &m) {
     py_cls.def_property_readonly("layout_unit",
                                  [](const c_grid &g) { return g.get_tech()->get_layout_unit(); },
                                  "The layout resolution.");
-    py_cls.def("get_track_info", &c_grid::get_track_info,
+    py_cls.def("get_track_info", &c_grid::track_info_at,
                "Returns the TrackInfo object on the given layer.", py::arg("lay_id"));
-    py_cls.def("get_direction", &pybag::tech::get_direction,
+    py_cls.def("get_direction",
+               [](const c_grid &g, int lay_id) -> pyg::PyOrient2D {
+                   return pybag::util::code_to_orient_2d(
+                       static_cast<cbag::orient_2d_t>(g.track_info_at(lay_id).get_direction()));
+               },
                "Returns the track direction for the given layer.", py::arg("lay_id"));
     py_cls.def("get_track_offset",
-               [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_offset(); },
+               [](const c_grid &g, int lay_id) { return g.track_info_at(lay_id).get_offset(); },
                "Returns the track offset for the given layer.", py::arg("lay_id"));
     py_cls.def("get_track_pitch",
-               [](const c_grid &g, int lay_id) { return g.get_track_info(lay_id).get_pitch(); },
+               [](const c_grid &g, int lay_id) { return g.track_info_at(lay_id).get_pitch(); },
                "Returns the track pitch for the given layer.", py::arg("lay_id"));
     py_cls.def("get_min_length",
                [](const c_grid &g, int lay_id, int num_tr, bool even) {
-                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_length(
+                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_length(
                        *g.get_tech(), lay_id, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
@@ -223,14 +222,14 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_space",
                [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
                    auto sp_type = cbag::get_space_type(same_color);
-                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_space(
+                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
                        *g.get_tech(), lay_id, sp_type, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
                py::arg("same_color") = false, py::arg("even") = false);
     py_cls.def("get_line_end_space",
                [](const c_grid &g, int lay_id, int num_tr, bool even) {
-                   return g.get_track_info(lay_id).get_wire_info(num_tr).get_min_space(
+                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
                        *g.get_tech(), lay_id, cbag::space_type::LINE_END, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
@@ -238,7 +237,7 @@ void bind_routing_grid(py::module &m) {
     py_cls.def(
         "get_min_space_htr",
         [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
-            return cbag::layout::get_min_space_htr(g.get_track_info(lay_id), *g.get_tech(), lay_id,
+            return cbag::layout::get_min_space_htr(g.track_info_at(lay_id), *g.get_tech(), lay_id,
                                                    num_tr, same_color, even);
         },
         "Returns the minimum space required around the given wire in number of half-pitches.",
@@ -269,6 +268,15 @@ void bind_routing_grid(py::module &m) {
         "Returns the unit block size given top routing level.", py::arg("layer_id"),
         py::arg("include_private") = false, py::arg("half_blk_x") = false,
         py::arg("half_blk_y") = false);
+    py_cls.def("size_defined", &cbag::layout::block_defined_at,
+               "Returns True if both width and height are quantized at the given layer.",
+               py::arg("layer_id"));
+    py_cls.def("get_size_pitch",
+               [](const c_grid &g, int lay_id) {
+                   auto ans = cbag::layout::get_top_track_pitches(g, lay_id);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
+               },
+               "Returns the pitches that defines template size.", py::arg("layer_id"));
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
