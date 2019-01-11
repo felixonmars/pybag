@@ -259,6 +259,16 @@ void bind_routing_grid(py::module &m) {
                },
                "Returns the line-end space measured in half-tracks.", py::arg("lev_code"),
                py::arg("lay_id"), py::arg("ntr"));
+    py_cls.def(
+        "get_block_size",
+        [](const c_grid &g, int level, bool include_private, bool half_blk_x, bool half_blk_y) {
+            std::array<bool, 2> half_blk = {half_blk_x, half_blk_y};
+            auto ans = cbag::layout::get_blk_size(g, level, include_private, half_blk);
+            return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
+        },
+        "Returns the unit block size given top routing level.", py::arg("layer_id"),
+        py::arg("include_private") = false, py::arg("half_blk_x") = false,
+        py::arg("half_blk_y") = false);
     py_cls.def("get_flip_parity_at", &c_grid::get_flip_parity_at,
                "Gets the flip_parity information at the given location.", py::arg("bot_layer"),
                py::arg("top_layer"), py::arg("xform"));
