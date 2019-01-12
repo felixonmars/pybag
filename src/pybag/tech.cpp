@@ -53,14 +53,27 @@ using c_grid = cbag::layout::routing_grid;
 namespace pybag {
 namespace tech {
 
+class PyTech : public c_tech {
+  public:
+    using c_tech::c_tech;
+
+    cbag::em_specs_t get_metal_em_specs(const std::string &layer, cbag::offset_t width,
+                                        const std::string &purpose, cbag::offset_t length,
+                                        bool vertical, cbag::int_t dc_temp,
+                                        cbag::int_t rms_dt) const override {
+        PYBIND11_OVERLOAD_PURE(cbag::em_specs_t, cbag::layout::tech, get_metal_em_specs, layer,
+                               width, purpose, length, vertical, dc_temp, rms_dt);
+    }
+};
+
 using py_lp = pyg::Tuple<py::str, py::str>;
 
-std::optional<int> get_level(const c_tech &tech, const std::string &layer,
-                             const std::string &purpose) {
+std::optional<cbag::int_t> get_level(const c_tech &tech, const std::string &layer,
+                                     const std::string &purpose) {
     return tech.get_level(cbag::layout::layer_t_at(tech, layer, purpose));
 }
 
-pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, int level) {
+pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::int_t level) {
     pyg::List<py_lp> ans;
     const auto &lp_list = tech.get_lay_purp_list(level);
     for (const auto &[lay_id, purp_id] : lp_list) {
@@ -116,14 +129,14 @@ void bind_via_param(py::module &m) {
         "cut_dim", [](const c_via_param &p) { return std::make_pair(p.cut_dim[0], p.cut_dim[1]); },
         "Via cut dimension.");
     py_cls.def("get_box",
-               [](const c_via_param &p, const cbag::transformation &xform, int level) {
+               [](const c_via_param &p, const cbag::transformation &xform, cbag::int_t level) {
                    return cbag::layout::get_box(p, xform, static_cast<cbag::direction>(level));
                },
                "Computes the via metal BBox.", py::arg("xform"), py::arg("level"));
 }
 
 void bind_tech(py::module &m) {
-    auto py_cls = py::class_<c_tech>(m, "PyTech");
+    auto py_cls = py::class_<c_tech, pybag::tech::PyTech>(m, "PyTech");
     py_cls.doc() = "A class that handles technology-specific information.";
     py_cls.def(py::init<std::string>(), "Create a new PyTech class from file.",
                py::arg("tech_fname"));
@@ -159,6 +172,10 @@ void bind_tech(py::module &m) {
                "Calculates the via parameters from the given specs.", py::arg("w"), py::arg("h"),
                py::arg("via_id"), py::arg("lev_code"), py::arg("ex_dir"), py::arg("adj_ex_dir"),
                py::arg("extend"));
+    py_cls.def("get_metal_em_specs", &c_tech::get_metal_em_specs,
+               "Returns the EM specs for the given metal wire.", py::arg("layer"), py::arg("width"),
+               py::arg("purpose") = "", py::arg("length") = -1, py::arg("vertical") = false,
+               py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
 }
 
 void bind_track_info(py::module &m) {
@@ -201,34 +218,37 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_track_info", &c_grid::track_info_at,
                "Returns the TrackInfo object on the given layer.", py::arg("lay_id"));
     py_cls.def("get_direction",
-               [](const c_grid &g, int lay_id) -> pyg::PyOrient2D {
+               [](const c_grid &g, cbag::int_t lay_id) -> pyg::PyOrient2D {
                    return pybag::util::code_to_orient_2d(
                        static_cast<cbag::orient_2d_t>(g.track_info_at(lay_id).get_direction()));
                },
                "Returns the track direction for the given layer.", py::arg("lay_id"));
-    py_cls.def("get_track_offset",
-               [](const c_grid &g, int lay_id) { return g.track_info_at(lay_id).get_offset(); },
-               "Returns the track offset for the given layer.", py::arg("lay_id"));
-    py_cls.def("get_track_pitch",
-               [](const c_grid &g, int lay_id) { return g.track_info_at(lay_id).get_pitch(); },
-               "Returns the track pitch for the given layer.", py::arg("lay_id"));
+    py_cls.def(
+        "get_track_offset",
+        [](const c_grid &g, cbag::int_t lay_id) { return g.track_info_at(lay_id).get_offset(); },
+        "Returns the track offset for the given layer.", py::arg("lay_id"));
+    py_cls.def(
+        "get_track_pitch",
+        [](const c_grid &g, cbag::int_t lay_id) { return g.track_info_at(lay_id).get_pitch(); },
+        "Returns the track pitch for the given layer.", py::arg("lay_id"));
     py_cls.def("get_min_length",
-               [](const c_grid &g, int lay_id, int num_tr, bool even) {
+               [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool even) {
                    return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_length(
                        *g.get_tech(), lay_id, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
                py::arg("even") = false);
-    py_cls.def("get_space",
-               [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
-                   auto sp_type = cbag::get_space_type(same_color);
-                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
-                       *g.get_tech(), lay_id, sp_type, even);
-               },
-               "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
-               py::arg("same_color") = false, py::arg("even") = false);
+    py_cls.def(
+        "get_space",
+        [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool same_color, bool even) {
+            auto sp_type = cbag::get_space_type(same_color);
+            return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
+                *g.get_tech(), lay_id, sp_type, even);
+        },
+        "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
+        py::arg("same_color") = false, py::arg("even") = false);
     py_cls.def("get_line_end_space",
-               [](const c_grid &g, int lay_id, int num_tr, bool even) {
+               [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool even) {
                    return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
                        *g.get_tech(), lay_id, cbag::space_type::LINE_END, even);
                },
@@ -236,7 +256,7 @@ void bind_routing_grid(py::module &m) {
                py::arg("even") = false);
     py_cls.def(
         "get_min_space_htr",
-        [](const c_grid &g, int lay_id, int num_tr, bool same_color, bool even) {
+        [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool same_color, bool even) {
             return cbag::layout::get_min_space_htr(g.track_info_at(lay_id), *g.get_tech(), lay_id,
                                                    num_tr, same_color, even);
         },
@@ -244,7 +264,8 @@ void bind_routing_grid(py::module &m) {
         py::arg("lay_id"), py::arg("num_tr"), py::arg("same_color") = false,
         py::arg("even") = false);
     py_cls.def("get_via_extensions",
-               [](const c_grid &g, int lev_code, int lay_id, int bot_ntr, int top_ntr) {
+               [](const c_grid &g, int lev_code, cbag::int_t lay_id, cbag::int_t bot_ntr,
+                  cbag::int_t top_ntr) {
                    auto tmp = cbag::layout::get_via_extensions(
                        g, static_cast<cbag::direction>(lev_code), lay_id, bot_ntr, top_ntr);
                    return pyg::Tuple<py::int_, py::int_>::make_tuple(tmp[0], tmp[1]);
@@ -252,27 +273,27 @@ void bind_routing_grid(py::module &m) {
                "Returns the via extensions .", py::arg("lev_code"), py::arg("lay_id"),
                py::arg("num_tr"), py::arg("adj_num_tr"));
     py_cls.def("get_line_end_space_htr",
-               [](const c_grid &g, int lev_code, int lay_id, int ntr) {
+               [](const c_grid &g, int lev_code, cbag::int_t lay_id, cbag::int_t ntr) {
                    return cbag::layout::get_line_end_space_htr(
                        g, static_cast<cbag::direction>(lev_code), lay_id, ntr);
                },
                "Returns the line-end space measured in half-tracks.", py::arg("lev_code"),
                py::arg("lay_id"), py::arg("ntr"));
-    py_cls.def(
-        "get_block_size",
-        [](const c_grid &g, int level, bool include_private, bool half_blk_x, bool half_blk_y) {
-            std::array<bool, 2> half_blk = {half_blk_x, half_blk_y};
-            auto ans = cbag::layout::get_blk_size(g, level, include_private, half_blk);
-            return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
-        },
-        "Returns the unit block size given top routing level.", py::arg("layer_id"),
-        py::arg("include_private") = false, py::arg("half_blk_x") = false,
-        py::arg("half_blk_y") = false);
+    py_cls.def("get_block_size",
+               [](const c_grid &g, cbag::int_t level, bool include_private, bool half_blk_x,
+                  bool half_blk_y) {
+                   std::array<bool, 2> half_blk = {half_blk_x, half_blk_y};
+                   auto ans = cbag::layout::get_blk_size(g, level, include_private, half_blk);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
+               },
+               "Returns the unit block size given top routing level.", py::arg("layer_id"),
+               py::arg("include_private") = false, py::arg("half_blk_x") = false,
+               py::arg("half_blk_y") = false);
     py_cls.def("size_defined", &cbag::layout::block_defined_at,
                "Returns True if both width and height are quantized at the given layer.",
                py::arg("layer_id"));
     py_cls.def("get_size_pitch",
-               [](const c_grid &g, int lay_id) {
+               [](const c_grid &g, cbag::int_t lay_id) {
                    auto ans = cbag::layout::get_top_track_pitches(g, lay_id);
                    return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
                },
@@ -283,7 +304,7 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_htr_parity", &c_grid::get_htr_parity,
                "Gets parity of the given half-track index.", py::arg("layer_id"), py::arg("htr"));
     py_cls.def("get_htr_layer_purpose",
-               [](const c_grid &g, int lay_id, int htr) {
+               [](const c_grid &g, cbag::int_t lay_id, cbag::int_t htr) {
                    auto key = cbag::layout::get_layer_t(g, lay_id, htr);
                    auto &tech = *g.get_tech();
                    return pyg::Tuple<py::str, py::str>::make_tuple(
@@ -292,12 +313,15 @@ void bind_routing_grid(py::module &m) {
                "Returns the layer/purpose pair of the given half-track index.", py::arg("layer_id"),
                py::arg("htr"));
     py_cls.def("get_wire_bounds_htr",
-               [](const c_grid &g, int lay_id, int htr, int ntr) {
+               [](const c_grid &g, cbag::int_t lay_id, cbag::int_t htr, cbag::int_t ntr) {
                    auto ans = cbag::layout::get_wire_bounds(g, lay_id, htr, ntr);
                    return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
                },
                "Returns the wire boundary coordinates.", py::arg("layer_id"), py::arg("htr"),
                py::arg("ntr"));
+    py_cls.def("get_wire_em_specs", &cbag::layout::get_wire_em_specs, "Returns the wire EM specs.",
+               py::arg("layer_id"), py::arg("num_tr"), py::arg("length") = -1,
+               py::arg("vertical") = false, py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
 }
