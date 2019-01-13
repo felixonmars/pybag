@@ -341,6 +341,12 @@ void bind_routing_grid(py::module &m) {
     py_cls.def("get_wire_em_specs", &cbag::layout::get_wire_em_specs, "Returns the wire EM specs.",
                py::arg("layer_id"), py::arg("num_tr"), py::arg("length") = -1,
                py::arg("vertical") = false, py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
+    py_cls.def("get_min_track_width", &cbag::layout::get_min_num_tr,
+               "Returns the minimum number of tracks required for the given EM specs or connection "
+               "to lower/upper layers.",
+               py::arg("layer_id"), py::arg("idc") = 0, py::arg("iac_rms") = 0,
+               py::arg("iac_peak") = 0, py::arg("length") = -1, py::arg("bot_ntr") = 0,
+               py::arg("top_ntr") = 0, py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
 }
