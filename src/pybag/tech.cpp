@@ -13,7 +13,7 @@
 #include <cbag/layout/tech_util.h>
 #include <cbag/layout/track_info_util.h>
 #include <cbag/layout/via_param_util.h>
-#include <cbag/layout/wire_info.h>
+#include <cbag/layout/wire_width.h>
 
 #include <pybag/orient_conv.h>
 #include <pybag/tech.h>
@@ -57,12 +57,22 @@ class PyTech : public c_tech {
   public:
     using c_tech::c_tech;
 
-    cbag::em_specs_t get_metal_em_specs(const std::string &layer, cbag::offset_t width,
-                                        const std::string &purpose, cbag::offset_t length,
-                                        bool vertical, cbag::int_t dc_temp,
-                                        cbag::int_t rms_dt) const override {
+    cbag::em_specs_t get_metal_em_specs(const std::string &layer, const std::string &purpose,
+                                        cbag::offset_t width, cbag::offset_t length, bool vertical,
+                                        cbag::int_t dc_temp, cbag::int_t rms_dt) const override {
         PYBIND11_OVERLOAD_PURE(cbag::em_specs_t, cbag::layout::tech, get_metal_em_specs, layer,
-                               width, purpose, length, vertical, dc_temp, rms_dt);
+                               purpose, width, length, vertical, dc_temp, rms_dt);
+    }
+
+    cbag::em_specs_t get_via_em_specs(int layer_dir, const std::string &layer,
+                                      const std::string &purpose, const std::string &adj_layer,
+                                      const std::string &adj_purpose, cbag::offset_t cut_w,
+                                      cbag::offset_t cut_h, cbag::offset_t m_w, cbag::offset_t m_l,
+                                      cbag::offset_t adj_m_w, cbag::offset_t adj_m_l, bool array,
+                                      cbag::int_t dc_temp, cbag::int_t rms_dt) const override {
+        PYBIND11_OVERLOAD_PURE(cbag::em_specs_t, cbag::layout::tech, get_via_em_specs, layer_dir,
+                               layer, purpose, adj_layer, adj_purpose, cut_w, cut_h, m_w, m_l,
+                               adj_m_w, adj_m_l, array, dc_temp, rms_dt);
     }
 };
 
@@ -162,7 +172,9 @@ void bind_tech(py::module &m) {
     py_cls.def("get_min_line_end_space", &pybag::tech::get_min_le_space,
                "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
                py::arg("purpose") = "", py::arg("even") = false);
-    py_cls.def("get_min_length", &cbag::layout::get_min_length,
+    py_cls.def("get_min_length",
+               py::overload_cast<const c_tech &, const std::string &, const std::string &,
+                                 cbag::offset_t, bool>(&cbag::layout::get_min_length),
                "Returns the minimum required length.", py::arg("layer"), py::arg("purpose"),
                py::arg("width"), py::arg("even") = false);
     py_cls.def("get_via_id", &pybag::tech::get_via_id, "Returns the via ID name.",
@@ -173,9 +185,15 @@ void bind_tech(py::module &m) {
                py::arg("via_id"), py::arg("lev_code"), py::arg("ex_dir"), py::arg("adj_ex_dir"),
                py::arg("extend"));
     py_cls.def("get_metal_em_specs", &c_tech::get_metal_em_specs,
-               "Returns the EM specs for the given metal wire.", py::arg("layer"), py::arg("width"),
-               py::arg("purpose") = "", py::arg("length") = -1, py::arg("vertical") = false,
-               py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
+               "Returns the EM specs for the given metal wire.", py::arg("layer"),
+               py::arg("purpose"), py::arg("width"), py::arg("length") = -1,
+               py::arg("vertical") = false, py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
+    py_cls.def("get_via_em_specs", &c_tech::get_via_em_specs,
+               "Returns the EM specs for the given via.", py::arg("layer_dir"), py::arg("layer"),
+               py::arg("purpose"), py::arg("adj_layer"), py::arg("adj_purpose"), py::arg("cut_w"),
+               py::arg("cut_h"), py::arg("m_w") = -1, py::arg("m_l") = -1, py::arg("adj_m_w") = -1,
+               py::arg("adj_m_l") = -1, py::arg("array") = false, py::arg("dc_temp") = -1000,
+               py::arg("rms_dt") = -1000);
 }
 
 void bind_track_info(py::module &m) {
@@ -233,8 +251,8 @@ void bind_routing_grid(py::module &m) {
         "Returns the track pitch for the given layer.", py::arg("lay_id"));
     py_cls.def("get_min_length",
                [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool even) {
-                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_length(
-                       *g.get_tech(), lay_id, even);
+                   auto wire_w = g.track_info_at(lay_id).get_wire_width(num_tr);
+                   return cbag::layout::get_min_length(*g.get_tech(), lay_id, wire_w, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
                py::arg("even") = false);
@@ -242,15 +260,16 @@ void bind_routing_grid(py::module &m) {
         "get_space",
         [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool same_color, bool even) {
             auto sp_type = cbag::get_space_type(same_color);
-            return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
-                *g.get_tech(), lay_id, sp_type, even);
+            auto wire_w = g.track_info_at(lay_id).get_wire_width(num_tr);
+            return cbag::layout::get_min_space(*g.get_tech(), lay_id, wire_w, sp_type, even);
         },
         "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
         py::arg("same_color") = false, py::arg("even") = false);
     py_cls.def("get_line_end_space",
                [](const c_grid &g, cbag::int_t lay_id, cbag::int_t num_tr, bool even) {
-                   return g.track_info_at(lay_id).get_wire_info(num_tr).get_min_space(
-                       *g.get_tech(), lay_id, cbag::space_type::LINE_END, even);
+                   auto wire_w = g.track_info_at(lay_id).get_wire_width(num_tr);
+                   return cbag::layout::get_min_space(*g.get_tech(), lay_id, wire_w,
+                                                      cbag::space_type::LINE_END, even);
                },
                "Returns the track pitch for the given layer.", py::arg("lay_id"), py::arg("num_tr"),
                py::arg("even") = false);
