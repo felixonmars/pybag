@@ -357,7 +357,30 @@ void bind_routing_grid(py::module &m) {
                },
                "Convert coordinate to half-track index.", py::arg("layer_id"), py::arg("coord"),
                py::arg("round_mode"), py::arg("even"));
-
+    py_cls.def(
+        "find_next_htr",
+        [](const c_grid &g, cbag::level_t lay_id, cbag::offset_t coord, cbag::cnt_t ntr,
+           cbag::enum_t round_mode, bool even) {
+            return cbag::layout::find_next_htr(g.track_info_at(lay_id), coord, ntr,
+                                               static_cast<cbag::round_mode>(round_mode), even);
+        },
+        "Find the wire htr index that have both edges greater/less than the given coordinate.",
+        py::arg("layer_id"), py::arg("coord"), py::arg("ntr"), py::arg("round_mode"),
+        py::arg("even"));
+    py_cls.def("htr_to_coord",
+               [](const c_grid &g, cbag::level_t lay_id, cbag::htr_t htr) {
+                   return cbag::layout::htr_to_coord(g.track_info_at(lay_id), htr);
+               },
+               "Convert half-track index to coordinate.", py::arg("layer_id"), py::arg("htr"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
+
+    m.def("coord_to_custom_htr",
+          [](cbag::offset_t coord, cbag::offset_t pitch, cbag::offset_t off,
+             cbag::enum_t round_mode, bool even) {
+              return cbag::layout::coord_to_htr(coord, pitch, off,
+                                                static_cast<cbag::round_mode>(round_mode), even);
+          },
+          "Convert coordinate to half-track index given pitch/offset.", py::arg("coord"),
+          py::arg("pitch"), py::arg("off"), py::arg("round_mode"), py::arg("even"));
 }
