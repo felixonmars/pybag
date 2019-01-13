@@ -23,6 +23,15 @@ class TermType(IntEnum):
     inout = 2
 
 
+class RoundMode(IntEnum):
+    LESS = -2
+    LESS_EQ = -1
+    NEAREST = 0
+    GREATER_EQ = 1
+    GREATER = 2
+    NONE = 3
+
+
 class Orientation(IntEnum):
     R0 = 0
     MY = 1

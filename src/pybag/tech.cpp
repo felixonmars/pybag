@@ -349,10 +349,14 @@ void bind_routing_grid(py::module &m) {
                py::arg("iac_peak") = 0, py::arg("length") = -1, py::arg("bot_ntr") = 0,
                py::arg("top_ntr") = 0, py::arg("dc_temp") = -1000, py::arg("rms_dt") = -1000);
     py_cls.def("coord_to_htr",
-               [](const c_grid &g, cbag::level_t lay_id, cbag::offset_t coord) {
-                   return cbag::layout::coord_to_htr(g.track_info_at(lay_id), coord);
+               [](const c_grid &g, cbag::level_t lay_id, cbag::offset_t coord,
+                  cbag::enum_t round_mode, bool even) {
+                   return cbag::layout::coord_to_htr(g.track_info_at(lay_id), coord,
+                                                     static_cast<cbag::round_mode>(round_mode),
+                                                     even);
                },
-               "Convert coordinate to half-track index.", py::arg("layer_id"), py::arg("coord"));
+               "Convert coordinate to half-track index.", py::arg("layer_id"), py::arg("coord"),
+               py::arg("round_mode"), py::arg("even"));
 
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
