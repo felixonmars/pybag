@@ -9,4 +9,6 @@ source .bashrc
 # smart prepend to PYTHONPATH even if variable is unset
 export PYTHONPATH="${PYBAG_BUILD_LIB}:${PYTHONPATH:+:$PYTHONPATH}"
 
-${PYBAG_PYTEST} tests -n 4 $@
+${PYBAG_PYTEST} tests -n 4 $@ || exit 1
+./gen_stubs.sh || exit 1
+./build.sh || exit 1

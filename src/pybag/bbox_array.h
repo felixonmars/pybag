@@ -34,9 +34,10 @@ class box_arr {
     c_box base;
 
     box_arr();
-    box_arr(c_box base, cbag::int_t nx = 1, cbag::int_t ny = 1, offset_t spx = 0, offset_t spy = 0);
-    box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::int_t nt = 1, offset_t spt = 0,
-            cbag::int_t np = 1, offset_t spp = 0);
+    box_arr(c_box base, cbag::scnt_t nx = 1, cbag::scnt_t ny = 1, offset_t spx = 0,
+            offset_t spy = 0);
+    box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::scnt_t nt = 1, offset_t spt = 0,
+            cbag::scnt_t np = 1, offset_t spp = 0);
 
     cbag::cnt_t nx() const;
     cbag::cnt_t ny() const;

@@ -30,13 +30,13 @@ cbag::offset_t get_spx(const c_inst_ref &ref) { return ref->spx; }
 cbag::offset_t get_spy(const c_inst_ref &ref) { return ref->spy; }
 const cbag::transformation &get_xform(const c_inst_ref &ref) { return ref->xform; }
 
-void set_nx(c_inst_ref &ref, cbag::int_t val) {
+void set_nx(c_inst_ref &ref, cbag::scnt_t val) {
     check_ref(ref);
     if (val < 0)
         throw std::runtime_error("Cannot set nx to be negative.");
     ref->nx = val;
 }
-void set_ny(c_inst_ref &ref, cbag::int_t val) {
+void set_ny(c_inst_ref &ref, cbag::scnt_t val) {
     check_ref(ref);
     if (val < 0)
         throw std::runtime_error("Cannot set nx to be negative.");
@@ -144,7 +144,7 @@ void bind_cellview(py::module &m) {
                py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("half_width"),
                py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
     py_cls.def("add_path45_bus",
-               &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<cbag::int_t>>,
+               &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<cbag::offset_t>>,
                "Adds a new 45 degree path bus.", py::arg("layer"), py::arg("purpose"),
                py::arg("points"), py::arg("widths"), py::arg("spaces"), py::arg("style0"),
                py::arg("style1"), py::arg("stylem"), py::arg("commit"));

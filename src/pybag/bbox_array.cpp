@@ -22,7 +22,7 @@ namespace util {
 
 box_arr::box_arr() : num{1, 1}, sp{0, 0} {}
 
-box_arr::box_arr(c_box base, cbag::int_t nx, cbag::int_t ny, offset_t spx, offset_t spy)
+box_arr::box_arr(c_box base, cbag::scnt_t nx, cbag::scnt_t ny, offset_t spx, offset_t spy)
     : num{static_cast<cbag::cnt_t>(nx), static_cast<cbag::cnt_t>(ny)}, sp{spx, spy},
       base(std::move(base)) {
     if (nx <= 0 || ny <= 0)
@@ -30,8 +30,8 @@ box_arr::box_arr(c_box base, cbag::int_t nx, cbag::int_t ny, offset_t spx, offse
             fmt::format("nx = {} and ny = {} cannot be non-positive.", nx, ny));
 }
 
-box_arr::box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::int_t nt, offset_t spt,
-                 cbag::int_t np, offset_t spp)
+box_arr::box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::scnt_t nt, offset_t spt,
+                 cbag::scnt_t np, offset_t spp)
     : base(std::move(base)) {
     if (nt <= 0 || np <= 0)
         throw std::invalid_argument(
@@ -174,10 +174,10 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     pyg::declare_iterator<pu::box_arr_iter>();
 
     py_cls.doc() = "The bounding box array class.";
-    py_cls.def(py::init<c_box, cbag::int_t, cbag::int_t, offset_t, offset_t>(),
+    py_cls.def(py::init<c_box, cbag::scnt_t, cbag::scnt_t, offset_t, offset_t>(),
                "Construct a new BBoxArray.", py::arg("base"), py::arg("nx") = 1, py::arg("ny") = 1,
                py::arg("spx") = 0, py::arg("spy") = 0);
-    py_cls.def(py::init<c_box, cbag::orient_2d_t, cbag::int_t, offset_t, cbag::int_t, offset_t>(),
+    py_cls.def(py::init<c_box, cbag::orient_2d_t, cbag::scnt_t, offset_t, cbag::scnt_t, offset_t>(),
                "Construct a new BBoxArray from orientation.", py::arg("base"),
                py::arg("orient_code"), py::arg("nt") = 1, py::arg("spt") = 0, py::arg("np") = 1,
                py::arg("spp") = 0);
