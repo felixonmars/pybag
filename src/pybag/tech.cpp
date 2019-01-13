@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 
 #include <pybind11_generics/list.h>
+#include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
 #include <cbag/common/transformation.h>
@@ -122,6 +123,17 @@ cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cb
                               cbag::space_type::LINE_END, even);
 }
 
+std::unique_ptr<c_grid> make_grid(const c_tech *tech_ptr, const std::string &fname,
+                                  pyg::Optional<const c_grid> grid) {
+    std::unique_ptr<c_grid> ans;
+    if (grid) {
+        ans = std::make_unique<c_grid>(*grid);
+    } else {
+        ans = std::make_unique<c_grid>(tech_ptr, fname);
+    }
+    return ans;
+}
+
 } // namespace tech
 } // namespace pybag
 
@@ -223,8 +235,10 @@ void bind_routing_grid(py::module &m) {
 
     auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
     py_cls.doc() = "The routing grid class.";
-    py_cls.def(py::init<const c_tech *, std::string>(),
-               "Create a new PyRoutingGrid class from file.", py::arg("tech"), py::arg("fname"));
+    py_cls.def(py::init(&pybag::tech::make_grid),
+               "Create a new PyRoutingGrid class from file or another RoutingGrid.",
+               py::arg("tech"), py::arg("fname"), py::arg("grid"));
+    py_cls.def("__eq__", &c_grid::operator==, py::arg("other"));
     py_cls.def_property_readonly("bot_layer", &c_grid::get_bot_level, "The bottom layer ID.");
     py_cls.def_property_readonly("top_private_layer", &c_grid::get_top_private_level,
                                  "The top private layer ID.");
