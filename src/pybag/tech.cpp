@@ -239,7 +239,10 @@ void bind_routing_grid(py::module &m) {
                "Create a new PyRoutingGrid class from file or another RoutingGrid.",
                py::arg("tech"), py::arg("fname"), py::arg("grid"));
     py_cls.def("__eq__", &c_grid::operator==, py::arg("other"));
+    py_cls.def_property("top_ignore_layer", &c_grid::get_top_ignore_level,
+                        &c_grid::set_top_ignore_level, "The top ignore layer ID.");
     py_cls.def_property_readonly("bot_layer", &c_grid::get_bot_level, "The bottom layer ID.");
+    py_cls.def_property_readonly("top_layer", &c_grid::get_top_level, "The top layer ID.");
     py_cls.def_property_readonly("top_private_layer", &c_grid::get_top_private_level,
                                  "The top private layer ID.");
     py_cls.def_property_readonly("resolution",
@@ -388,6 +391,15 @@ void bind_routing_grid(py::module &m) {
                "Convert half-track index to coordinate.", py::arg("layer_id"), py::arg("htr"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
+    py_cls.def("set_track_offset", &c_grid::set_track_offset,
+               "Sets the track offset on the given layer.", py::arg("layer_id"), py::arg("offset"));
+    py_cls.def("add_new_layer",
+               [](c_grid &g, cbag::level_t lay_id, cbag::orient_2d_t dir, cbag::offset_t w,
+                  cbag::offset_t sp, bool is_private) {
+                   g.add_new_level(lay_id, is_private, static_cast<cbag::orient_2d>(dir), w, sp);
+               },
+               "Adds/modifies a routing grid layer.", py::arg("layer_id"), py::arg("direction"),
+               py::arg("w"), py::arg("sp"), py::arg("is_private") = true);
 
     m.def("coord_to_custom_htr",
           [](cbag::offset_t coord, cbag::offset_t pitch, cbag::offset_t off,
