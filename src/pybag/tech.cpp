@@ -389,6 +389,13 @@ void bind_routing_grid(py::module &m) {
                    return cbag::layout::htr_to_coord(g.track_info_at(lay_id), htr);
                },
                "Convert half-track index to coordinate.", py::arg("layer_id"), py::arg("htr"));
+    py_cls.def("transform_htr",
+               [](const c_grid &g, cbag::level_t lay_id, cbag::htr_t htr,
+                  const cbag::transformation &xform) {
+                   return cbag::layout::transform_htr(g.track_info_at(lay_id), htr, xform);
+               },
+               "Transforms the given half-track index.", py::arg("layer_id"), py::arg("htr"),
+               py::arg("xform"));
     py_cls.def("set_flip_parity", &c_grid::set_flip_parity, "Sets the flip_parity information.",
                py::arg("fp_data"));
     py_cls.def("set_track_offset", &c_grid::set_track_offset,
