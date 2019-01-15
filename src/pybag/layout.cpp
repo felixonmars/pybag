@@ -136,8 +136,11 @@ void bind_cellview(py::module &m) {
                py::arg("layer"), py::arg("blk_code"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_boundary", &cbag::layout::add_boundary<py_pt_vector>, "Adds a boundary object.",
                py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
-    py_cls.def("add_pin", &c_cellview::add_pin, "Adds a pin object.", py::arg("layer"),
+    py_cls.def("add_pin", &cbag::layout::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
+    py_cls.def("add_pin_arr", &cbag::layout::add_pin_arr, "Adds an arry of pins.", py::arg("net"),
+               py::arg("label"), py::arg("level"), py::arg("htr"), py::arg("lower"),
+               py::arg("upper"), py::arg("ntr"), py::arg("n"), py::arg("htr_pitch"));
     py_cls.def("add_label", &cbag::layout::add_label, "Adds a label object.", py::arg("layer"),
                py::arg("purpose"), py::arg("xform"), py::arg("label"));
     py_cls.def("add_path", &cbag::layout::add_path<py_pt_vector>, "Adds a new path.",
