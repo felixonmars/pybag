@@ -3,6 +3,7 @@
 #include <cbag/common/transformation_util.h>
 #include <cbag/layout/cellview_poly.h>
 #include <cbag/layout/cellview_util.h>
+#include <cbag/layout/grid_object.h>
 #include <cbag/layout/instance.h>
 #include <cbag/layout/path_util.h>
 #include <cbag/layout/via_wrapper.h>
@@ -139,8 +140,7 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_pin", &cbag::layout::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
     py_cls.def("add_pin_arr", &cbag::layout::add_pin_arr, "Adds an arry of pins.", py::arg("net"),
-               py::arg("label"), py::arg("level"), py::arg("htr"), py::arg("lower"),
-               py::arg("upper"), py::arg("ntr"), py::arg("n"), py::arg("htr_pitch"));
+               py::arg("label"), py::arg("warr"));
     py_cls.def("add_label", &cbag::layout::add_label, "Adds a label object.", py::arg("layer"),
                py::arg("purpose"), py::arg("xform"), py::arg("label"));
     py_cls.def("add_path", &cbag::layout::add_path<py_pt_vector>, "Adds a new path.",

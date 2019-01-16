@@ -1,5 +1,6 @@
 #include <pybag/gds.h>
 #include <pybag/geometry.h>
+#include <pybag/grid.h>
 #include <pybag/interval.h>
 #include <pybag/lay_objects.h>
 #include <pybag/layout.h>
