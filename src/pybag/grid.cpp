@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 
+#include <pybind11_generics/iterator.h>
 #include <pybind11_generics/optional.h>
 #include <pybind11_generics/tuple.h>
 
@@ -48,6 +49,30 @@ using c_grid = cbag::layout::routing_grid;
 
 namespace pybag {
 namespace tech {
+
+class py_warr_rect_iterator {
+  private:
+    cbag::layout::warr_rect_iterator iter;
+
+  public:
+    py_warr_rect_iterator() = default;
+
+    py_warr_rect_iterator(cbag::layout::warr_rect_iterator &&iter) : iter(std::move(iter)) {}
+
+    bool operator==(const py_warr_rect_iterator &rhs) const { return iter == rhs.iter; }
+    bool operator!=(const py_warr_rect_iterator &rhs) const { return iter != rhs.iter; }
+
+    pyg::Tuple<py::str, py::str, cbag::box_t> operator*() const {
+        auto [lay_t, box] = *iter;
+        auto &tech = *(iter.get_grid().get_tech());
+        return pyg::Tuple<py::str, py::str, cbag::box_t>::make_tuple(
+            tech.get_layer_name(lay_t.first), tech.get_purpose_name(lay_t.second), box);
+    }
+    py_warr_rect_iterator &operator++() {
+        ++iter;
+        return *this;
+    }
+};
 
 std::unique_ptr<c_grid> make_grid(const c_tech *tech_ptr, const std::string &fname,
                                   pyg::Optional<const c_grid> grid) {
@@ -106,6 +131,8 @@ void bind_track_id(py::module &m) {
 void bind_wire_array(py::module &m) {
     using c_warr = cbag::layout::wire_array;
 
+    pyg::declare_iterator<pybag::tech::py_warr_rect_iterator>();
+
     auto py_cls = py::class_<c_warr>(m, "PyWireArray");
     py_cls.doc() = "A class containing track index information.";
     py_cls.def(py::init<std::shared_ptr<cbag::layout::track_id>, cbag::offset_t, cbag::offset_t>(),
@@ -136,15 +163,28 @@ void bind_wire_array(py::module &m) {
                         "The PyTrackID object.");
     py_cls.def("set_coord", &c_warr::set_coord, "Sets the line-end coordinates.", py::arg("lower"),
                py::arg("upper"));
+
+    py_cls.def("wire_iter",
+               [](const c_warr &self,
+                  const c_grid &grid) -> pyg::Iterator<pyg::Tuple<py::str, py::str, cbag::box_t>> {
+                   return pyg::make_iterator(
+                       pybag::tech::py_warr_rect_iterator(self.begin_rect(grid)),
+                       pybag::tech::py_warr_rect_iterator(self.end_rect(grid)));
+               },
+               "Returns an iterator over laypur/purpose/BBox.  The WireArray object must not be "
+               "temporary.",
+               py::arg("grid"));
 }
 
 void bind_routing_grid(py::module &m) {
     bind_track_info(m);
     bind_flip_parity(m);
     bind_track_id(m);
-    bind_wire_array(m);
 
     auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
+
+    bind_wire_array(m);
+
     py_cls.doc() = "The routing grid class.";
     py_cls.def(py::init(&pybag::tech::make_grid),
                "Create a new PyRoutingGrid class from file or another RoutingGrid.",
