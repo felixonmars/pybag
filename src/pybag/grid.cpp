@@ -300,6 +300,13 @@ void bind_routing_grid(py::module &m) {
                },
                "Returns the layer/purpose pair of the given half-track index.", py::arg("layer_id"),
                py::arg("htr"));
+    py_cls.def("get_wire_total_width",
+               [](const c_grid &g, cbag::level_t lay_id, cbag::cnt_t ntr) {
+                   auto &tinfo = g.track_info_at(lay_id);
+                   return tinfo.get_wire_width(ntr).get_total_width(tinfo.get_pitch() / 2);
+               },
+               "Returns the total width of the given wire bundle.", py::arg("layer_id"),
+               py::arg("ntr"));
     py_cls.def("get_wire_bounds_htr",
                [](const c_grid &g, cbag::level_t lay_id, cbag::htr_t htr, cbag::cnt_t ntr) {
                    auto ans = cbag::layout::get_wire_bounds(g, lay_id, htr, ntr);
