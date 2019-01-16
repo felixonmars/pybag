@@ -96,7 +96,13 @@ cbag::offset_t get_min_le_space(const c_tech &tech, const std::string &layer, cb
 void bind_via_param(py::module &m) {
     auto py_cls = py::class_<c_via_param>(m, "ViaParam");
     py_cls.doc() = "The via parameter class.";
-    py_cls.def(py::init<>(), "Create a new ViaParam object.");
+    py_cls.def(
+        py::init<cbag::cnt_t, cbag::cnt_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
+                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
+                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t>(),
+        "Create a new ViaParam object.", py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"),
+        py::arg("vspx"), py::arg("vspy"), py::arg("enc1l"), py::arg("enc1r"), py::arg("enc1t"),
+        py::arg("enc1b"), py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"));
     py_cls.def_property_readonly(
         "empty", [](const c_via_param &p) { return p.num[0] == 0 || p.num[1] == 0; },
         "True if this ViaParam represents an empty via.");
