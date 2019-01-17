@@ -42,10 +42,14 @@ box_arr::box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::scnt_t nt, off
     sp[1 - orient_code] = spp;
 }
 
-cbag::cnt_t box_arr::nx() const { return num[0]; }
-cbag::cnt_t box_arr::ny() const { return num[1]; }
-offset_t box_arr::spx() const { return sp[0]; }
-offset_t box_arr::spy() const { return sp[1]; }
+cbag::cnt_t box_arr::nx() const noexcept { return num[0]; }
+cbag::cnt_t box_arr::ny() const noexcept { return num[1]; }
+offset_t box_arr::spx() const noexcept { return sp[0]; }
+offset_t box_arr::spy() const noexcept { return sp[1]; }
+
+const std::array<cbag::cnt_t, 2> &box_arr::get_num() const noexcept { return num; }
+
+const std::array<cbag::offset_t, 2> &box_arr::get_sp() const noexcept { return sp; }
 
 coord_t box_arr::get_coord(cbag::orient_2d_t orient_code, bool bnd_code) const {
     auto cur_coord = base.intvs[orient_code][bnd_code];
@@ -59,12 +63,12 @@ std::pair<cbag::cnt_t, offset_t> box_arr::get_array_info(cbag::orient_2d_t orien
     return {num[orient_code], sp[orient_code]};
 }
 
-coord_t box_arr::xl() const { return get_coord(0, 0); }
-coord_t box_arr::xh() const { return get_coord(0, 1); }
-coord_t box_arr::yl() const { return get_coord(1, 0); }
-coord_t box_arr::yh() const { return get_coord(1, 1); }
-coord_t box_arr::xm() const { return cbag::util::floor2(xl() + xh()); }
-coord_t box_arr::ym() const { return cbag::util::floor2(yl() + yh()); }
+coord_t box_arr::xl() const noexcept { return get_coord(0, 0); }
+coord_t box_arr::xh() const noexcept { return get_coord(0, 1); }
+coord_t box_arr::yl() const noexcept { return get_coord(1, 0); }
+coord_t box_arr::yh() const noexcept { return get_coord(1, 1); }
+coord_t box_arr::xm() const noexcept { return cbag::util::floor2(xl() + xh()); }
+coord_t box_arr::ym() const noexcept { return cbag::util::floor2(yl() + yh()); }
 
 std::string box_arr::to_string() const {
     return fmt::format("BBoxArray({}, {}, {}, {}, {})", cbag::to_string(base), num[0], num[1],

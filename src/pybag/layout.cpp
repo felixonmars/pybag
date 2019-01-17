@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <cbag/common/transformation_util.h>
 #include <cbag/layout/cellview_poly.h>
@@ -67,12 +68,6 @@ void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {
     ref->set_master(new_master);
 }
 
-void add_rect_arr(c_cellview &self, const std::string &layer, const std::string &purpose,
-                  const util::box_arr &barr) {
-    cbag::layout::add_rect_arr(self, layer, purpose, barr.base, barr.nx(), barr.ny(), barr.spx(),
-                               barr.spy());
-}
-
 } // namespace lay
 } // namespace pybag
 
@@ -126,12 +121,27 @@ void bind_cellview(py::module &m) {
                py::arg("spy"), py::arg("commit"));
     py_cls.def("add_rect", &cbag::layout::add_rect, "Adds a rectangle.", py::arg("layer"),
                py::arg("purpose"), py::arg("bbox"), py::arg("commit"));
-    py_cls.def("add_rect_arr", &cbag::layout::add_rect_arr, "Adds an array of rectangles.",
-               py::arg("layer"), py::arg("purpose"), py::arg("box"), py::arg("nx"), py::arg("ny"),
-               py::arg("spx"), py::arg("spy"));
-    py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
-               py::arg("purpose"), py::arg("barr"));
-    py_cls.def("add_warr", &cbag::layout::add_warr, "Adds a WireArray.", py::arg("warr"));
+    py_cls.def("add_rect_arr",
+               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
+                  const cbag::box_t &box, cbag::cnt_t nx, cbag::cnt_t ny, cbag::offset_t spx,
+                  cbag::offset_t spy) {
+                   auto key = cbag::layout::layer_t_at(*(cv.get_tech()), layer, purpose);
+                   cbag::layout::add_rect_arr(cv, key, box, {nx, ny}, {spx, spy});
+               },
+               "Adds an array of rectangles.", py::arg("layer"), py::arg("purpose"), py::arg("box"),
+               py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
+    py_cls.def("add_rect_arr",
+               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
+                  const pybag::util::box_arr &barr) {
+                   auto key = cbag::layout::layer_t_at(*(cv.get_tech()), layer, purpose);
+                   cbag::layout::add_rect_arr(cv, key, barr.base, barr.get_num(), barr.get_sp());
+               },
+               "Adds an array of rectangles.", py::arg("layer"), py::arg("purpose"),
+               py::arg("barr"));
+    py_cls.def(
+        "add_warr",
+        py::overload_cast<c_cellview &, const cbag::layout::wire_array &>(&cbag::layout::add_warr),
+        "Adds a WireArray.", py::arg("warr"));
     py_cls.def("add_poly", &cbag::layout::add_poly<py_pt_vector>, "Adds a new polygon.",
                py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_blockage", &cbag::layout::add_blockage<py_pt_vector>, "Adds a blockage object.",
@@ -154,9 +164,33 @@ void bind_cellview(py::module &m) {
                py::arg("style1"), py::arg("stylem"), py::arg("commit"));
     py_cls.def("add_via", &cbag::layout::add_via, "Add a via.", py::arg("xform"), py::arg("via_id"),
                py::arg("params"), py::arg("add_layers"), py::arg("commit"));
-    py_cls.def("add_via_arr", &cbag::layout::add_via_arr, "Add an array of vias.", py::arg("xform"),
-               py::arg("via_id"), py::arg("params"), py::arg("add_layers"), py::arg("nx"),
-               py::arg("ny"), py::arg("spx"), py::arg("spy"));
+    py_cls.def(
+        "add_via_arr",
+        [](c_cellview &cv, const cbag::transformation &xform, const std::string &via_id,
+           const cbag::layout::via_param &params, bool add_layers, cbag::cnt_t nx, cbag::cnt_t ny,
+           cbag::offset_t spx, cbag::offset_t spy) {
+            cbag::layout::add_via_arr(cv, xform, via_id, params, add_layers, {nx, ny}, {spx, spy});
+        },
+        "Add an array of vias.", py::arg("xform"), py::arg("via_id"), py::arg("params"),
+        py::arg("add_layers"), py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
+    py_cls.def("connect_barr_to_tracks",
+               [](c_cellview &cv, cbag::enum_t lev_code, const std::string &layer,
+                  const std::string &purpose, const pybag::util::box_arr &barr,
+                  const cbag::layout::track_id &tid, std::optional<cbag::offset_t> tr_lower,
+                  std::optional<cbag::offset_t> tr_upper, int min_len_code,
+                  std::optional<cbag::offset_t> w_lower, std::optional<cbag::offset_t> w_upper) {
+                   auto vdir = static_cast<cbag::direction>(lev_code);
+                   auto mode = static_cast<cbag::min_len_mode>(min_len_code);
+                   auto key = cbag::layout::layer_t_at(*(cv.get_tech()), layer, purpose);
+                   auto tmp = cbag::layout::connect_box_track(
+                       cv, vdir, key, barr.base, barr.get_num(), barr.get_sp(), tid,
+                       {w_lower, w_upper}, {tr_lower, tr_upper}, mode);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(tmp[0], tmp[1]);
+               },
+               "Connect the given BBoxArray to tracks.", py::arg("lev_code"), py::arg("layer"),
+               py::arg("purpose"), py::arg("barr"), py::arg("tid"), py::arg("tr_lower"),
+               py::arg("tr_upper"), py::arg("min_len_code"), py::arg("w_lower"),
+               py::arg("w_upper"));
 }
 
 void bind_layout(py::module &m) {

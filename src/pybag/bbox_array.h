@@ -39,20 +39,23 @@ class box_arr {
     box_arr(c_box base, cbag::orient_2d_t orient_code, cbag::scnt_t nt = 1, offset_t spt = 0,
             cbag::scnt_t np = 1, offset_t spp = 0);
 
-    cbag::cnt_t nx() const;
-    cbag::cnt_t ny() const;
-    offset_t spx() const;
-    offset_t spy() const;
+    cbag::cnt_t nx() const noexcept;
+    cbag::cnt_t ny() const noexcept;
+    offset_t spx() const noexcept;
+    offset_t spy() const noexcept;
+
+    const std::array<cbag::cnt_t, 2> &get_num() const noexcept;
+    const std::array<cbag::offset_t, 2> &get_sp() const noexcept;
 
     coord_t get_coord(cbag::orient_2d_t orient_code, bool bnd_code) const;
     std::pair<cbag::cnt_t, offset_t> get_array_info(cbag::orient_2d_t orient_code) const;
 
-    coord_t xl() const;
-    coord_t xh() const;
-    coord_t yl() const;
-    coord_t yh() const;
-    coord_t xm() const;
-    coord_t ym() const;
+    coord_t xl() const noexcept;
+    coord_t xh() const noexcept;
+    coord_t yl() const noexcept;
+    coord_t yh() const noexcept;
+    coord_t xm() const noexcept;
+    coord_t ym() const noexcept;
 
     std::string to_string() const;
 

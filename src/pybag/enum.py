@@ -31,6 +31,12 @@ class RoundMode(IntEnum):
     GREATER = 2
     NONE = 3
 
+class MinLenMode(IntEnum):
+    LOWER = -1
+    MIDDLE = 0
+    UPPER = 1
+    NONE = 2
+
 
 class Orientation(IntEnum):
     R0 = 0

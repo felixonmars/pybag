@@ -126,6 +126,12 @@ void bind_track_id(py::module &m) {
     py_cls.def_property("base_htr", &c_tid::get_htr, &c_tid::set_htr, "The half-track index.");
     py_cls.def_property("htr_pitch", &c_tid::get_pitch, &c_tid::set_pitch,
                         "Pitch betweek wires in half-tracks.");
+    py_cls.def("get_bounds",
+               [](const c_tid &self, const c_grid &grid) {
+                   auto ans = self.get_bounds(grid);
+                   return pyg::Tuple<py::int_, py::int_>::make_tuple(ans[0], ans[1]);
+               },
+               "Returns the bounds of this track ID.", py::arg("grid"));
 }
 
 void bind_wire_array(py::module &m) {
@@ -179,10 +185,10 @@ void bind_wire_array(py::module &m) {
 void bind_routing_grid(py::module &m) {
     bind_track_info(m);
     bind_flip_parity(m);
-    bind_track_id(m);
 
     auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
 
+    bind_track_id(m);
     bind_wire_array(m);
 
     py_cls.doc() = "The routing grid class.";
