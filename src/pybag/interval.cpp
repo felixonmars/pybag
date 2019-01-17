@@ -4,6 +4,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include <pybind11_generics/any.h>
+
 #include <cbag/util/interval.h>
 
 #include <pybind11_generics/iterator.h>
@@ -16,7 +18,7 @@ namespace pyg = pybind11_generics;
 
 using coord_type = cbag::offset_t;
 using py_intv_type = std::pair<coord_type, coord_type>;
-using py_interval = std::pair<py_intv_type, py::object>;
+using py_interval = std::pair<py_intv_type, pyg::Any>;
 using c_dis_intvs = cbag::util::disjoint_intvs<py_interval>;
 
 namespace cbag {
@@ -65,7 +67,7 @@ namespace util {
 class const_val_iterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = const py::object;
+    using value_type = const pyg::Any;
     using difference_type = c_dis_intvs::const_intv_iterator::difference_type;
     using pointer = value_type *;
     using reference = value_type &;
@@ -100,7 +102,7 @@ pyg::Iterator<py_intv_type> py_intv_iterator(const c_dis_intvs &self) {
 pyg::Iterator<py_interval> py_item_iterator(const c_dis_intvs &self) {
     return pyg::make_iterator(self.begin(), self.end());
 }
-pyg::Iterator<py::object> py_val_iterator(const c_dis_intvs &self) {
+pyg::Iterator<pyg::Any> py_val_iterator(const c_dis_intvs &self) {
     return pyg::make_iterator(const_val_iterator(self.begin()), const_val_iterator(self.end()));
 }
 pyg::Iterator<py_intv_type> py_ovl_intv_iterator(const c_dis_intvs &self, const py_intv_type &key) {
@@ -112,13 +114,13 @@ pyg::Iterator<py_interval> py_ovl_item_iterator(const c_dis_intvs &self, const p
     auto iter_pair = self.overlap_range(key);
     return pyg::make_iterator(iter_pair.first, iter_pair.second);
 }
-pyg::Iterator<py::object> py_ovl_val_iterator(const c_dis_intvs &self, const py_intv_type &key) {
+pyg::Iterator<pyg::Any> py_ovl_val_iterator(const c_dis_intvs &self, const py_intv_type &key) {
     auto iter_pair = self.overlap_range(key);
     return pyg::make_iterator(const_val_iterator(iter_pair.first),
                               const_val_iterator(iter_pair.second));
 }
 
-pyg::Optional<pyg::Tuple<pyg::Tuple<int, int>, py::object>>
+pyg::Optional<pyg::Tuple<pyg::Tuple<int, int>, pyg::Any>>
 get_first_overlap_item(const c_dis_intvs &self, const py_intv_type &key) {
     auto iter_pair = self.overlap_range(key);
     if (iter_pair.first == iter_pair.second)
@@ -126,7 +128,7 @@ get_first_overlap_item(const c_dis_intvs &self, const py_intv_type &key) {
     return py::cast(*(iter_pair.first));
 }
 
-bool add(c_dis_intvs &self, pyg::Tuple<int, int> intv, py::object val = py::none(),
+bool add(c_dis_intvs &self, pyg::Tuple<int, int> intv, pyg::Any val = py::none(),
          bool merge = false, bool abut = false) {
     return self.emplace(merge, abut,
                         py_intv_type{intv[0].cast<py::int_>(), intv[1].cast<py::int_>()}, val);

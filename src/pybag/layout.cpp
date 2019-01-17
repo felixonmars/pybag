@@ -131,6 +131,7 @@ void bind_cellview(py::module &m) {
                py::arg("spx"), py::arg("spy"));
     py_cls.def("add_rect_arr", &pl::add_rect_arr, "Adds an array of rectangles.", py::arg("layer"),
                py::arg("purpose"), py::arg("barr"));
+    py_cls.def("add_warr", &cbag::layout::add_warr, "Adds a WireArray.", py::arg("warr"));
     py_cls.def("add_poly", &cbag::layout::add_poly<py_pt_vector>, "Adds a new polygon.",
                py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_blockage", &cbag::layout::add_blockage<py_pt_vector>, "Adds a blockage object.",
