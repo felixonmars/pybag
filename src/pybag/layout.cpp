@@ -89,6 +89,7 @@ void bind_inst_ref(py::module &m) {
 }
 
 void bind_cellview(py::module &m) {
+    using tup_int = pyg::Tuple<py::int_, py::int_>;
 
     auto py_cls = py::class_<c_cellview>(m, "PyLayCellView");
     py_cls.doc() = "A layout cellview.";
@@ -185,7 +186,9 @@ void bind_cellview(py::module &m) {
                    auto tmp = cbag::layout::connect_box_track(
                        cv, vdir, key, barr.base, barr.get_num(), barr.get_sp(), tid,
                        {w_lower, w_upper}, {tr_lower, tr_upper}, mode);
-                   return pyg::Tuple<py::int_, py::int_>::make_tuple(tmp[0], tmp[1]);
+                   return pyg::Tuple<tup_int, tup_int>::make_tuple(
+                       tup_int::make_tuple(tmp[0][0], tmp[0][1]),
+                       tup_int::make_tuple(tmp[1][0], tmp[1][1]));
                },
                "Connect the given BBoxArray to tracks.", py::arg("lev_code"), py::arg("layer"),
                py::arg("purpose"), py::arg("barr"), py::arg("tid"), py::arg("tr_lower"),

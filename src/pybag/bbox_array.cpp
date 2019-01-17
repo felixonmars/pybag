@@ -202,6 +202,14 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def_property_readonly("yh", &c_box_arr::yh, "Top-most edge");
     py_cls.def_property_readonly("xm", &c_box_arr::xm, "Cetner X coordinate");
     py_cls.def_property_readonly("ym", &c_box_arr::ym, "Cetner X coordinate");
+    py_cls.def(
+        "get_num",
+        [](c_box_arr &self, cbag::orient_2d_t orient_code) { return self.get_num()[orient_code]; },
+        "Number of BBox in the given direction.", py::arg("orient_code"));
+    py_cls.def(
+        "get_sp",
+        [](c_box_arr &self, cbag::orient_2d_t orient_code) { return self.get_sp()[orient_code]; },
+        "Pitch of BBox in the given direction.", py::arg("orient_code"));
 
     /*
     py_cls.def_property_readonly("left_unit", &c_box_arr::xl, "Left-most edge");
@@ -230,6 +238,13 @@ void bind_bbox_array(py::class_<c_box_arr> &py_cls) {
     py_cls.def("transform", &c_box_arr::transform, "Transforms this BBoxArray.", py::arg("xform"));
     py_cls.def("get_transform", &c_box_arr::get_transform, "Returns a transformed BBoxArray.",
                py::arg("xform"));
+    py_cls.def("set_interval",
+               [](c_box_arr &self, cbag::orient_2d_t orient_code, coord_t lo, coord_t hi) {
+                   cbag::set_interval(self.base, static_cast<cbag::orient_2d>(orient_code), lo, hi);
+                   return self;
+               },
+               "Set the interval of the basee BBox of this BBoxArray.", py::arg("orient_code"),
+               py::arg("lo"), py::arg("hi"));
     py_cls.def("extend_orient", &c_box_arr::extend_orient, "Extends this BBoxArray.",
                py::arg("orient_code"), py::arg("ct") = py::none(), py::arg("cp") = py::none());
     py_cls.def("get_extend_orient", &c_box_arr::get_extend_orient, "Returns an extended BBoxArray.",

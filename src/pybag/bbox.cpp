@@ -110,6 +110,12 @@ void bind_bbox(py::class_<c_box> &py_cls) {
     py_cls.def("get_extend", &cbag::get_extend,
                "Returns an extended BBox to the given coordinates.", py::arg("x") = py::none(),
                py::arg("y") = py::none());
+    py_cls.def(
+        "set_interval",
+        [](c_box &self, cbag::orient_2d_t orient_code, coord_t lo, coord_t hi) {
+            return cbag::set_interval(self, static_cast<cbag::orient_2d>(orient_code), lo, hi);
+        },
+        "Set the interval of this BBox.", py::arg("orient_code"), py::arg("lo"), py::arg("hi"));
     py_cls.def("extend_orient",
                [](c_box &self, cbag::orient_2d_t orient_code, const std::optional<coord_t> &ct,
                   const std::optional<coord_t> &cp) {
