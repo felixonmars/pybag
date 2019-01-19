@@ -174,15 +174,23 @@ void bind_cellview(py::module &m) {
         },
         "Add an array of vias.", py::arg("xform"), py::arg("via_id"), py::arg("params"),
         py::arg("add_layers"), py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
-    py_cls.def("add_via_on_intersection", &cbag::layout::add_via_on_intersection,
+    py_cls.def("add_via_on_intersections",
+               [](c_cellview &cv, const cbag::layout::wire_array &warr1,
+                  const cbag::layout::wire_array &warr2, bool extend, bool contain) {
+                   auto tmp =
+                       cbag::layout::add_via_on_intersections(cv, warr1, warr2, extend, contain);
+                   return pyg::Tuple<tup_int, tup_int>::make_tuple(
+                       tup_int::make_tuple(tmp[0][0], tmp[0][1]),
+                       tup_int::make_tuple(tmp[1][0], tmp[1][1]));
+               },
                "Add vias on the wire intersections.", py::arg("warr1"), py::arg("warr2"),
                py::arg("extend"), py::arg("contain"));
     py_cls.def("connect_barr_to_tracks",
                [](c_cellview &cv, cbag::enum_t lev_code, const std::string &layer,
                   const std::string &purpose, const pybag::util::box_arr &barr,
-                  const cbag::layout::track_id &tid, std::optional<cbag::offset_t> tr_lower,
-                  std::optional<cbag::offset_t> tr_upper, int min_len_code,
-                  std::optional<cbag::offset_t> w_lower, std::optional<cbag::offset_t> w_upper) {
+                  const cbag::layout::track_id &tid, std::optional<cbag::coord_t> tr_lower,
+                  std::optional<cbag::coord_t> tr_upper, int min_len_code,
+                  std::optional<cbag::coord_t> w_lower, std::optional<cbag::coord_t> w_upper) {
                    auto vdir = static_cast<cbag::direction>(lev_code);
                    auto mode = static_cast<cbag::min_len_mode>(min_len_code);
                    auto key = cbag::layout::layer_t_at(*(cv.get_tech()), layer, purpose);
@@ -197,6 +205,19 @@ void bind_cellview(py::module &m) {
                py::arg("purpose"), py::arg("barr"), py::arg("tid"), py::arg("tr_lower"),
                py::arg("tr_upper"), py::arg("min_len_code"), py::arg("w_lower"),
                py::arg("w_upper"));
+    py_cls.def("connect_warr_to_tracks",
+               [](c_cellview &cv, const cbag::layout::wire_array &warr,
+                  const cbag::layout::track_id &tid, std::optional<cbag::coord_t> w_lower,
+                  std::optional<cbag::coord_t> w_upper, std::optional<cbag::coord_t> t_lower,
+                  std::optional<cbag::coord_t> t_upper) {
+                   auto tmp = cbag::layout::connect_warr_track(cv, warr, tid, {w_lower, w_upper},
+                                                               {t_lower, t_upper});
+                   return pyg::Tuple<tup_int, tup_int>::make_tuple(
+                       tup_int::make_tuple(tmp[0][0], tmp[0][1]),
+                       tup_int::make_tuple(tmp[1][0], tmp[1][1]));
+               },
+               "Connect the given WireArray to tracks.", py::arg("warr"), py::arg("tid"),
+               py::arg("w_lower"), py::arg("w_upper"), py::arg("t_lower"), py::arg("t_upper"));
 }
 
 void bind_layout(py::module &m) {
