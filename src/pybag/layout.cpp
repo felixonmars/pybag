@@ -174,6 +174,9 @@ void bind_cellview(py::module &m) {
         },
         "Add an array of vias.", py::arg("xform"), py::arg("via_id"), py::arg("params"),
         py::arg("add_layers"), py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"));
+    py_cls.def("add_via_on_intersection", &cbag::layout::add_via_on_intersection,
+               "Add vias on the wire intersections.", py::arg("warr1"), py::arg("warr2"),
+               py::arg("extend"), py::arg("contain"));
     py_cls.def("connect_barr_to_tracks",
                [](c_cellview &cv, cbag::enum_t lev_code, const std::string &layer,
                   const std::string &purpose, const pybag::util::box_arr &barr,
@@ -199,4 +202,7 @@ void bind_cellview(py::module &m) {
 void bind_layout(py::module &m) {
     bind_inst_ref(m);
     bind_cellview(m);
+
+    m.attr("COORD_MIN") = std::numeric_limits<cbag::coord_t>::min();
+    m.attr("COORD_MAX") = std::numeric_limits<cbag::coord_t>::max();
 }
