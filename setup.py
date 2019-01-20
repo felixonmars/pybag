@@ -22,11 +22,13 @@ class CMakePyBind11Extension(Extension):
 class CMakePyBind11Build(build_ext):
     user_options = build_ext.user_options
     user_options.append(('compiler-launcher', None, "specify compiler launcher program"))
+    user_options.append(('build-type', None, "CMake build type"))
 
     def initialize_options(self):
         build_ext.initialize_options(self)
         # noinspection PyAttributeOutsideInit
         self.compiler_launcher = ''
+        self.build_type = 'Debug'
 
     def run(self):
         print('comp_launcher =', self.compiler_launcher)
@@ -55,15 +57,13 @@ class CMakePyBind11Build(build_ext):
         return 1 if workers is None else workers
 
     def build_extension(self, ext):
-        cfg = 'Debug' if self.debug else 'Release'
-
         extdir = os.path.abspath(os.path.join(self.build_lib, pkg_name))
         cmake_args = [
             'cmake',
             ext.sourcedir,
             '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
             '-DPYTHON_EXECUTABLE=' + sys.executable,
-            '-DCMAKE_BUILD_TYPE=' + cfg,
+            '-DCMAKE_BUILD_TYPE=' + self.build_type,
         ]
         build_args = [
             'cmake',
