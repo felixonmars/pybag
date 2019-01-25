@@ -155,11 +155,27 @@ void bind_cellview(py::module &m) {
                py::arg("label"), py::arg("warr"));
     py_cls.def("add_label", &cbag::layout::add_label, "Adds a label object.", py::arg("layer"),
                py::arg("purpose"), py::arg("xform"), py::arg("label"));
-    py_cls.def("add_path", &cbag::layout::add_path<py_pt_vector>, "Adds a new path.",
-               py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("half_width"),
-               py::arg("style0"), py::arg("style1"), py::arg("stylem"), py::arg("commit"));
+    py_cls.def("add_path",
+               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
+                  const py_pt_vector &data, offset_t half_width, cbag::enum_t style0,
+                  cbag::enum_t style1, cbag::enum_t stylem, bool commit) {
+                   return add_path(cv, layer, purpose, data, half_width,
+                                   static_cast<cbag::end_style>(style0),
+                                   static_cast<cbag::end_style>(style1),
+                                   static_cast<cbag::end_style>(stylem), commit);
+               },
+               "Adds a new path.", py::arg("layer"), py::arg("purpose"), py::arg("points"),
+               py::arg("half_width"), py::arg("style0"), py::arg("style1"), py::arg("stylem"),
+               py::arg("commit"));
     py_cls.def("add_path45_bus",
-               &cbag::layout::add_path45_bus<py_pt_vector, pyg::List<cbag::offset_t>>,
+               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
+                  const py_pt_vector &data, pyg::List<int> widths, pyg::List<int> spaces,
+                  cbag::enum_t style0, cbag::enum_t style1, cbag::enum_t stylem, bool commit) {
+                   return add_path45_bus(cv, layer, purpose, data, widths, spaces,
+                                         static_cast<cbag::end_style>(style0),
+                                         static_cast<cbag::end_style>(style1),
+                                         static_cast<cbag::end_style>(stylem), commit);
+               },
                "Adds a new 45 degree path bus.", py::arg("layer"), py::arg("purpose"),
                py::arg("points"), py::arg("widths"), py::arg("spaces"), py::arg("style0"),
                py::arg("style1"), py::arg("stylem"), py::arg("commit"));
