@@ -142,8 +142,8 @@ void bind_wire_array(py::module &m) {
     auto py_cls = py::class_<c_warr>(m, "PyWireArray");
     py_cls.doc() = "A class containing track index information.";
     py_cls.def(py::init<std::shared_ptr<cbag::layout::track_id>, cbag::offset_t, cbag::offset_t>(),
-               "Create a new PyWireArray object.", py::arg("track_id"), py::arg("lower"),
-               py::arg("upper"));
+               "Create a new PyWireArray object.", py::keep_alive<1, 2>(), py::arg("track_id"),
+               py::arg("lower"), py::arg("upper"));
     py_cls.def("__eq__", &c_warr::operator==, py::arg("other"));
     py_cls.def("__hash__", &c_warr::get_hash);
     py_cls.def("__repr__", &c_warr::to_string);
