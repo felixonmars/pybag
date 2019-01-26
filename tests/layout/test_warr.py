@@ -49,6 +49,7 @@ def add_wires_emulator():
 
 
 def test_get_track_id():
+    """Test to check that WireArray keeps its TrackID alive in Python land."""
     warr = add_wires_emulator()
     assert warr.is_warr()
 
