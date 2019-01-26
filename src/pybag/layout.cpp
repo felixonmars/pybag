@@ -145,10 +145,21 @@ void bind_cellview(py::module &m) {
         "Adds a WireArray.", py::arg("warr"));
     py_cls.def("add_poly", &cbag::layout::add_poly<py_pt_vector>, "Adds a new polygon.",
                py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("commit"));
-    py_cls.def("add_blockage", &cbag::layout::add_blockage<py_pt_vector>, "Adds a blockage object.",
-               py::arg("layer"), py::arg("blk_code"), py::arg("points"), py::arg("commit"));
-    py_cls.def("add_boundary", &cbag::layout::add_boundary<py_pt_vector>, "Adds a boundary object.",
-               py::arg("bnd_code"), py::arg("points"), py::arg("commit"));
+    py_cls.def("add_blockage",
+               [](c_cellview &cv, const std::string &layer, cbag::enum_t blk_code,
+                  const py_pt_vector &data, bool commit) {
+                   return cbag::layout::add_blockage(
+                       cv, layer, static_cast<cbag::blockage_type>(blk_code), data, commit);
+               },
+               "Adds a blockage object.", py::arg("layer"), py::arg("blk_code"), py::arg("points"),
+               py::arg("commit"));
+    py_cls.def("add_boundary",
+               [](c_cellview &cv, cbag::enum_t bnd_code, const py_pt_vector &data, bool commit) {
+                   return cbag::layout::add_boundary(cv, static_cast<cbag::boundary_type>(bnd_code),
+                                                     data, commit);
+               },
+               "Adds a boundary object.", py::arg("bnd_code"), py::arg("points"),
+               py::arg("commit"));
     py_cls.def("add_pin", &cbag::layout::add_pin, "Adds a pin object.", py::arg("layer"),
                py::arg("net"), py::arg("label"), py::arg("bbox"));
     py_cls.def("add_pin_arr", &cbag::layout::add_pin_arr, "Adds an arry of pins.", py::arg("net"),
