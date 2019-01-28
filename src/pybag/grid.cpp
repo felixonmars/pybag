@@ -364,12 +364,12 @@ void bind_routing_grid(py::module &m) {
                py::arg("fp_data"));
     py_cls.def("set_track_offset", &c_grid::set_track_offset,
                "Sets the track offset on the given layer.", py::arg("layer_id"), py::arg("offset"));
-    py_cls.def("add_new_layer",
+    py_cls.def("set_layer",
                [](c_grid &g, cbag::level_t lay_id, cbag::orient_2d_t dir, cbag::offset_t w,
                   cbag::offset_t sp, bool is_private) {
-                   g.add_new_level(lay_id, is_private, static_cast<cbag::orient_2d>(dir), w, sp);
+                   g.set_level(lay_id, is_private, static_cast<cbag::orient_2d>(dir), w, sp);
                },
-               "Adds/modifies a routing grid layer.", py::arg("layer_id"), py::arg("direction"),
+               "Modifies a routing grid layer.", py::arg("layer_id"), py::arg("direction"),
                py::arg("w"), py::arg("sp"), py::arg("is_private") = true);
 
     m.def("coord_to_custom_htr",
