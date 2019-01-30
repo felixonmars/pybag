@@ -68,6 +68,8 @@ void bind_transform(py::module &m) {
     py_cls.doc() = "A class that represents instance transformation.";
     py_cls.def(py::init(&pybag::xform::make_xform), "Create a new transformation object.",
                py::arg("dx") = 0, py::arg("dy") = 0, py::arg("mode") = code_R0);
+    py_cls.def("__repr__", py::overload_cast<const c_transform &>(&cbag::to_string),
+               "Returns a string representation of BBox.");
     py_cls.def_property_readonly("x", &cbag::x, "X shift.");
     py_cls.def_property_readonly("y", &cbag::y, "Y shift.");
     py_cls.def_property_readonly("orient", &pybag::xform::get_xform_orient, "Orientation.");

@@ -52,7 +52,8 @@ void bind_bbox(py::class_<c_box> &py_cls) {
         "Construct a new BBox from orientation.", py::arg("orient_code"), py::arg("tl"),
         py::arg("th"), py::arg("pl"), py::arg("ph"));
 
-    py_cls.def("__repr__", &cbag::to_string, "Returns a string representation of BBox.");
+    py_cls.def("__repr__", py::overload_cast<const c_box &>(&cbag::to_string),
+               "Returns a string representation of BBox.");
     py_cls.def("__eq__", &c_box::operator==, "Returns True if the two BBox are equal.",
                py::arg("other"));
 
