@@ -31,6 +31,7 @@ class RoundMode(IntEnum):
     GREATER = 2
     NONE = 3
 
+
 class MinLenMode(IntEnum):
     LOWER = -1
     MIDDLE = 0
@@ -47,6 +48,12 @@ class Orientation(IntEnum):
     R270 = 5
     R90 = 6
     MYR90 = 7
+
+    def flip_lr(self) -> Orientation:
+        return Orientation(self.value ^ 0b001)
+
+    def flip_ud(self) -> Orientation:
+        return Orientation(self.value ^ 0b010)
 
 
 class Orient2D(IntEnum):

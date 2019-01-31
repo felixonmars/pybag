@@ -224,6 +224,11 @@ void bind_routing_grid(py::module &m) {
         "get_track_pitch",
         [](const c_grid &g, cbag::level_t lay_id) { return g.track_info_at(lay_id).get_pitch(); },
         "Returns the track pitch for the given layer.", py::arg("lay_id"));
+    py_cls.def("get_unit_track_width",
+               [](const c_grid &g, cbag::level_t lay_id) {
+                   return g.track_info_at(lay_id).get_wire_span(1);
+               },
+               "Returns the unit track width for the given layer.", py::arg("lay_id"));
     py_cls.def("get_min_length",
                [](const c_grid &g, cbag::level_t lay_id, cbag::cnt_t num_tr, bool even) {
                    auto wire_w = g.track_info_at(lay_id).get_wire_width(num_tr);
