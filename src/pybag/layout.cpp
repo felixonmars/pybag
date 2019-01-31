@@ -165,7 +165,7 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_pin_arr", &cbag::layout::add_pin_arr, "Adds an arry of pins.", py::arg("net"),
                py::arg("label"), py::arg("warr"));
     py_cls.def("add_label", &cbag::layout::add_label, "Adds a label object.", py::arg("layer"),
-               py::arg("purpose"), py::arg("xform"), py::arg("label"));
+               py::arg("purpose"), py::arg("xform"), py::arg("label"), py::arg("height"));
     py_cls.def("add_path",
                [](c_cellview &cv, const std::string &layer, const std::string &purpose,
                   const py_pt_vector &data, offset_t half_width, cbag::enum_t style0,
