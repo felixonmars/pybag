@@ -32,7 +32,6 @@ class CMakePyBind11Build(build_ext):
 
     def run(self):
         print('comp_launcher =', self.compiler_launcher)
-        print('parallel =', self.parallel)
         try:
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
@@ -51,7 +50,7 @@ class CMakePyBind11Build(build_ext):
 
     def _get_num_workers(self):
         workers = self.parallel
-        if self.parallel is True:
+        if self.parallel == 0:
             workers = os.cpu_count()  # may return None
 
         return 1 if workers is None else workers
@@ -80,8 +79,10 @@ class CMakePyBind11Build(build_ext):
                 cmake_args.append('-A')
                 cmake_args.append('x64')
             build_args.append('/m')
-        
-        build_args.append('-j' + str(self._get_num_workers()))
+
+        num_workers = self._get_num_workers()
+        print('parallel =', num_workers)
+        build_args.append('-j' + str(num_workers))
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
