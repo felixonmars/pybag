@@ -5,4 +5,4 @@ export OUTPUT_ROOT="src"
 export PYTHONPATH="_build/lib:./pybind11_generics"
 
 # python -m stubgen -h
-python -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.core
+${PYBAG_PYTHON} -m stubgen --recursive -o ${OUTPUT_ROOT} pybag.core

@@ -75,7 +75,6 @@ pybind11_add_module(core
 target_link_libraries(core
   PUBLIC
   cbag
-  fmt
   PRIVATE
   pybind11_generics
   yaml-cpp
