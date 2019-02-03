@@ -59,7 +59,8 @@ class CMakePyBind11Build(build_ext):
         extdir = os.path.abspath(os.path.join(self.build_lib, pkg_name))
         cmake_args = [
             'cmake',
-            ext.sourcedir,
+            '-H.',
+            '-B' + self.build_temp,
             '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
             '-DPYTHON_EXECUTABLE=' + sys.executable,
             '-DCMAKE_BUILD_TYPE=' + self.build_type,
@@ -83,12 +84,11 @@ class CMakePyBind11Build(build_ext):
         num_workers = self._get_num_workers()
         print('parallel =', num_workers)
         build_args.append('-j' + str(num_workers))
-        env = os.environ.copy()
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
-                                                              self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(cmake_args, cwd=self.build_temp, env=env)
+        print(' '.join(cmake_args))
+        subprocess.check_call(cmake_args, cwd=ext.sourcedir)
+        print(' '.join(build_args))
         subprocess.check_call(build_args, cwd=self.build_temp)
         # Add an empty line for cleaner output
         print()
