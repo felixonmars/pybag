@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Union
+
 import pytest
 
 from pybag.core import PyRoutingGrid, PyTech
@@ -41,6 +43,16 @@ def test_coord_htr(layer_id: int, coord: int, mode: RoundMode, even: bool,
 def test_coord_htr(layer_id: int, pitch: int, routing_grid: PyRoutingGrid):
     assert routing_grid.get_track_pitch(layer_id) == pitch
     assert routing_grid.get_track_offset(layer_id) == pitch // 2
+
+
+@pytest.mark.parametrize("lay, coord, w_ntr, mode, even, expect", [
+    (4, 720, 1, RoundMode.LESS_EQ, False, 10),
+])
+def test_find_next_htr(routing_grid: PyRoutingGrid, lay: int, coord: int, w_ntr: int, mode: Union[RoundMode, int],
+                       even: bool, expect: int) -> None:
+    """Check that find_next_htr() works properly."""
+    ans = routing_grid.find_next_htr(lay, coord, w_ntr, mode, even)
+    assert ans == expect
 
 
 def test_copy_construct(tech: PyTech, routing_grid: PyRoutingGrid):

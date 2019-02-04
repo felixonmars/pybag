@@ -346,7 +346,7 @@ void bind_routing_grid(py::module &m) {
     py_cls.def(
         "find_next_htr",
         [](const c_grid &g, cbag::level_t lay_id, cbag::offset_t coord, cbag::cnt_t ntr,
-           cbag::enum_t round_mode, bool even) {
+           cbag::senum_t round_mode, bool even) {
             return cbag::layout::find_next_htr(g.track_info_at(lay_id), coord, ntr,
                                                static_cast<cbag::round_mode>(round_mode), even);
         },
