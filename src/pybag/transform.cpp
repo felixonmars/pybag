@@ -86,4 +86,6 @@ void bind_transform(py::module &m) {
                py::arg("xform"));
     py_cls.def("get_transform_by", &cbag::get_transform_by,
                "Returns a transformed transform object", py::arg("xform"));
+    py_cls.def("get_transform", &cbag::get_transform_by, "Returns a transformed transform object",
+               py::arg("xform"));
 }
