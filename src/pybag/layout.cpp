@@ -117,9 +117,9 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_prim_instance", &cbag::layout::add_prim_instance, "Adds a primitive instance.",
                py::arg("lib"), py::arg("cell"), py::arg("view"), py::arg("name"), py::arg("xform"),
                py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"), py::arg("commit"));
-    py_cls.def("add_instance", &cbag::layout::add_instance, "Adds an instance", py::arg("cv"),
-               py::arg("name"), py::arg("xform"), py::arg("nx"), py::arg("ny"), py::arg("spx"),
-               py::arg("spy"), py::arg("commit"));
+    py_cls.def("add_instance", &cbag::layout::add_instance, "Adds an instance",
+               py::keep_alive<1, 2>(), py::arg("cv"), py::arg("name"), py::arg("xform"),
+               py::arg("nx"), py::arg("ny"), py::arg("spx"), py::arg("spy"), py::arg("commit"));
     py_cls.def("add_rect", &cbag::layout::add_rect, "Adds a rectangle.", py::arg("layer"),
                py::arg("purpose"), py::arg("bbox"), py::arg("commit"));
     py_cls.def("add_rect_arr",
