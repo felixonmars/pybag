@@ -170,9 +170,10 @@ void implement_yaml(
 void implement_netlist(
     const std::string &fname,
     pyg::List<std::pair<std::string, std::pair<c_cellview *, std::string>>> content_list,
-    cbag::enum_t fmt_code, bool flat, bool shell, cbag::cnt_t rmin, const std::string &prim_fname) {
+    cbag::enum_t fmt_code, bool flat, bool shell, bool top_subckt, cbag::cnt_t rmin,
+    const std::string &prim_fname) {
     cbag::netlist::write_netlist(content_list, fname, static_cast<cbag::design_output>(fmt_code),
-                                 flat, shell, rmin, prim_fname);
+                                 flat, shell, top_subckt, rmin, prim_fname);
 }
 
 } // namespace schematic
@@ -245,5 +246,5 @@ void bind_schematic(py::module &m) {
     m.def("implement_netlist", &pysch::implement_netlist,
           "Write the given schematics to a netlist file.", py::arg("fname"),
           py::arg("content_list"), py::arg("fmt_code"), py::arg("flat"), py::arg("shell"),
-          py::arg("rmin"), py::arg("prim_fname"));
+          py::arg("top_subckt"), py::arg("rmin"), py::arg("prim_fname"));
 }
