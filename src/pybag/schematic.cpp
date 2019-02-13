@@ -172,7 +172,8 @@ void implement_netlist(
     pyg::List<std::pair<std::string, std::pair<const c_cellview *, std::string>>> content_list,
     cbag::enum_t fmt_code, bool flat, bool shell, bool top_subckt, cbag::cnt_t rmin,
     const std::string &prim_fname,
-    pyg::List<std::pair<std::string, const cbag::sch::cellview_info *>> cv_info_list) {
+    pyg::List<std::pair<std::string, const cbag::sch::cellview_info *>> cv_info_list,
+    const std::string &cv_netlist) {
 
     auto format = static_cast<cbag::design_output>(fmt_code);
 
@@ -192,6 +193,12 @@ void implement_netlist(
         } else {
             iter->second.emplace(cv_info_ptr->cell_name, *cv_info_ptr);
         }
+    }
+
+    if (!cv_netlist.empty()) {
+        inc_list.clear();
+        append_file.clear();
+        inc_list.emplace_back(cbag::util::get_canonical_path(cv_netlist).c_str());
     }
 
     cbag::netlist::write_netlist(content_list, fname, format, netlist_map, append_file, inc_list,
@@ -273,5 +280,6 @@ void bind_schematic(py::module &m) {
     m.def("implement_netlist", &pysch::implement_netlist,
           "Write the given schematics to a netlist file.", py::arg("fname"),
           py::arg("content_list"), py::arg("fmt_code"), py::arg("flat"), py::arg("shell"),
-          py::arg("top_subckt"), py::arg("rmin"), py::arg("prim_fname"), py::arg("cv_info_list"));
+          py::arg("top_subckt"), py::arg("rmin"), py::arg("prim_fname"), py::arg("cv_info_list"),
+          py::arg("includes"));
 }
