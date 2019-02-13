@@ -264,6 +264,9 @@ void bind_schematic(py::module &m) {
     py_cv.def("add_pin", &c_cellview::add_pin, "Add the given pin.", py::arg("new_name"),
               py::arg("term_type"));
     py_cv.def("remove_pin", &c_cellview::remove_pin, "Removes the given pin.", py::arg("name"));
+    py_cv.def("set_pin_attribute", &c_cellview::set_pin_attribute,
+              "Sets the attribute of the given pin.", py::arg("pin_name"), py::arg("key"),
+              py::arg("val"));
     py_cv.def("rename_instance", &c_cellview::rename_instance, "Renames the given instance.",
               py::arg("old_name"), py::arg("new_name"));
     py_cv.def("remove_instance", &c_cellview::remove_instance, "Removes the given instance.",
