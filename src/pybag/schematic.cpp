@@ -194,7 +194,7 @@ void bind_schematic(py::module &m) {
     py_inst.def("set_param", &c_instance::set_param, "Set instance parameter value.",
                 py::arg("name"), py::arg("val"));
     py_inst.def("update_master", &c_instance::update_master, "Update the instance master.",
-                py::arg("lib"), py::arg("cell"), py::arg("prim") = false);
+                py::arg("lib"), py::arg("cell"), py::arg("prim"), py::arg("keep_connections"));
     py_inst.def("update_connection",
                 py::overload_cast<const std::string &, std::string, std::string>(
                     &c_instance::update_connection),
