@@ -169,11 +169,33 @@ void implement_yaml(
 
 void implement_netlist(
     const std::string &fname,
-    pyg::List<std::pair<std::string, std::pair<c_cellview *, std::string>>> content_list,
+    pyg::List<std::pair<std::string, std::pair<const c_cellview *, std::string>>> content_list,
     cbag::enum_t fmt_code, bool flat, bool shell, bool top_subckt, cbag::cnt_t rmin,
-    const std::string &prim_fname) {
-    cbag::netlist::write_netlist(content_list, fname, static_cast<cbag::design_output>(fmt_code),
-                                 flat, shell, top_subckt, rmin, prim_fname);
+    const std::string &prim_fname,
+    pyg::List<std::pair<std::string, const cbag::sch::cellview_info *>> cv_info_list) {
+
+    auto format = static_cast<cbag::design_output>(fmt_code);
+
+    // read primitives information from file
+    std::vector<std::string> inc_list;
+    std::string append_file;
+    cbag::netlist::netlist_map_t netlist_map;
+    cbag::netlist::read_prim_info(prim_fname, inc_list, netlist_map, append_file, format);
+
+    // append cv_info_list to netlist_map
+    for (const auto & [ lib_name, cv_info_ptr ] : cv_info_list) {
+        auto iter = netlist_map.find(lib_name);
+        if (iter == netlist_map.end()) {
+            cbag::netlist::lib_map_t lib_map;
+            lib_map.emplace(cv_info_ptr->cell_name, *cv_info_ptr);
+            netlist_map.emplace(lib_name, lib_map);
+        } else {
+            iter->second.emplace(cv_info_ptr->cell_name, *cv_info_ptr);
+        }
+    }
+
+    cbag::netlist::write_netlist(content_list, fname, format, netlist_map, append_file, inc_list,
+                                 flat, shell, top_subckt, rmin);
 }
 
 } // namespace schematic
@@ -203,6 +225,9 @@ void bind_schematic(py::module &m) {
     py_inst.def("get_connection", pysch::get_connection, "Get net connected to the given terminal.",
                 py::arg("term_name"));
 
+    auto py_info = py::class_<cbag::sch::cellview_info>(m, "PySchCellViewInfo");
+    py_info.doc() = "An information object describing a schematic master instance.";
+
     pyg::declare_iterator<pysch::const_inst_iterator>();
     pyg::declare_iterator<pysch::const_term_iterator>();
 
@@ -213,6 +238,8 @@ void bind_schematic(py::module &m) {
     py_cv.def_readonly("view_name", &c_cellview::view_name, "Master view name.");
     py_cv.def_readwrite("lib_name", &c_cellview::lib_name, "Master library name.");
     py_cv.def_readwrite("cell_name", &c_cellview::cell_name, "Master cell name.");
+    py_cv.def("get_info", &c_cellview::get_info,
+              "Returns the PySchCellViewInfo object for this master.", py::arg("cell_name"));
     py_cv.def("get_copy", &c_cellview::get_copy, "Returns a copy of this cellview.");
     py_cv.def("clear_params", &c_cellview::clear_params, "Clear all schematic parameters.");
     py_cv.def("set_param", &c_cellview::set_param, "Set schematic parameter value.",
@@ -246,5 +273,5 @@ void bind_schematic(py::module &m) {
     m.def("implement_netlist", &pysch::implement_netlist,
           "Write the given schematics to a netlist file.", py::arg("fname"),
           py::arg("content_list"), py::arg("fmt_code"), py::arg("flat"), py::arg("shell"),
-          py::arg("top_subckt"), py::arg("rmin"), py::arg("prim_fname"));
+          py::arg("top_subckt"), py::arg("rmin"), py::arg("prim_fname"), py::arg("cv_info_list"));
 }
