@@ -2,6 +2,7 @@
 # this script runs the python unit tests.
 # you must first run the setup script.
 
+./run_test_cbag.sh || exit 1
 ./build.sh || exit 1
 
 source .bashrc
