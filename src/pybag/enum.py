@@ -15,6 +15,7 @@ class DesignOutput(IntEnum):
     CDL = 4
     VERILOG = 5
     SYSVERILOG = 6
+    SPECTRE = 7
 
 
 class TermType(IntEnum):
@@ -120,6 +121,8 @@ def get_extension(output_type: DesignOutput) -> str:
         return 'v'
     elif output_type is DesignOutput.SYSVERILOG:
         return 'sv'
+    elif output_type is DesignOutput.SPECTRE:
+        return 'scs'
     else:
         raise ValueError('Unsupported output type: {}'.format(output_type.name))
 
@@ -131,4 +134,5 @@ def is_model_type(output_type: DesignOutput) -> bool:
 
 def is_netlist_type(output_type: DesignOutput) -> bool:
     """Returns true if the given output type represents a netlist."""
-    return output_type is DesignOutput.CDL or output_type is DesignOutput.VERILOG
+    return (output_type is DesignOutput.CDL or output_type is DesignOutput.VERILOG or
+            output_type is DesignOutput.SPECTRE)
