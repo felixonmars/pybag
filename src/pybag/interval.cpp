@@ -158,6 +158,8 @@ void bind_interval(py::module &m) {
     py_dis_intvs.def("__iter__", &pu::py_intv_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals.");
     py_dis_intvs.def("__len__", &c_dis_intvs::size, "Returns number of intervals.");
+    py_dis_intvs.def("__bool__", [](const c_dis_intvs &self) { return !self.empty(); },
+                     "Returns True if it contains at least one interval.");
     py_dis_intvs.def("overlaps", &c_dis_intvs::overlaps<py_intv_type>,
                      "Returns True if given interval overlaps this object.", py::arg("key"));
     py_dis_intvs.def("covers", &c_dis_intvs::covers<py_intv_type>,
