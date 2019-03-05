@@ -63,7 +63,7 @@ void transform(c_inst_ref &ref, const cbag::transformation &xform) {
     cbag::transform_by(ref->xform, xform);
 }
 
-void set_master(c_inst_ref &ref, const cbag::layout::cellview *new_master) {
+void set_master(c_inst_ref &ref, const std::shared_ptr<const cbag::layout::cellview> &new_master) {
     check_ref(ref);
     ref->set_master(new_master);
 }
@@ -88,19 +88,18 @@ void bind_inst_ref(py::module &m) {
     py_cls.def("commit", &c_inst_ref::commit, "Commits the instance object.");
 }
 
-void bind_cellview(py::module &m) {
+void bind_cellview(py::class_<c_cellview, std::shared_ptr<c_cellview>> &py_cls, py::module &m) {
     using tup_int = pyg::Tuple<py::int_, py::int_>;
 
-    auto py_cls = py::class_<c_cellview>(m, "PyLayCellView");
     py_cls.doc() = "A layout cellview.";
 
-    py_cls.def(py::init([](cbag::layout::routing_grid *grid_ptr, std::string cell_name,
-                           cbag::enum_t geo_mode) {
+    py_cls.def(py::init([](const std::shared_ptr<const cbag::layout::routing_grid> &grid_ptr,
+                           std::string cell_name, cbag::enum_t geo_mode) {
                    return c_cellview{grid_ptr, std::move(cell_name),
                                      static_cast<cbag::geometry_mode>(geo_mode)};
                }),
-               "Construct a new cellview.", py::arg("grid"), py::arg("cell_name"),
-               py::arg("geo_mode") = 0);
+               "Construct a new cellview.", py::keep_alive<1, 2>(), py::arg("grid"),
+               py::arg("cell_name"), py::arg("geo_mode") = 0);
     py_cls.def_property_readonly("is_empty", &c_cellview::empty, "True if this cellview is empty.");
     py_cls.def_property_readonly("cell_name", &c_cellview::get_name, "The cell name.");
 
@@ -146,17 +145,18 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_poly", &cbag::layout::add_poly<py_pt_vector>, "Adds a new polygon.",
                py::arg("layer"), py::arg("purpose"), py::arg("points"), py::arg("commit"));
     py_cls.def("add_blockage",
-               [](c_cellview &cv, const std::string &layer, cbag::enum_t blk_code,
-                  const py_pt_vector &data, bool commit) {
+               [](const std::shared_ptr<c_cellview> &cv_ptr, const std::string &layer,
+                  cbag::enum_t blk_code, const py_pt_vector &data, bool commit) {
                    return cbag::layout::add_blockage(
-                       cv, layer, static_cast<cbag::blockage_type>(blk_code), data, commit);
+                       cv_ptr, layer, static_cast<cbag::blockage_type>(blk_code), data, commit);
                },
                "Adds a blockage object.", py::arg("layer"), py::arg("blk_code"), py::arg("points"),
                py::arg("commit"));
     py_cls.def("add_boundary",
-               [](c_cellview &cv, cbag::enum_t bnd_code, const py_pt_vector &data, bool commit) {
-                   return cbag::layout::add_boundary(cv, static_cast<cbag::boundary_type>(bnd_code),
-                                                     data, commit);
+               [](const std::shared_ptr<c_cellview> &cv_ptr, cbag::enum_t bnd_code,
+                  const py_pt_vector &data, bool commit) {
+                   return cbag::layout::add_boundary(
+                       cv_ptr, static_cast<cbag::boundary_type>(bnd_code), data, commit);
                },
                "Adds a boundary object.", py::arg("bnd_code"), py::arg("points"),
                py::arg("commit"));
@@ -167,10 +167,10 @@ void bind_cellview(py::module &m) {
     py_cls.def("add_label", &cbag::layout::add_label, "Adds a label object.", py::arg("layer"),
                py::arg("purpose"), py::arg("xform"), py::arg("label"), py::arg("height"));
     py_cls.def("add_path",
-               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
-                  const py_pt_vector &data, offset_t half_width, cbag::enum_t style0,
-                  cbag::enum_t style1, cbag::enum_t stylem, bool commit) {
-                   return add_path(cv, layer, purpose, data, half_width,
+               [](const std::shared_ptr<c_cellview> &cv_ptr, const std::string &layer,
+                  const std::string &purpose, const py_pt_vector &data, offset_t half_width,
+                  cbag::enum_t style0, cbag::enum_t style1, cbag::enum_t stylem, bool commit) {
+                   return add_path(cv_ptr, layer, purpose, data, half_width,
                                    static_cast<cbag::end_style>(style0),
                                    static_cast<cbag::end_style>(style1),
                                    static_cast<cbag::end_style>(stylem), commit);
@@ -179,10 +179,11 @@ void bind_cellview(py::module &m) {
                py::arg("half_width"), py::arg("style0"), py::arg("style1"), py::arg("stylem"),
                py::arg("commit"));
     py_cls.def("add_path45_bus",
-               [](c_cellview &cv, const std::string &layer, const std::string &purpose,
-                  const py_pt_vector &data, pyg::List<int> widths, pyg::List<int> spaces,
-                  cbag::enum_t style0, cbag::enum_t style1, cbag::enum_t stylem, bool commit) {
-                   return add_path45_bus(cv, layer, purpose, data, widths, spaces,
+               [](const std::shared_ptr<c_cellview> &cv_ptr, const std::string &layer,
+                  const std::string &purpose, const py_pt_vector &data, pyg::List<int> widths,
+                  pyg::List<int> spaces, cbag::enum_t style0, cbag::enum_t style1,
+                  cbag::enum_t stylem, bool commit) {
+                   return add_path45_bus(cv_ptr, layer, purpose, data, widths, spaces,
                                          static_cast<cbag::end_style>(style0),
                                          static_cast<cbag::end_style>(style1),
                                          static_cast<cbag::end_style>(stylem), commit);
@@ -248,8 +249,10 @@ void bind_cellview(py::module &m) {
 }
 
 void bind_layout(py::module &m) {
+    auto cv_cls = py::class_<c_cellview, std::shared_ptr<c_cellview>>(m, "PyLayCellView");
+
     bind_inst_ref(m);
-    bind_cellview(m);
+    bind_cellview(cv_cls, m);
 
     m.attr("COORD_MIN") = std::numeric_limits<cbag::coord_t>::min();
     m.attr("COORD_MAX") = std::numeric_limits<cbag::coord_t>::max();

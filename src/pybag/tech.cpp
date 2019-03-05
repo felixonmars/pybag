@@ -54,7 +54,7 @@ std::optional<cbag::level_t> get_level(const c_tech &tech, const std::string &la
 pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::level_t level) {
     pyg::List<py_lp> ans;
     const auto &lp_list = tech.get_lay_purp_list(level);
-    for (const auto &[lay_id, purp_id] : lp_list) {
+    for (const auto & [ lay_id, purp_id ] : lp_list) {
         ans.push_back(
             py_lp::make_tuple(tech.get_layer_name(lay_id), tech.get_purpose_name(purp_id)));
     }
@@ -121,7 +121,7 @@ void bind_via_param(py::module &m) {
 }
 
 void bind_tech(py::module &m) {
-    auto py_cls = py::class_<c_tech, pybag::tech::PyTech>(m, "PyTech");
+    auto py_cls = py::class_<c_tech, pybag::tech::PyTech, std::shared_ptr<c_tech>>(m, "PyTech");
     py_cls.doc() = "A class that handles technology-specific information.";
     py_cls.def(py::init<std::string>(), "Create a new PyTech class from file.",
                py::arg("tech_fname"));

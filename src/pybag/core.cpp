@@ -21,8 +21,8 @@ PYBIND11_MODULE(core, m) {
     bind_via_param(m);
     bind_tech(m);
     bind_routing_grid(m);
-    bind_oa(m);
     bind_lay_objects(m);
     bind_layout(m);
+    bind_oa(m);
     bind_gds(m);
 }

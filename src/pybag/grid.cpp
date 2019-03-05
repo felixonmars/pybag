@@ -63,7 +63,7 @@ class py_warr_rect_iterator {
     bool operator!=(const py_warr_rect_iterator &rhs) const { return iter != rhs.iter; }
 
     pyg::Tuple<py::str, py::str, cbag::box_t> operator*() const {
-        auto [lay_t, box] = *iter;
+        auto[lay_t, box] = *iter;
         auto &tech = *(iter.get_grid().get_tech());
         return pyg::Tuple<py::str, py::str, cbag::box_t>::make_tuple(
             tech.get_layer_name(lay_t.first), tech.get_purpose_name(lay_t.second), box);
@@ -74,13 +74,13 @@ class py_warr_rect_iterator {
     }
 };
 
-std::unique_ptr<c_grid> make_grid(const c_tech *tech_ptr, const std::string &fname,
-                                  pyg::Optional<const c_grid> grid) {
-    std::unique_ptr<c_grid> ans;
+std::shared_ptr<c_grid> make_grid(const std::shared_ptr<const c_tech> &tech_ptr,
+                                  const std::string &fname, pyg::Optional<const c_grid> grid) {
+    std::shared_ptr<c_grid> ans;
     if (grid) {
-        ans = std::make_unique<c_grid>(*grid);
+        ans = std::make_shared<c_grid>(*grid);
     } else {
-        ans = std::make_unique<c_grid>(tech_ptr, fname);
+        ans = std::make_shared<c_grid>(tech_ptr, fname);
     }
     return ans;
 }
@@ -186,7 +186,7 @@ void bind_routing_grid(py::module &m) {
     bind_track_info(m);
     bind_flip_parity(m);
 
-    auto py_cls = py::class_<c_grid>(m, "PyRoutingGrid");
+    auto py_cls = py::class_<c_grid, std::shared_ptr<c_grid>>(m, "PyRoutingGrid");
 
     bind_track_id(m);
     bind_wire_array(m);
@@ -194,7 +194,7 @@ void bind_routing_grid(py::module &m) {
     py_cls.doc() = "The routing grid class.";
     py_cls.def(py::init(&pybag::tech::make_grid),
                "Create a new PyRoutingGrid class from file or another RoutingGrid.",
-               py::arg("tech"), py::arg("fname"), py::arg("grid"));
+               py::keep_alive<1, 2>(), py::arg("tech"), py::arg("fname"), py::arg("grid"));
     py_cls.def("__eq__", &c_grid::operator==, py::arg("other"));
     py_cls.def_property("top_ignore_layer", &c_grid::get_top_ignore_level,
                         &c_grid::set_top_ignore_level, "The top ignore layer ID.");

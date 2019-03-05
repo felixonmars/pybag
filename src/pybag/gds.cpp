@@ -17,17 +17,16 @@ namespace pyg = pybind11_generics;
 
 using c_lay_cv = cbag::layout::cellview;
 using c_lay_cv_info = std::pair<std::string, c_lay_cv *>;
-using py_cv_list = pyg::List<std::unique_ptr<c_lay_cv>>;
+using py_cv_list = pyg::List<std::shared_ptr<c_lay_cv>>;
 
 namespace pybag {
 namespace util {
 
 py_cv_list read_gds(const std::string &fname, const std::string &layer_map,
-                    const std::string &obj_map, const cbag::layout::routing_grid *grid_ptr) {
+                    const std::string &obj_map,
+                    const std::shared_ptr<cbag::layout::routing_grid> &grid_ptr) {
     py_cv_list ans;
-
-    cbag::gdsii::read_gds(fname, layer_map, obj_map, *grid_ptr, std::back_inserter(ans));
-
+    cbag::gdsii::read_gds(fname, layer_map, obj_map, grid_ptr, std::back_inserter(ans));
     return ans;
 }
 
