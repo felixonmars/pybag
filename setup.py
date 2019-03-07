@@ -21,8 +21,8 @@ class CMakePyBind11Extension(Extension):
 
 class CMakePyBind11Build(build_ext):
     user_options = build_ext.user_options
-    user_options.append(('compiler-launcher', None, "specify compiler launcher program"))
-    user_options.append(('build-type', None, "CMake build type"))
+    user_options.append(('compiler-launcher=', None, "specify compiler launcher program"))
+    user_options.append(('build-type=', None, "CMake build type"))
 
     def initialize_options(self):
         build_ext.initialize_options(self)
