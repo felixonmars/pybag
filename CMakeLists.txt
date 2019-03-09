@@ -54,7 +54,7 @@ include_directories(
 link_directories($ENV{OA_LINK_DIR})
 
 # add python bindings for cbag
-pybind11_add_module(core
+pybind11_add_module(core NO_EXTRAS
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox_array.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/pybag/bbox_collection.cpp
